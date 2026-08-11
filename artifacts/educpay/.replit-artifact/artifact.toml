@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "EducPAY"
+description = "EducPAY is a professional school-fee management platform foundation with a responsive authentication template and isolated local simulation for Phase 3A."
+version = "1.0.0"
+id = "artifacts/educpay"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21498
+
+[services.development]
+run = "pnpm --filter @workspace/educpay run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/educpay", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/educpay/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21498"
+BASE_PATH = "/"
