@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "vite build --config vite.config.ts && cp -R dist/public/. public/ && for route in app app/establishment app/establishments app/team app/resources app/calendar app/settings app/help register-establishment registration-submitted registration-status auth/login auth/register auth/forgot-password auth/reset-password auth/first-login auth/activate; do mkdir -p \"public/$route\" && cp dist/public/index.html \"public/$route/index.html\"; done && rm -rf ../../public && cp -R public ../../public",
+    "build": "node ./build.mjs",
     "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
