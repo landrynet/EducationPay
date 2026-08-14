@@ -5,6 +5,7 @@ import {
   CircleHelp,
   Gauge,
   Landmark,
+  School,
   Settings2,
   UsersRound,
   ClipboardCheck,
@@ -22,7 +23,8 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Vue d’ensemble', href: '/app', icon: Gauge, description: 'Votre espace de pilotage' },
   { label: 'Demandes', href: '/app/establishments', icon: ClipboardCheck, description: 'Valider les établissements' },
   { label: 'Établissement', href: '/app/establishment', icon: Landmark, description: 'Repères de votre structure' },
-  { label: 'Équipe', href: '/app/team', icon: UsersRound, description: 'Les personnes qui travaillent ici' },
+  { label: 'Année scolaire', href: '/app/school-years', icon: School, description: 'Configuration académique' },
+  { label: 'Tuteurs', href: '/app/team', icon: UsersRound, description: 'Les contacts et référents' },
   { label: 'Ressources', href: '/app/resources', icon: BookOpen, description: 'Documents et repères utiles' },
   { label: 'Calendrier', href: '/app/calendar', icon: CalendarDays, description: 'Les prochaines échéances' },
 ];

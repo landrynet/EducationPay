@@ -136,8 +136,8 @@ function Sidebar({
       <div className={`app-sidebar-footer ${collapsed && !mobile ? 'app-sidebar-footer-collapsed' : ''}`}>
         {!collapsed || mobile ? (
           <div className="app-sidebar-note">
-            <p>Un espace à préparer</p>
-            <span>Vos prochains repères apparaîtront ici, au rythme de votre établissement.</span>
+            <p>Un espace de gestion</p>
+            <span>Les repères de votre établissement et de votre année scolaire apparaissent ici.</span>
             <Link href="/app/help" onClick={onClose}>
               En savoir plus <ArrowUpRight className="size-3" />
             </Link>
@@ -154,7 +154,7 @@ function Sidebar({
           </Link>
         )}
         {!collapsed || mobile ? (
-          <p className="app-sidebar-phase">Phase 2 · espace de préparation</p>
+          <p className="app-sidebar-phase">Phase 4 · espace établissement</p>
         ) : null}
       </div>
     </aside>

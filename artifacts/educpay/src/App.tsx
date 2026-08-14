@@ -5,7 +5,15 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
 import MarketingPage from '@/components/marketing/MarketingPage';
-import { DashboardPage, PlaceholderPage } from '@/pages/app-page';
+import {
+  AcademicConfigurationPage,
+  DashboardPage,
+  DirectorDashboardPage,
+  EstablishmentOverviewPage,
+  PlaceholderPage,
+  SettingsPage,
+  TutorsPage,
+} from '@/pages/app-page';
 import {
   AuthFirstLoginPage,
   AuthForgotPasswordPage,
@@ -26,7 +34,6 @@ import { setAuthTokenProvider } from '@workspace/api-client-react';
 import { supabase } from '@/lib/supabase';
 import { RegisterEstablishmentPage, RegistrationStatusPage, RegistrationSubmittedPage } from '@/pages/registration-pages';
 import { EstablishmentApplicationsPage } from '@/pages/establishment-applications-page';
-import { DirectorDashboardPage } from '@/pages/app-page';
 
 setAuthTokenProvider(async () => {
   const { data } = await supabase.auth.getSession();
@@ -75,15 +82,23 @@ function Router() {
             path="/app/establishment"
             component={() => (
               <ProtectedRoute>
-                <PlaceholderPage />
+                <EstablishmentOverviewPage />
+              </ProtectedRoute>
+            )}
+          />
+          <Route
+            path="/app/school-years"
+            component={() => (
+              <ProtectedRoute>
+                <AcademicConfigurationPage />
               </ProtectedRoute>
             )}
           />
           <Route
             path="/app/team"
             component={() => (
-              <ProtectedRoute requiredRole="SUPER_ADMIN">
-                <PlaceholderPage />
+              <ProtectedRoute>
+                <TutorsPage />
               </ProtectedRoute>
             )}
           />
@@ -106,8 +121,8 @@ function Router() {
           <Route
             path="/app/settings"
             component={() => (
-              <ProtectedRoute requiredRole="SUPER_ADMIN">
-                <PlaceholderPage />
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             )}
           />
