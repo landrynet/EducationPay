@@ -762,13 +762,13 @@
   min-height: 42px;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 34px;
+  margin-bottom: 20px;
 }
 
 .app-sidebar-collapsed .app-sidebar-header {
   min-height: auto;
   justify-content: center;
-  margin-bottom: 34px;
+  margin-bottom: 20px;
 }
 
 .app-sidebar-mobile .app-sidebar-header {
@@ -871,13 +871,13 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 29px;
+  gap: 16px;
   overflow-y: auto;
   scrollbar-width: thin;
 }
 
 .app-nav-label {
-  margin: 0 10px 11px;
+  margin: 0 10px 6px;
   color: #7f99ac;
   font: 700 .6rem var(--marketing-font);
   letter-spacing: .17em;
@@ -1570,7 +1570,7 @@
   font-family: var(--marketing-font);
   font-weight: 800;
   letter-spacing: -.055em;
-  line-height: .99;
+  line-height: 1.06;
 }
 .site-shell .section { padding: 118px 0; }
 .site-shell .button {
@@ -1625,7 +1625,7 @@
 .hero::before { content: ""; position: absolute; inset: 0 0 auto; height: 650px; pointer-events: none; background: radial-gradient(circle at 90% 16%, rgba(86,170,157,.2), transparent 28%), radial-gradient(circle at 8% 24%, rgba(243,199,87,.17), transparent 26%); }
 .hero-grid { position: relative; display: grid; grid-template-columns: minmax(0,.9fr) minmax(460px,1.1fr); align-items: center; gap: 63px; }
 .hero-copy { animation: marketing-reveal .7s ease both; }
-.hero-copy h1 { max-width: 670px; margin: 22px 0 24px; font-size: clamp(3.45rem, 7vw, 6.5rem); }
+.hero-copy h1 { max-width: 670px; margin: 22px 0 32px; font-size: clamp(3.45rem, 7vw, 6.5rem); }
 .hero-copy h1 em { color: var(--blue); font-style: normal; }
 .hero-copy > p { max-width: 520px; margin: 0; color: var(--marketing-muted); font-size: 1.08rem; line-height: 1.72; }
 .hero-buttons { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 33px; }

@@ -1,0 +1,8 @@
+cd L:\EducationPay
+npx pnpm --filter @workspace/educpay run dev
+
+
+
+f5720899-005c-4c02-81ed-713f58bed6b1
+
+Tknc0d3U82gvxfUN87TkbKTSWj6za8UEwQA50R8yyVU

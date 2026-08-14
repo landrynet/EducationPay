@@ -91,7 +91,7 @@ export function EstablishmentApplicationsPage() {
         {list.isError ? <div className="mt-6"><ErrorState onRetry={() => void list.refetch()} /></div> : null}
         {!list.isLoading && !list.isError && applications.length === 0 ? <div className="mt-6"><EmptyState title="Aucune demande dans cette vue" description="Les nouvelles inscriptions apparaîtront ici dès leur soumission." /></div> : null}
         {!list.isLoading && !list.isError && applications.length > 0 ? (
-          <div className="mt-6 grid gap-6 xl:grid-cols-[.8fr_1.2fr]">
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(260px,340px)_1fr]">
             <section className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4" aria-label="Liste des demandes">
               <div className="mb-2 flex items-center justify-between px-2 py-1"><span className="text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground">{applications.length} dossier{applications.length > 1 ? 's' : ''}</span><RotateCcw className="size-4 text-muted-foreground" /></div>
               <div className="grid gap-2">

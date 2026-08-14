@@ -22,14 +22,14 @@ export function DashboardPage() {
             <h2 id="overview-title" className="text-sm font-semibold text-foreground">Repères essentiels</h2>
             <span className="text-xs text-muted-foreground">En attente de configuration</span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Établissement" note="Votre structure apparaîtra ici" tone="mint" />
             <StatCard label="Équipe" note="Les membres seront visibles ici" tone="sand" />
             <StatCard label="Ressources" note="Vos documents seront regroupés ici" tone="blue" />
             <StatCard label="Prochaines dates" note="Les échéances apparaîtront ici" tone="rose" />
           </div>
         </section>
-        <div className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_.65fr]">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
           <section className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6" aria-labelledby="activity-title">
             <div className="mb-5 flex items-start justify-between">
               <div>
