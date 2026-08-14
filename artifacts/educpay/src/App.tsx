@@ -7,11 +7,12 @@ import NotFound from '@/pages/not-found';
 import MarketingPage from '@/components/marketing/MarketingPage';
 import {
   AcademicConfigurationPage,
-  DashboardPage,
   DirectorDashboardPage,
   EstablishmentOverviewPage,
-  PlaceholderPage,
   SettingsPage,
+  SuperAdminDashboardPage,
+  SuperAdminPlatformPage,
+  SuperAdminSettingsPage,
   TutorsPage,
 } from '@/pages/app-page';
 import {
@@ -27,9 +28,10 @@ import {
   Switch,
   useLocation,
   Router as WouterRouter,
+  Redirect,
 } from 'wouter';
 import ProtectedRoute from '@/lib/ProtectedRoute';
-import { AuthProvider, useAuth } from '@/lib/useAuth';
+import { AuthProvider } from '@/lib/useAuth';
 import { setAuthTokenProvider } from '@workspace/api-client-react';
 import { supabase } from '@/lib/supabase';
 import { RegisterEstablishmentPage, RegistrationStatusPage, RegistrationSubmittedPage } from '@/pages/registration-pages';
@@ -46,12 +48,13 @@ function Home() {
   return <MarketingPage />;
 }
 
+const ESTABLISHMENT_ROLES = ['DIRECTOR', 'ESTABLISHMENT_ADMIN', 'ACCOUNTANT', 'TUTOR'];
+
 function Router() {
   return (
-    // Keep a shared shell (sidebar, navbar) outside the boundary so it
-    // survives a page crash.
     <RoutedErrorBoundary>
       <Switch>
+        {/* Public Marketing & Auth Routes */}
         <Route path="/" component={Home} />
         <Route path="/auth/login" component={AuthLoginPage} />
         <Route path="/auth/register" component={AuthRegisterPage} />
@@ -62,87 +65,92 @@ function Router() {
         <Route path="/registration-submitted" component={RegistrationSubmittedPage} />
         <Route path="/registration-status" component={RegistrationStatusPage} />
         <Route path="/auth/activate" component={AuthActivationPage} />
+
+        {/* Super Admin Platform Space (/super-admin/*) */}
         <Route
-          path="/app"
+          path="/super-admin"
           component={() => (
-            <ProtectedRoute>
-              <RoleDashboardPage />
+            <ProtectedRoute requiredRole="SUPER_ADMIN">
+              <SuperAdminDashboardPage />
             </ProtectedRoute>
           )}
         />
         <Route
-          path="/app/establishments"
+          path="/super-admin/establishments"
           component={() => (
             <ProtectedRoute requiredRole="SUPER_ADMIN">
               <EstablishmentApplicationsPage />
             </ProtectedRoute>
           )}
         />
-          <Route
-            path="/app/establishment"
-            component={() => (
-              <ProtectedRoute>
-                <EstablishmentOverviewPage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/app/school-years"
-            component={() => (
-              <ProtectedRoute>
-                <AcademicConfigurationPage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/app/team"
-            component={() => (
-              <ProtectedRoute>
-                <TutorsPage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/app/resources"
-            component={() => (
-              <ProtectedRoute requiredRole="SUPER_ADMIN">
-                <PlaceholderPage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/app/calendar"
-            component={() => (
-              <ProtectedRoute requiredRole="SUPER_ADMIN">
-                <PlaceholderPage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/app/settings"
-            component={() => (
-              <ProtectedRoute>
-                <SettingsPage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/app/help"
-            component={() => (
-              <ProtectedRoute requiredRole="SUPER_ADMIN">
-                <PlaceholderPage />
-              </ProtectedRoute>
-            )}
-          />
+        <Route
+          path="/super-admin/platform"
+          component={() => (
+            <ProtectedRoute requiredRole="SUPER_ADMIN">
+              <SuperAdminPlatformPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/super-admin/settings"
+          component={() => (
+            <ProtectedRoute requiredRole="SUPER_ADMIN">
+              <SuperAdminSettingsPage />
+            </ProtectedRoute>
+          )}
+        />
+
+        {/* Establishment Business Space (/app/*) */}
+        <Route
+          path="/app"
+          component={() => (
+            <ProtectedRoute allowedRoles={ESTABLISHMENT_ROLES}>
+              <DirectorDashboardPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/app/establishment"
+          component={() => (
+            <ProtectedRoute allowedRoles={ESTABLISHMENT_ROLES}>
+              <EstablishmentOverviewPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/app/school-years"
+          component={() => (
+            <ProtectedRoute allowedRoles={['DIRECTOR', 'ESTABLISHMENT_ADMIN']}>
+              <AcademicConfigurationPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/app/team"
+          component={() => (
+            <ProtectedRoute allowedRoles={['DIRECTOR', 'ESTABLISHMENT_ADMIN']}>
+              <TutorsPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/app/settings"
+          component={() => (
+            <ProtectedRoute allowedRoles={['DIRECTOR', 'ESTABLISHMENT_ADMIN']}>
+              <SettingsPage />
+            </ProtectedRoute>
+          )}
+        />
+
+        {/* Legacy redirect for old bookmark */}
+        <Route path="/app/establishments">
+          {() => <Redirect to="/super-admin/establishments" />}
+        </Route>
+
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
   );
-}
-
-function RoleDashboardPage() {
-  const { profile } = useAuth();
-  return profile?.role === 'SUPER_ADMIN' ? <DashboardPage /> : <DirectorDashboardPage />;
 }
 
 function RoutedErrorBoundary({ children }: { children: ReactNode }) {

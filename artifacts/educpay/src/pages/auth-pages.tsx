@@ -175,18 +175,16 @@ export function AuthLoginPage() {
         return;
       }
 
-      // Attempt to read profile information (role, must_change_password, is_active)
       const { data: profile, error: profileError } = await withSupabaseTimeout(
         supabase
           .from('profiles')
-          .select('role,must_change_password,is_active')
+          .select('role,must_change_password,is_active,establishment_id')
           .eq('id', user.id)
           .single(),
         'Connexion réussie, mais Supabase ne répond pas pour le profil. Vérifiez la table profiles et ses règles RLS.',
       );
 
       if (profileError) {
-        // eslint-disable-next-line no-console
         console.warn('No profile row found or error reading profile:', profileError.message);
         setErrorMessage(
           'Connexion réussie, mais votre profil EducPAY est introuvable ou inaccessible. Vérifiez la table profiles, la ligne correspondant à cet utilisateur et ses règles RLS.',
@@ -194,28 +192,58 @@ export function AuthLoginPage() {
         return;
       }
 
-      // If the account requires a password change on first login, redirect there.
       if (profile?.must_change_password) {
         setLocation('/auth/first-login');
         return;
       }
 
-      // Only roles granted by the server can enter the application.
-      if (profile?.role && !['SUPER_ADMIN', 'DIRECTOR', 'ACCOUNTANT', 'PARENT'].includes(profile.role)) {
+      if (profile?.role && !['SUPER_ADMIN', 'DIRECTOR', 'ESTABLISHMENT_ADMIN', 'ACCOUNTANT', 'TUTOR', 'PARENT'].includes(profile.role)) {
         setErrorMessage('Vous n’êtes pas autorisé à accéder à cet espace.');
         setLoading(false);
         return;
       }
 
-      // If account is marked inactive, deny access.
-      if (profile?.is_active === false) {
-        setErrorMessage('Ce compte est désactivé. Contactez l’administrateur.');
+      let isApprovedDirectorApplication = false;
+      if ((profile?.role === 'DIRECTOR' || profile?.role === 'ESTABLISHMENT_ADMIN') && profile.establishment_id) {
+        const { data: applicationStatus, error: applicationStatusError } = await withSupabaseTimeout(
+          supabase
+            .from('establishment_applications')
+            .select('status, responsible_account_status')
+            .eq('responsible_user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+          'Le statut de votre établissement n’a pas pu être vérifié.',
+        );
+
+        if (applicationStatusError) {
+          console.warn('Unable to read application status for director login:', applicationStatusError.message);
+          setErrorMessage('Le statut de votre établissement n’a pas pu être vérifié.');
+          setLoading(false);
+          return;
+        }
+
+        isApprovedDirectorApplication = applicationStatus?.status === 'APPROVED' && applicationStatus?.responsible_account_status === 'ACTIVE';
+
+        if (!isApprovedDirectorApplication) {
+          setErrorMessage('Votre établissement est encore en attente de validation ou a été refusé.');
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (profile?.is_active === false && !isApprovedDirectorApplication) {
+        setErrorMessage('Ce compte est désactivé ou votre établissement n’est pas encore validé.');
         setLoading(false);
         return;
       }
 
-      // Success — navigate to the app (Dashboard). Server-side checks and RLS remain authoritative.
-      setLocation('/app');
+      // Success — navigate to the appropriate dashboard based on role
+      if (profile?.role === 'SUPER_ADMIN') {
+        setLocation('/super-admin');
+      } else {
+        setLocation('/app');
+      }
     } catch (err: any) {
       setErrorMessage(err?.message ?? 'Erreur inattendue');
     } finally {
@@ -240,13 +268,11 @@ export function AuthLoginPage() {
         </div>
         <AuthSubmit loading={loading}>{loading ? 'Ouverture de votre espace…' : 'Se connecter'}</AuthSubmit>
       </form>
-      <PreviewNotice>
-        Vos identifiants sont vérifiés par Supabase. Les accès au dashboard restent limités aux profils autorisés.
-      </PreviewNotice>
+    
       <p className="auth-switch">
         Vous n’avez pas encore d’accès ?{' '}
         <Link href="/auth/register" className="auth-inline-link">
-          Créer un accès de démonstration
+          Enregistrez votre etabilsement
         </Link>
       </p>
     </AuthShell>
@@ -493,7 +519,12 @@ export function AuthFirstLoginPage() {
       // Update profile to clear must_change_password flag
       await supabase.from('profiles').update({ must_change_password: false }).eq('id', user.id);
 
-      setLocation('/app');
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+      if (profile?.role === 'SUPER_ADMIN') {
+        setLocation('/super-admin');
+      } else {
+        setLocation('/app');
+      }
     } catch (err: any) {
       setError(err?.message ?? 'Erreur inattendue');
     } finally {

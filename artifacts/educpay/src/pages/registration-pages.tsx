@@ -27,6 +27,7 @@ const emptyDraft: EstablishmentApplicationInput = {
   principalFirstName: '',
   principalLastName: '',
   principalEmail: '',
+  principalPassword: '',
   principalPhone: '',
   principalFunction: '',
 };
@@ -191,6 +192,7 @@ function validateDraft(draft: EstablishmentApplicationInput, step: number): Part
     required('principalFunction');
     required('principalEmail', 5);
     required('principalPhone', 7);
+    required('principalPassword', 8);
     if (draft.principalEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.principalEmail)) errors.principalEmail = 'Saisissez une adresse email valide.';
   }
   return errors;
@@ -245,6 +247,7 @@ export function RegisterEstablishmentPage() {
   const [, setLocation] = useLocation();
   const createApplication = useCreateEstablishmentApplication();
   const [draft, setDraft] = useState<EstablishmentApplicationInput>(() => readStorage(DRAFT_KEY, emptyDraft));
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<Partial<Record<keyof EstablishmentApplicationInput, string>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -261,6 +264,14 @@ export function RegisterEstablishmentPage() {
   const goNext = () => {
     if (step < 3) {
       const nextErrors = validateDraft(draft, step);
+      if (step === 2) {
+        if (draft.principalPassword.length < 8) {
+          nextErrors.principalPassword = 'Le mot de passe doit contenir au moins 8 caractères.';
+        }
+        if (draft.principalPassword && draft.principalPassword !== passwordConfirmation) {
+          nextErrors.principalPassword = 'Les mots de passe ne correspondent pas.';
+        }
+      }
       if (Object.keys(nextErrors).length) {
         setErrors(nextErrors);
         return;
@@ -274,6 +285,22 @@ export function RegisterEstablishmentPage() {
     event.preventDefault();
     if (createApplication.isPending) return;
     setSubmitError(null);
+
+    const nextErrors = validateDraft(draft, step);
+    if (step === 2) {
+      if (draft.principalPassword.length < 8) {
+        nextErrors.principalPassword = 'Le mot de passe doit contenir au moins 8 caractères.';
+      }
+      if (draft.principalPassword !== passwordConfirmation) {
+        nextErrors.principalPassword = 'Les mots de passe ne correspondent pas.';
+      }
+    }
+    if (Object.keys(nextErrors).length) {
+      setErrors(nextErrors);
+      setSubmitError('Vérifiez les informations et le mot de passe avant d’envoyer la demande.');
+      return;
+    }
+
     createApplication.mutate({ data: draft }, {
       onSuccess: (result) => {
         const submission: SubmissionRecord = { id: result.id, reference: result.reference, editToken: result.editToken, email: result.email };
@@ -353,6 +380,25 @@ export function RegisterEstablishmentPage() {
                 <Field label="Fonction" name="principalFunction" value={draft.principalFunction} onChange={updateDraft} placeholder="Direction, secrétariat..." error={errors.principalFunction} />
                 <Field label="Email du responsable" name="principalEmail" value={draft.principalEmail} onChange={updateDraft} type="email" placeholder="responsable@etablissement.org" error={errors.principalEmail} />
                 <Field label="Téléphone du responsable" name="principalPhone" value={draft.principalPhone} onChange={updateDraft} type="tel" placeholder="+1 000 000 0000" error={errors.principalPhone} />
+                <div className="sm:col-span-2 grid gap-5 sm:grid-cols-2">
+                  <Field label="Mot de passe du responsable" name="principalPassword" value={draft.principalPassword} onChange={updateDraft} type="password" placeholder="8 caractères minimum" error={errors.principalPassword} />
+                  <label className="auth-field" data-testid="field-principalPasswordConfirmation">
+                    <span>Confirmer le mot de passe <span className="text-destructive"> *</span></span>
+                    <span className="auth-input-wrap">
+                      <input
+                        name="principalPasswordConfirmation"
+                        type="password"
+                        value={passwordConfirmation}
+                        placeholder="Répétez le mot de passe"
+                        required
+                        onChange={(event) => setPasswordConfirmation(event.target.value)}
+                        aria-invalid={Boolean(errors.principalPassword)}
+                        data-testid="input-principalPasswordConfirmation"
+                      />
+                    </span>
+                    {errors.principalPassword ? <small className="mt-1 block text-xs text-destructive">{errors.principalPassword}</small> : null}
+                  </label>
+                </div>
               </div>
             ) : null}
             {step === 3 ? <ApplicationSummary draft={draft} onEdit={setStep} /> : null}

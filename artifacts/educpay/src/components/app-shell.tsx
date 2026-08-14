@@ -16,14 +16,14 @@ import {
 } from 'lucide-react';
 import {
   getNavigationItem,
-  navigationItems,
-  secondaryNavigationItems,
+  getNavigationItemsForRole,
 } from '@/navigation/navigation.config';
 
-function BrandMark({ compact = false }: { compact?: boolean }) {
+function BrandMark({ compact = false, isSuperAdmin = false }: { compact?: boolean; isSuperAdmin?: boolean }) {
+  const homeHref = isSuperAdmin ? '/super-admin' : '/app';
   return (
     <Link
-      href="/app"
+      href={homeHref}
       aria-label="EducPAY, accueil de l’application"
       className="app-brand rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
     >
@@ -42,9 +42,17 @@ function NavLinks({
   collapsed?: boolean;
   onNavigate?: () => void;
 }) {
+  const { profile } = useAuth();
   const [location] = useLocation();
-  const isActive = (href: string) =>
-    href === '/app' ? location === href : location.startsWith(href);
+  const { main, secondary } = getNavigationItemsForRole(profile?.role);
+  const isSuperAdmin = profile?.role === 'SUPER_ADMIN';
+
+  const isActive = (href: string) => {
+    if (href === '/app' || href === '/super-admin') {
+      return location === href;
+    }
+    return location.startsWith(href);
+  };
 
   return (
     <nav
@@ -52,9 +60,13 @@ function NavLinks({
       className={`app-nav ${collapsed ? 'app-nav-collapsed' : ''}`}
     >
       <div>
-        {!collapsed ? <p className="app-nav-label">Espace de travail</p> : null}
+        {!collapsed ? (
+          <p className="app-nav-label">
+            {isSuperAdmin ? 'Plateforme EducPAY' : 'Espace Établissement'}
+          </p>
+        ) : null}
         <div className="space-y-1">
-          {navigationItems.map((item) => {
+          {main.map((item) => {
             const Icon = item.icon;
             return (
               <Link
@@ -79,7 +91,7 @@ function NavLinks({
       <div>
         {!collapsed ? <p className="app-nav-label">Configuration</p> : null}
         <div className="space-y-1">
-          {secondaryNavigationItems.map((item) => {
+          {secondary.map((item) => {
             const Icon = item.icon;
             return (
               <Link
@@ -111,6 +123,9 @@ function Sidebar({
   mobile?: boolean;
   onClose?: () => void;
 }) {
+  const { profile } = useAuth();
+  const isSuperAdmin = profile?.role === 'SUPER_ADMIN';
+
   return (
     <aside
       id={mobile ? undefined : 'educpay-desktop-sidebar'}
@@ -119,7 +134,7 @@ function Sidebar({
       }`}
     >
       <div className="app-sidebar-header">
-        <BrandMark compact={collapsed && !mobile} />
+        <BrandMark compact={collapsed && !mobile} isSuperAdmin={isSuperAdmin} />
         {mobile ? (
           <button
             type="button"
@@ -136,25 +151,18 @@ function Sidebar({
       <div className={`app-sidebar-footer ${collapsed && !mobile ? 'app-sidebar-footer-collapsed' : ''}`}>
         {!collapsed || mobile ? (
           <div className="app-sidebar-note">
-            <p>Un espace de gestion</p>
-            <span>Les repères de votre établissement et de votre année scolaire apparaissent ici.</span>
-            <Link href="/app/help" onClick={onClose}>
-              En savoir plus <ArrowUpRight className="size-3" />
-            </Link>
+            <p>{isSuperAdmin ? 'Supervision Plateforme' : 'Un espace de gestion'}</p>
+            <span>
+              {isSuperAdmin
+                ? 'Gestion des tenants, validation et configuration globale EducPAY.'
+                : 'Les repères de votre établissement et de votre année scolaire apparaissent ici.'}
+            </span>
           </div>
-        ) : (
-          <Link
-            href="/app/help"
-            onClick={onClose}
-            className="app-sidebar-help-icon"
-            aria-label="Aide"
-            title="Aide"
-          >
-            <ArrowUpRight className="size-4" />
-          </Link>
-        )}
+        ) : null}
         {!collapsed || mobile ? (
-          <p className="app-sidebar-phase">Phase 4 · espace établissement</p>
+          <p className="app-sidebar-phase">
+            {isSuperAdmin ? 'Administration EducPAY' : 'Espace établissement'}
+          </p>
         ) : null}
       </div>
     </aside>
@@ -162,12 +170,14 @@ function Sidebar({
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { profile } = useAuth();
   const [location] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const current = getNavigationItem(location);
+  const current = getNavigationItem(location, profile?.role);
+  const isSuperAdmin = profile?.role === 'SUPER_ADMIN';
 
   useEffect(() => {
     setMenuOpen(false);
@@ -221,7 +231,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Menu className="size-5" />
             </button>
             <div className="md:hidden">
-              <BrandMark />
+              <BrandMark isSuperAdmin={isSuperAdmin} />
             </div>
             <button
               type="button"
@@ -252,8 +262,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                   type="search"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Rechercher un élève, un reçu..."
-                  aria-label="Rechercher un élève, un reçu..."
+                  placeholder={
+                    isSuperAdmin
+                      ? 'Rechercher un établissement, une demande...'
+                      : 'Rechercher un référent, un paramètre...'
+                  }
+                  aria-label="Rechercher"
                   data-testid="input-global-search"
                 />
                 {searchQuery ? (
@@ -287,7 +301,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <div className="app-notification-heading">
                       <div>
                         <p>Notifications</p>
-                        <span>Les nouveautés de votre espace</span>
+                        <span>{isSuperAdmin ? 'Alertes plateforme' : 'Les nouveautés de votre espace'}</span>
                       </div>
                       <CheckCheck className="size-4 text-primary" aria-hidden="true" />
                     </div>
@@ -296,12 +310,18 @@ export function AppShell({ children }: { children: ReactNode }) {
                         <Bell className="size-4" />
                       </span>
                       <p>Tout est calme pour le moment</p>
-                      <span>Les alertes de votre établissement apparaîtront ici.</span>
+                      <span>
+                        {isSuperAdmin
+                          ? 'Les demandes d’inscription apparaîtront ici.'
+                          : 'Les alertes de votre établissement apparaîtront ici.'}
+                      </span>
                     </div>
                   </div>
                 ) : null}
               </div>
-              <span className="app-preparation-badge">Espace de préparation</span>
+              <span className="app-preparation-badge">
+                {isSuperAdmin ? 'Super Admin' : 'Espace Établissement'}
+              </span>
               <ProfileMenu />
             </div>
           </header>
@@ -328,7 +348,7 @@ function ProfileMenu() {
     .slice(0, 2)
     .join('')
     .toUpperCase() || 'EP';
-  const roleLabel = profile?.role === 'SUPER_ADMIN' ? 'Super administrateur' : profile?.role ?? 'Membre EducPAY';
+  const roleLabel = profile?.role === 'SUPER_ADMIN' ? 'Super administrateur' : profile?.role === 'DIRECTOR' || profile?.role === 'ESTABLISHMENT_ADMIN' ? 'Administrateur d’établissement' : profile?.role ?? 'Membre EducPAY';
 
   useEffect(() => {
     if (!open) return;
@@ -406,30 +426,6 @@ function ProfileMenu() {
           </button>
         </div>
       ) : null}
-    </div>
-  );
-}
-
-function UserProfile() {
-  const { loading, user, signOut } = useAuth();
-  const [, setLocation] = useLocation();
-
-  async function handleSignOut() {
-    await signOut();
-    setLocation('/auth/login');
-  }
-
-  if (loading) return <span>…</span>;
-  if (!user) return <Link href="/auth/login" className="auth-inline-link">Se connecter</Link>;
-
-  const email = user.email ?? '';
-  const initials = email ? email.charAt(0).toUpperCase() : 'EP';
-
-  return (
-    <div className="app-profile">
-      <button type="button" onClick={handleSignOut} className="app-icon-button" aria-label="Se déconnecter">
-        {initials}
-      </button>
     </div>
   );
 }

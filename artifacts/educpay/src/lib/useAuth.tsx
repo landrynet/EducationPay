@@ -48,6 +48,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single(),
       'Supabase ne répond pas pendant la récupération du profil.',
     );
+
+    if (
+      nextProfile &&
+      (nextProfile.role === 'DIRECTOR' || nextProfile.role === 'ESTABLISHMENT_ADMIN') &&
+      !nextProfile.is_active
+    ) {
+      try {
+        const { data: appData } = await supabase
+          .from('establishment_applications')
+          .select('status, responsible_account_status, establishment_id')
+          .eq('responsible_user_id', nextUser.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (appData?.status === 'APPROVED' && appData?.responsible_account_status === 'ACTIVE') {
+          nextProfile.is_active = true;
+          if (!nextProfile.establishment_id && appData.establishment_id) {
+            nextProfile.establishment_id = appData.establishment_id;
+          }
+        }
+      } catch {
+        // Fallback to database value
+      }
+    }
+
     setProfile(nextProfile ?? null);
   }, []);
 

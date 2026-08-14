@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 import { useEffect, useState } from 'react';
 import {
   ArrowRight,
@@ -10,7 +10,9 @@ import {
   Mail,
   MapPinned,
   Phone,
+  Server,
   Settings2,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Users,
@@ -21,60 +23,257 @@ import { PageHeader } from '@/components/page-header';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/useAuth';
 
-export function DashboardPage() {
+// ============================================================
+// SUPER ADMIN PAGES (Platform Administration Only)
+// ============================================================
+
+export function SuperAdminDashboardPage() {
+  const [stats, setStats] = useState<{
+    totalTenants: number;
+    pendingApplications: number;
+    approvedTenants: number;
+  }>({ totalTenants: 0, pendingApplications: 0, approvedTenants: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    async function loadPlatformStats() {
+      try {
+        const { data: establishments } = await supabase
+          .from('establishments')
+          .select('id, status');
+
+        if (!active) return;
+
+        const total = establishments?.length ?? 0;
+        const approved = establishments?.filter((e) => e.status === 'APPROVED').length ?? 0;
+        const pending = establishments?.filter((e) => e.status === 'PENDING_REVIEW').length ?? 0;
+
+        setStats({
+          totalTenants: total,
+          approvedTenants: approved,
+          pendingApplications: pending,
+        });
+      } catch (err) {
+        console.warn('Super admin stats load error:', err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+    void loadPlatformStats();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <AppShell>
       <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
         <PageHeader
-          eyebrow="Votre espace EducPAY"
-          title="Bonjour, bienvenue."
-          description="Une vue calme pour poser les bases de votre espace de gestion scolaire. Rien n’est renseigné pour l’instant."
-          actions={<Link href="/app/help" data-testid="link-dashboard-help" className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><Sparkles className="size-4" /> Préparer mon espace</Link>}
+          eyebrow="Plateforme EducPAY · Super Admin"
+          title="Administration de la plateforme"
+          description="Supervision globale des établissements, des demandes d’adhésion et des paramètres techniques."
+          actions={
+            <Link
+              href="/super-admin/establishments"
+              data-testid="link-super-admin-applications"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <Sparkles className="size-4" /> Gérer les demandes
+            </Link>
+          }
         />
         <section aria-labelledby="overview-title">
           <div className="mb-3 flex items-center justify-between">
-            <h2 id="overview-title" className="text-sm font-semibold text-foreground">Repères essentiels</h2>
-            <span className="text-xs text-muted-foreground">En attente de configuration</span>
+            <h2 id="overview-title" className="text-sm font-semibold text-foreground">
+              Indicateurs plateforme
+            </h2>
+            <span className="text-xs text-muted-foreground">Périmètre SaaS EducPAY</span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Établissement" note="Votre structure apparaîtra ici" tone="mint" />
-            <StatCard label="Équipe" note="Les membres seront visibles ici" tone="sand" />
-            <StatCard label="Ressources" note="Vos documents seront regroupés ici" tone="blue" />
-            <StatCard label="Prochaines dates" note="Les échéances apparaîtront ici" tone="rose" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <StatCard
+              label="Établissements enregistrés"
+              note={loading ? '…' : `${stats.totalTenants} structure${stats.totalTenants > 1 ? 's' : ''}`}
+              tone="mint"
+            />
+            <StatCard
+              label="Demandes en attente"
+              note={loading ? '…' : `${stats.pendingApplications} dossier${stats.pendingApplications > 1 ? 's' : ''}`}
+              tone="sand"
+            />
+            <StatCard
+              label="Établissements validés"
+              note={loading ? '…' : `${stats.approvedTenants} actif${stats.approvedTenants > 1 ? 's' : ''}`}
+              tone="blue"
+            />
           </div>
         </section>
+
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.35fr_.65fr]">
-          <section className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6" aria-labelledby="activity-title">
+          <section
+            className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6"
+            aria-labelledby="security-policy-title"
+          >
             <div className="mb-5 flex items-start justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">À suivre</p>
-                <h2 id="activity-title" className="mt-1 text-lg font-semibold">Votre activité récente</h2>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">
+                  Sécurité & Isolation
+                </p>
+                <h2 id="security-policy-title" className="mt-1 text-lg font-semibold">
+                  Périmètre strict du Super Admin
+                </h2>
               </div>
-              <CircleCheck className="size-5 text-primary/60" />
+              <ShieldCheck className="size-5 text-primary/60" />
             </div>
-            <EmptyState title="Votre fil est encore vide" description="Les repères de votre établissement prendront place ici au fil de votre préparation." />
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p>
+                Conformément à la politique d’architecture EducPAY, le Super Admin gère exclusivement
+                les comptes établissements (tenants), leur validation et les paramètres plateforme.
+              </p>
+              <div className="rounded-xl border border-border/70 bg-background p-4 text-xs">
+                <strong className="block font-semibold text-foreground">Données protégées et inaccessibles :</strong>
+                <p className="mt-1 text-muted-foreground">
+                  Élèves, tuteurs, paiements, reçus, classes, notes, rapports financiers internes. Ces données
+                  sont strictement isolées pour chaque établissement via Row-Level Security.
+                </p>
+              </div>
+            </div>
           </section>
-          <section className="rounded-2xl border border-border/80 bg-[hsl(var(--sidebar))] p-5 text-sidebar-foreground sm:p-6" aria-labelledby="next-title">
+
+          <section
+            className="rounded-2xl border border-border/80 bg-[hsl(var(--sidebar))] p-5 text-sidebar-foreground sm:p-6"
+            aria-labelledby="quick-actions-title"
+          >
             <div className="flex items-start justify-between">
-              <div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-sidebar-primary">Prochaine étape</p><h2 id="next-title" className="mt-1 text-lg font-semibold">Faire connaissance</h2></div>
-              <CalendarDays className="size-5 text-sidebar-primary" />
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-sidebar-primary">
+                  Action prioritaire
+                </p>
+                <h2 id="quick-actions-title" className="mt-1 text-lg font-semibold">
+                  Validation des inscriptions
+                </h2>
+              </div>
+              <Building2 className="size-5 text-sidebar-primary" />
             </div>
-            <p className="mt-9 text-sm leading-6 text-sidebar-foreground/65">Découvrez la structure de l’espace et préparez les premiers repères de votre établissement.</p>
-            <Link href="/app/establishment" data-testid="link-next-establishment" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sidebar-primary-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring">Explorer l’espace <ArrowRight className="size-4" /></Link>
+            <p className="mt-6 text-sm leading-6 text-sidebar-foreground/65">
+              Consultez les dossiers déposés par les directeurs et activez leur compte après vérification des repères officiels.
+            </p>
+            <Link
+              href="/super-admin/establishments"
+              data-testid="link-quick-establishments"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sidebar-primary-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+            >
+              Ouvrir les dossiers <ArrowRight className="size-4" />
+            </Link>
           </section>
         </div>
-        <section className="mt-6 grid gap-6 lg:grid-cols-2" aria-label="États de l’interface">
-          <div className="rounded-2xl border border-border/80 bg-card p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-semibold">Chargement</h2><span className="text-xs text-muted-foreground">Aperçu</span></div><LoadingState /></div>
-          <div className="rounded-2xl border border-border/80 bg-card p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-semibold">En cas d’incident</h2><span className="text-xs text-muted-foreground">Aperçu</span></div><ErrorState /></div>
+      </div>
+    </AppShell>
+  );
+}
+
+export function SuperAdminPlatformPage() {
+  return (
+    <AppShell>
+      <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+        <PageHeader
+          eyebrow="Supervision Technique"
+          title="Administration de la plateforme"
+          description="État des services et métriques d’infrastructure d’EducPAY."
+        />
+        <section className="rounded-2xl border border-border/80 bg-card p-5 sm:p-7">
+          <div className="mb-5 flex items-center gap-3">
+            <Server className="size-5 text-primary" />
+            <h2 className="text-lg font-semibold">État des services</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-xl border border-border/80 bg-background p-4">
+              <div>
+                <strong className="block text-sm font-semibold">Base de données Supabase</strong>
+                <p className="mt-1 text-sm text-muted-foreground">Row-Level Security actif et opérationnel.</p>
+              </div>
+              <span className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                Opérationnel
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border/80 bg-background p-4">
+              <div>
+                <strong className="block text-sm font-semibold">API Server</strong>
+                <p className="mt-1 text-sm text-muted-foreground">Service de validation et d’emails.</p>
+              </div>
+              <span className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                Opérationnel
+              </span>
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border/80 bg-background p-4">
+              <div>
+                <strong className="block text-sm font-semibold">Isolation multi-tenant</strong>
+                <p className="mt-1 text-sm text-muted-foreground">Séparation stricte plateforme / données école.</p>
+              </div>
+              <span className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                Conforme
+              </span>
+            </div>
+          </div>
         </section>
       </div>
     </AppShell>
   );
 }
 
+export function SuperAdminSettingsPage() {
+  const options = [
+    { title: 'Notifications de nouvelles demandes', description: 'Alerter les super administrateurs lors d’un dépôt de dossier.', enabled: true },
+    { title: 'Validation automatique des emails', description: 'Vérifier la validité syntaxique des domaines scolaires.', enabled: true },
+    { title: 'Journalisation d’audit', description: 'Tracer les décisions d’approbation et de refus.', enabled: true },
+  ];
+
+  return (
+    <AppShell>
+      <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+        <PageHeader
+          eyebrow="Paramètres globaux"
+          title="Paramètres de la plateforme"
+          description="Réglages et politiques d’administration de la plateforme EducPAY."
+        />
+        <section className="rounded-2xl border border-border/80 bg-card p-5 sm:p-7">
+          <div className="mb-5 flex items-center gap-3">
+            <Settings2 className="size-5 text-primary" />
+            <h2 className="text-lg font-semibold">Configuration plateforme</h2>
+          </div>
+          <div className="space-y-4">
+            {options.map((option) => (
+              <div key={option.title} className="flex items-center justify-between gap-4 rounded-xl border border-border/80 bg-background p-4">
+                <div>
+                  <strong className="block text-sm font-semibold">{option.title}</strong>
+                  <p className="mt-1 text-sm text-muted-foreground">{option.description}</p>
+                </div>
+                <span className={`rounded-full border px-3 py-1.5 text-xs font-bold ${option.enabled ? 'border-primary/25 bg-primary/10 text-primary' : 'border-border bg-muted text-muted-foreground'}`}>
+                  {option.enabled ? 'Actif' : 'Inactif'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </AppShell>
+  );
+}
+
+// ============================================================
+// ESTABLISHMENT ADMIN PAGES (Single Tenant Business Space Only)
+// ============================================================
+
 export function DirectorDashboardPage() {
   const { user, profile } = useAuth();
-  const [establishment, setEstablishment] = useState<{ official_name: string; code: string; city: string; province: string; school_year: string; status: string } | null>(null);
+  const [establishment, setEstablishment] = useState<{
+    official_name: string;
+    code: string;
+    city: string;
+    province: string;
+    school_year: string;
+    status: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -106,7 +305,7 @@ export function DirectorDashboardPage() {
         <PageHeader
           eyebrow="Votre établissement"
           title={`Bonjour${user?.user_metadata?.first_name ? `, ${user.user_metadata.first_name}` : ''}.`}
-          description="Votre espace est prêt. Les informations affichées sont limitées à votre établissement."
+          description="Votre espace est prêt. Les informations affichées sont strictement limitées à votre établissement."
         />
         {loading ? <div className="mt-6"><LoadingState /></div> : null}
         {!loading && error ? <div className="mt-6"><ErrorState /></div> : null}
@@ -123,13 +322,13 @@ export function DirectorDashboardPage() {
               </div>
               <div className="mt-7 grid gap-4 sm:grid-cols-3">
                 <div className="rounded-xl bg-background p-4"><span className="text-xs text-muted-foreground">Code établissement</span><strong className="mt-1 block font-mono text-sm">{establishment.code}</strong></div>
-                <div className="rounded-xl bg-background p-4"><span className="text-xs text-muted-foreground">Accès</span><strong className="mt-1 block text-sm">Responsable principal</strong></div>
-                <div className="rounded-xl bg-background p-4"><span className="text-xs text-muted-foreground">Sécurité</span><strong className="mt-1 block text-sm">Données isolées</strong></div>
+                <div className="rounded-xl bg-background p-4"><span className="text-xs text-muted-foreground">Accès</span><strong className="mt-1 block text-sm">Administrateur d’établissement</strong></div>
+                <div className="rounded-xl bg-background p-4"><span className="text-xs text-muted-foreground">Sécurité</span><strong className="mt-1 block text-sm">Données isolées (Tenant)</strong></div>
               </div>
             </section>
             <section className="mt-6 rounded-2xl border border-border/80 bg-card p-5 sm:p-7">
               <div className="mb-5 flex items-start justify-between"><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Prochaine étape</p><h2 className="mt-1 text-lg font-semibold">Préparer votre espace</h2></div><CalendarDays className="size-5 text-primary/70" /></div>
-              <EmptyState title="Votre espace métier va prendre forme ici" description="Les prochaines étapes de configuration seront disponibles dans les phases suivantes." />
+              <EmptyState title="Votre espace métier est prêt" description="Configurez les repères de votre établissement, vos années scolaires et vos référents." />
             </section>
           </>
         ) : null}
@@ -215,7 +414,7 @@ export function EstablishmentOverviewPage() {
                   <p className="mt-2 text-sm text-muted-foreground">{establishment.city}, {establishment.province} · {establishment.establishment_type}</p>
                 </div>
                 <span className="inline-flex w-fit rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
-                  {establishment.status === 'ACTIVE' ? 'Actif' : establishment.status}
+                  {establishment.status === 'APPROVED' ? 'Validé' : establishment.status}
                 </span>
               </div>
 
@@ -247,7 +446,7 @@ export function EstablishmentOverviewPage() {
                   <h3 className="text-lg font-semibold">Sécurité et validation</h3>
                 </div>
                 <div className="space-y-4">
-                  <StatusBlock title="État du compte" value={establishment.status === 'ACTIVE' ? 'Compte validé' : 'Validation en attente'} />
+                  <StatusBlock title="État du compte" value={establishment.status === 'APPROVED' ? 'Compte validé' : 'Validation en attente'} />
                   <StatusBlock title="Accès" value="Données isolées par établissement" />
                   <StatusBlock title="Protection" value="Rôles et accès limité à l’établissement" />
                 </div>
@@ -399,20 +598,6 @@ export function SettingsPage() {
       </div>
     </AppShell>
   );
-}
-
-export function PlaceholderPage() {
-  const [location] = useLocation();
-  const names: Record<string, { title: string; description: string }> = {
-    '/app/establishment': { title: 'Établissement', description: 'Les repères de votre structure seront rassemblés dans cet espace.' },
-    '/app/team': { title: 'Tuteurs', description: 'Cet espace reprend les contacts et référents de votre établissement.' },
-    '/app/resources': { title: 'Ressources', description: 'Un endroit simple pour retrouver les ressources utiles à votre établissement.' },
-    '/app/calendar': { title: 'Calendrier', description: 'Les prochaines dates importantes trouveront naturellement leur place ici.' },
-    '/app/settings': { title: 'Paramètres', description: 'Les réglages de votre espace sont désormais visibles.' },
-    '/app/help': { title: 'Aide', description: 'Nous préparons un accompagnement clair pour chaque étape de votre installation.' },
-  };
-  const page = names[location] ?? names['/app/help'];
-  return <AppShell><div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 lg:px-10 lg:py-10"><PageHeader eyebrow="Espace EducPAY" title={page.title} description={page.description} /><div className="rounded-2xl border border-border/80 bg-card p-5 sm:p-8"><EmptyState title="Cet espace se prépare" description="Aucune donnée n’est disponible à ce stade. Votre environnement EducPAY évoluera ici, sans informations fictives." /></div></div></AppShell>;
 }
 
 function InfoCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {

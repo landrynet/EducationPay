@@ -3,9 +3,9 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import {
   z,
 } from "zod";
-import { recordEmailEvent } from "../lib/email-events";
-import { supabaseAdmin } from "../lib/supabase-admin";
-import { logger } from "../lib/logger";
+import { recordEmailEvent } from "../lib/email-events.js";
+import { supabaseAdmin } from "../lib/supabase-admin.js";
+import { logger } from "../lib/logger.js";
 
 const levels = z.array(z.enum(["PRIMARY", "SECONDARY", "PRIMARY_SECONDARY"])).min(1);
 const email = z.string().trim().email().max(320);
@@ -23,6 +23,7 @@ const CreateEstablishmentApplicationBody = z.object({
   principalFirstName: requiredText(),
   principalLastName: requiredText(),
   principalEmail: email,
+  principalPassword: z.string().trim().min(8).max(128),
   principalPhone: requiredText(7),
   principalFunction: requiredText(),
 });
@@ -317,6 +318,44 @@ router.post(["/establishment-applications", "/"], async (req, res) => {
 
     const editToken = createEditToken();
     const reference = createReference();
+    const { data: createdUser, error: createUserError } =
+      await supabaseAdmin.auth.admin.createUser({
+        email: input.principalEmail,
+        password: input.principalPassword,
+        email_confirm: true,
+        user_metadata: {
+          first_name: input.principalFirstName,
+          last_name: input.principalLastName,
+          phone: input.principalPhone,
+          establishment_id: establishment.id,
+          role: "DIRECTOR",
+        },
+      });
+
+    if (createUserError || !createdUser?.user) {
+      await supabaseAdmin.from("establishments").delete().eq("id", establishment.id);
+      throw createUserError ?? new Error("Création du compte responsable impossible.");
+    }
+
+    const { error: profileSetupError } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        establishment_id: establishment.id,
+        role: "DIRECTOR",
+        first_name: input.principalFirstName,
+        last_name: input.principalLastName,
+        phone: input.principalPhone,
+        must_change_password: false,
+        is_active: false,
+      })
+      .eq("id", createdUser.user.id);
+
+    if (profileSetupError) {
+      await supabaseAdmin.auth.admin.deleteUser(createdUser.user.id).catch(() => undefined);
+      await supabaseAdmin.from("establishments").delete().eq("id", establishment.id);
+      throw profileSetupError;
+    }
+
     const { data: application, error: applicationError } =
       await supabaseAdmin
         .from("establishment_applications")
@@ -328,16 +367,16 @@ router.post(["/establishment-applications", "/"], async (req, res) => {
           principal_email: input.principalEmail,
           principal_phone: input.principalPhone,
           principal_function: input.principalFunction,
+          responsible_user_id: createdUser.user.id,
+          responsible_account_status: "PENDING_ACTIVATION",
           edit_token_hash: hashToken(editToken),
         })
         .select("id, reference, status")
         .single();
 
     if (applicationError || !application) {
-      await supabaseAdmin
-        .from("establishments")
-        .delete()
-        .eq("id", establishment.id);
+      await supabaseAdmin.auth.admin.deleteUser(createdUser.user.id).catch(() => undefined);
+      await supabaseAdmin.from("establishments").delete().eq("id", establishment.id);
       throw applicationError ?? new Error("Création demande impossible.");
     }
 
@@ -579,40 +618,27 @@ router.post(["/establishment-applications/:id/approve", "/:id/approve"], async (
     return;
   }
 
-  const publicAppUrl = getPublicAppUrl(req);
-  const { data: invited, error: inviteError } =
-    await supabaseAdmin.auth.admin.inviteUserByEmail(
-      application.principal_email,
-      {
-        ...(publicAppUrl
-          ? {
-              redirectTo: `${publicAppUrl}/auth/activate?application=${encodeURIComponent(getRouteParam(req.params.id))}`,
-            }
-          : {}),
-        data: {
-          first_name: application.principal_first_name,
-          last_name: application.principal_last_name,
-          phone: application.principal_phone,
-          establishment_id: application.establishments.id,
-          role: "DIRECTOR",
-        },
-      },
-    );
-  if (inviteError || !invited.user) {
-    req.log.error({ err: inviteError }, "Unable to send activation invite");
-    res.status(500).json({ message: "Le lien d’activation n’a pas pu être envoyé." });
-    return;
+  let responsibleUserId = application.responsible_user_id;
+  if (!responsibleUserId) {
+    const { data: listData, error: listError } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+    if (!listError) {
+      const existing = listData.users.find(
+        (user) => user.email?.toLowerCase() === application.principal_email.toLowerCase(),
+      );
+      responsibleUserId = existing?.id ?? null;
+    }
   }
 
   const { error: updateError } = await supabaseAdmin
     .from("establishment_applications")
     .update({
       status: "APPROVED",
-      responsible_user_id: invited.user.id,
-      responsible_account_status: "PENDING_ACTIVATION",
-      activation_expires_at: new Date(
-        Date.now() + 48 * 60 * 60 * 1000,
-      ).toISOString(),
+      responsible_user_id: responsibleUserId,
+      responsible_account_status: "ACTIVE",
+      activation_expires_at: null,
     })
     .eq("id", getRouteParam(req.params.id));
   const { error: establishmentUpdateError } = await supabaseAdmin
@@ -625,10 +651,37 @@ router.post(["/establishment-applications/:id/approve", "/:id/approve"], async (
     .eq("id", application.establishments.id);
 
   if (updateError || establishmentUpdateError) {
-    await supabaseAdmin.auth.admin.deleteUser(invited.user.id).catch(() => undefined);
+    req.log.error({ err: updateError ?? establishmentUpdateError }, "Unable to finalize approval state");
     res.status(500).json({ message: "La validation n’a pas pu être finalisée." });
     return;
   }
+
+  if (responsibleUserId) {
+    try {
+      const { error: profileUpdateError } = await supabaseAdmin.rpc("activate_director_profile", {
+        p_user_id: responsibleUserId,
+        p_establishment_id: application.establishments.id,
+      });
+
+      if (profileUpdateError) {
+        const { error: fallbackError } = await supabaseAdmin
+          .from("profiles")
+          .update({
+            is_active: true,
+            must_change_password: false,
+            establishment_id: application.establishments.id,
+          })
+          .eq("id", responsibleUserId);
+
+        if (fallbackError) {
+          req.log.warn({ err: fallbackError }, "Profile trigger warning on approval fallback, client handles status via establishment_applications");
+        }
+      }
+    } catch (profileErr) {
+      req.log.warn({ err: profileErr }, "Profile update warning during approval, handled by application status");
+    }
+  }
+
   await supabaseAdmin.from("application_history").insert({
     application_id: getRouteParam(req.params.id),
     action: "APPLICATION_APPROVED",
@@ -636,23 +689,20 @@ router.post(["/establishment-applications/:id/approve", "/:id/approve"], async (
     old_status: "PENDING_REVIEW",
     new_status: "APPROVED",
   });
-  const activationEmailError = await recordEmailEvent({
+
+  await recordEmailEvent({
     applicationId: getRouteParam(req.params.id),
     type: "ACTIVATION_SENT",
     recipientEmail: application.principal_email,
-    subject: "Activez votre compte EducPAY",
-    body: "Le lien d’activation a été envoyé par Supabase Auth.",
+    subject: "Votre accès EducPAY a été validé",
+    body: "Votre compte a été validé et est désormais actif. Vous pouvez vous connecter avec le mot de passe choisi lors de votre inscription.",
     metadata: {
-      provider: "SUPABASE_AUTH",
-      expiresAt: new Date(
-        Date.now() + 48 * 60 * 60 * 1000,
-      ).toISOString(),
+      provider: "APPROVAL_INTERNAL",
+      expiresAt: null,
     },
     status: "SENT",
-  });
-  if (activationEmailError) {
-    req.log.warn({ err: activationEmailError }, "Unable to record activation email event");
-  }
+  }).catch((err) => req.log.warn({ err }, "Unable to record activation email event"));
+
   const updated = await getApplication(getRouteParam(req.params.id));
   res.json(toApplicationResponse(updated as ApplicationRow));
 });
@@ -694,19 +744,37 @@ router.post(["/establishment-applications/:id/activate", "/:id/activate"], async
     return;
   }
 
-  const { error: profileError } = await supabaseAdmin
-    .from("profiles")
-    .update({ is_active: true })
-    .eq("id", userData.user.id);
+  const { error: profileError } = await supabaseAdmin.rpc("activate_director_profile", {
+    p_user_id: userData.user.id,
+    p_establishment_id: application.establishments?.id ?? application.establishments?.id,
+  });
   const { error: applicationError } = await supabaseAdmin
     .from("establishment_applications")
     .update({ responsible_account_status: "ACTIVE" })
     .eq("id", getRouteParam(req.params.id));
 
   if (profileError || applicationError) {
-    req.log.error({ err: profileError ?? applicationError }, "Unable to activate responsible account");
-    res.status(500).json({ message: "L’activation n’a pas pu être finalisée." });
-    return;
+    const { error: fallbackProfileError } = await supabaseAdmin
+      .from("profiles")
+      .update({ is_active: true, establishment_id: application.establishments?.id ?? null })
+      .eq("id", userData.user.id);
+
+    if (fallbackProfileError) {
+      req.log.error({ err: fallbackProfileError }, "Unable to activate responsible account (fallback)");
+      res.status(500).json({ message: "L’activation n’a pas pu être finalisée." });
+      return;
+    }
+
+    const { error: retryAppError } = await supabaseAdmin
+      .from("establishment_applications")
+      .update({ responsible_account_status: "ACTIVE" })
+      .eq("id", getRouteParam(req.params.id));
+
+    if (retryAppError) {
+      req.log.error({ err: retryAppError }, "Unable to activate application status");
+      res.status(500).json({ message: "L’activation n’a pas pu être finalisée." });
+      return;
+    }
   }
 
   await supabaseAdmin.from("application_history").insert({

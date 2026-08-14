@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "./supabase-admin";
+import { supabaseAdmin } from "./supabase-admin.js";
 
 export type EmailEventType =
   | "APPLICATION_RECEIVED"

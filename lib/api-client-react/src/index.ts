@@ -20,6 +20,7 @@ export type EstablishmentApplicationInput = {
   principalFirstName: string;
   principalLastName: string;
   principalEmail: string;
+  principalPassword: string;
   principalPhone: string;
   principalFunction: string;
 };
