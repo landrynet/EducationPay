@@ -3,6 +3,7 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { supabaseConfig } from "./lib/supabase-admin";
 
 const app: Express = express();
 
@@ -29,6 +30,38 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(["/api/establishment-applications", "/establishment-applications"], (_req, res, next) => {
+  if (!supabaseConfig.isConfigured) {
+    res.status(503).json({
+      message:
+        "Le service d’inscription est temporairement indisponible. Configurez Supabase puis réessayez.",
+    });
+    return;
+  }
+  next();
+});
+
 app.use("/api", router);
+app.use("/", router);
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: `Route API introuvable : ${req.method} ${req.path}`,
+  });
+});
+
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  logger.error({ err }, "Unhandled API error");
+  const statusCode =
+    typeof err?.status === "number" && err.status >= 400 && err.status < 600
+      ? err.status
+      : 500;
+  res.status(statusCode).json({
+    message:
+      typeof err?.message === "string" && err.message
+        ? err.message
+        : "Une erreur interne du serveur est survenue.",
+  });
+});
 
 export default app;
