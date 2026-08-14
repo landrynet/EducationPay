@@ -30,6 +30,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, _res, next) => {
+  if (req.url.startsWith("/api/index.ts")) {
+    req.url = req.url.replace("/api/index.ts", "/api");
+  } else if (req.url.startsWith("/api/index")) {
+    req.url = req.url.replace("/api/index", "/api");
+  }
+  next();
+});
+
 app.use(["/api/establishment-applications", "/establishment-applications"], (_req, res, next) => {
   if (!supabaseConfig.isConfigured) {
     res.status(503).json({
