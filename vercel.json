@@ -3,7 +3,7 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm --filter @workspace/educpay run build",
   "outputDirectory": "public",
-  "framework": "vite",
+  "framework": null,
   "functions": {
     "api/index.ts": {
       "runtime": "nodejs22.x",
