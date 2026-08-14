@@ -254,6 +254,11 @@ export function AuthLoginPage() {
   return (
     <AuthShell>
       <AuthHeading title="Bon retour parmi nous" description="Entrez vos identifiants pour accéder à votre espace EducPAY." />
+      {errorMessage && (
+        <div style={{ padding: '10px 14px', marginBottom: '16px', borderRadius: '8px', backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', fontSize: '14px', lineHeight: '20px' }} role="alert">
+          {errorMessage}
+        </div>
+      )}
       <form className="auth-form" onSubmit={handleSubmit}>
         <Field label="Adresse email" name="email" type="email" placeholder="vous@etablissement.fr" autoComplete="email" />
         <Field label="Mot de passe" name="password" type="password" placeholder="Votre mot de passe" autoComplete="current-password" />
