@@ -1,0 +1,5 @@
+import { ArrowRight } from 'lucide-react';
+
+export default function CTA() {
+  return <section className="cta" id="contact"><div className="container cta-inner"><div><span className="eyebrow" style={{ color: '#725d16' }}>Un premier échange, simplement</span><h2 className="display">Parlons de la réalité de votre établissement.</h2><div className="cta-actions"><a className="button button-dark" href="mailto:bonjour@educpay.fr" data-testid="link-contact-email">Écrire à EducPAY <ArrowRight size={16} /></a><a className="button button-quiet" href="mailto:bonjour@educpay.fr?subject=Demande%20de%20présentation" style={{ color: 'var(--ink)', borderColor: 'rgba(16,35,61,.32)' }} data-testid="link-demo-email">Demander une présentation</a></div></div><p>Phase 1 · Une présentation sans engagement, pour voir si EducPAY correspond à vos équipes.</p></div></section>;
+}

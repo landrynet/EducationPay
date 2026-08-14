@@ -1,0 +1,120 @@
+~/workspace$ git remote set-url origin https://github.com/landrynet/EducationPay.git
+git push -u origin main
+To https://github.com/landrynet/EducationPay.git
+ ! [rejected]        main -> main (non-fast-forward)
+error: failed to push some refs to 'https://github.com/landrynet/EducationPay.git'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. If you want to integrate the remote changes,
+hint: use 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+~/workspace$ git pull --rebase origin main
+git push -u origin main
+From https://github.com/landrynet/EducationPay
+ * branch            main       -> FETCH_HEAD
+Auto-merging pnpm-lock.yaml
+CONFLICT (content): Merge conflict in pnpm-lock.yaml
+error: could not apply 79b42fa... Remove mockup sandbox artifacts and update project configuration
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm <conflicted_files>", then run "git rebase --continue".
+hint: You can instead skip this commit: run "git rebase --skip".
+hint: To abort and get back to the state before "git rebase", run "git rebase --abort".
+hint: Disable this message with "git config set advice.mergeConflict false"
+Could not apply 79b42fa... # Remove mockup sandbox artifacts and update project configuration
+To https://github.com/landrynet/EducationPay.git
+ ! [rejected]        main -> main (non-fast-forward)
+error: failed to push some refs to 'https://github.com/landrynet/EducationPay.git'
+hint: Updates were rejected because a pushed branch tip is behind its remote
+hint: counterpart. If you want to integrate the remote changes, use 'git pull'
+hint: before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+~/workspace$ git status
+interactive rebase in progress; onto 822ee69
+Last command done (1 command done):
+   pick 79b42fa # Remove mockup sandbox artifacts and update project configuration
+Next commands to do (4 remaining commands):
+   pick b246cf2 # Fix Vercel static deployment build
+   pick 7529726 # Remove noisy runtime error overlay
+  (use "git rebase --edit-todo" to view and edit)
+You are currently rebasing branch 'main' on '822ee69'.
+  (fix conflicts and then run "git rebase --continue")
+  (use "git rebase --skip" to skip this patch)
+  (use "git rebase --abort" to check out the original branch)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+    deleted:    artifacts/mockup-sandbox/.replit-artifact/artifact.toml
+    deleted:    artifacts/mockup-sandbox/components.json
+    deleted:    artifacts/mockup-sandbox/index.html
+    deleted:    artifacts/mockup-sandbox/mockupPreviewPlugin.ts
+    deleted:    artifacts/mockup-sandbox/package.json
+    deleted:    artifacts/mockup-sandbox/src/.generated/mockup-components.ts
+    deleted:    artifacts/mockup-sandbox/src/App.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/accordion.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/alert-dialog.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/alert.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/aspect-ratio.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/avatar.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/badge.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/breadcrumb.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/button-group.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/button.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/calendar.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/card.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/carousel.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/chart.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/checkbox.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/collapsible.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/command.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/context-menu.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/dialog.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/drawer.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/dropdown-menu.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/empty.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/field.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/form.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/hover-card.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/input-group.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/input-otp.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/input.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/item.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/kbd.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/label.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/menubar.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/navigation-menu.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/pagination.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/popover.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/progress.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/radio-group.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/resizable.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/scroll-area.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/select.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/separator.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/sheet.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/sidebar.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/skeleton.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/slider.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/sonner.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/spinner.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/switch.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/table.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/tabs.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/textarea.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/toast.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/toaster.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/toggle-group.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/toggle.tsx
+    deleted:    artifacts/mockup-sandbox/src/components/ui/tooltip.tsx
+    deleted:    artifacts/mockup-sandbox/src/hooks/use-mobile.tsx
+    deleted:    artifacts/mockup-sandbox/src/hooks/use-toast.ts
+    deleted:    artifacts/mockup-sandbox/src/index.css
+    deleted:    artifacts/mockup-sandbox/src/lib/utils.ts
+    deleted:    artifacts/mockup-sandbox/src/main.tsx
+    deleted:    artifacts/mockup-sandbox/tsconfig.json
+    deleted:    artifacts/mockup-sandbox/vite.config.ts
+
+Unmerged paths:
+  (use "git restore --staged <file>..." to unstage)
+  (use "git add <file>..." to mark resolution)
+    both modified:   pnpm-lock.yaml
+
+~/workspace$ 

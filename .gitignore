@@ -5,11 +5,19 @@ dist
 tmp
 out-tsc
 *.tsbuildinfo
+.env
+.env.*
+!.env.example
 .expo
 .expo-shared
 
 # dependencies
 node_modules
+/public
+/artifacts/educpay/public/assets/
+/artifacts/educpay/public/index.html
+/artifacts/educpay/public/app/
+/artifacts/educpay/public/auth/
 
 # IDEs and editors
 /.idea

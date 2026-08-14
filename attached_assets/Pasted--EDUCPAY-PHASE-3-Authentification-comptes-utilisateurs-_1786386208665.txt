@@ -1,0 +1,1287 @@
+# EDUCPAY — PHASE 3
+
+## Authentification, comptes utilisateurs, rôles, sécurité et isolation multi-établissement
+
+Tu es l'agent développeur Full-Stack senior responsable du projet **EducPAY**, un SaaS de gestion de scolarité destiné aux établissements scolaires.
+
+Les **Phases 1 et 2 sont déjà implémentées et déployées sur Vercel**.
+
+Ta mission dans cette Phase 3 est d'implémenter proprement le système complet d'authentification, d'autorisation et de gestion des comptes, en utilisant l'architecture déjà existante.
+
+---
+
+# 1. OBJECTIF PRINCIPAL
+
+Mettre en place une architecture d'authentification professionnelle, sécurisée et évolutive permettant de gérer les rôles suivants :
+
+```text
+SUPER_ADMIN
+DIRECTOR
+ACCOUNTANT
+PARENT
+```
+
+L'**élève n'a aucun compte utilisateur**.
+
+Le système doit permettre :
+
+* connexion ;
+* déconnexion ;
+* inscription d'un établissement ;
+* création/activation des comptes ;
+* gestion des sessions ;
+* récupération de mot de passe ;
+* gestion des rôles ;
+* protection des routes ;
+* isolation stricte entre établissements ;
+* gestion des permissions ;
+* premier accès sécurisé ;
+* audit des actions sensibles ;
+* fonctionnement en local ;
+* fonctionnement en production sur Vercel + Supabase.
+
+---
+
+# 2. RÈGLE ABSOLUE : CONSERVER LES PHASES 1 ET 2
+
+Avant toute modification, inspecte le projet existant.
+
+Les Phases 1 et 2 sont déjà réalisées.
+
+NE PAS :
+
+* reconstruire le projet ;
+* recréer le Landing Page ;
+* refaire les dashboards ;
+* remplacer inutilement la Sidebar ;
+* remplacer inutilement la Navbar ;
+* changer le design existant ;
+* créer une deuxième architecture parallèle ;
+* supprimer les composants existants sans justification.
+
+Tu dois intégrer l'authentification dans l'architecture existante.
+
+---
+
+# 3. STACK À RESPECTER
+
+Utiliser l'architecture déjà définie pour EducPAY.
+
+### Frontend
+
+* Next.js
+* TypeScript
+* composants UI existants
+* architecture existante du projet
+
+### Backend / données
+
+* Supabase Auth
+* PostgreSQL
+* Row Level Security (RLS)
+
+### Déploiement
+
+* Vercel
+
+### Développement local
+
+* PostgreSQL local
+
+Le schéma de base doit être géré par des migrations versionnées.
+
+---
+
+# 4. PRINCIPES D'ARCHITECTURE
+
+L'authentification et l'autorisation doivent être séparées.
+
+```text
+Authentication
+     ↓
+Qui est l'utilisateur ?
+     ↓
+Authorization
+     ↓
+Que peut-il faire ?
+     ↓
+Tenant isolation
+     ↓
+Dans quel établissement peut-il agir ?
+```
+
+Ne jamais considérer qu'un utilisateur est autorisé simplement parce qu'il est authentifié.
+
+---
+
+# 5. LES TYPES DE COMPTES
+
+EducPAY possède quatre types de comptes utilisateurs.
+
+```text
+SUPER_ADMIN
+DIRECTOR
+ACCOUNTANT
+PARENT
+```
+
+L'élève :
+
+```text
+STUDENT
+```
+
+n'est PAS un compte Auth.
+
+Un élève est uniquement une entité métier qui sera développée dans une phase ultérieure.
+
+---
+
+# 6. SUPER ADMIN
+
+## 6.1 Création
+
+Le Super Admin ne possède PAS de page d'inscription publique.
+
+Il ne doit jamais être possible de faire :
+
+```text
+/register
+role=SUPER_ADMIN
+```
+
+Le premier Super Admin doit être créé par une **procédure d'initialisation sécurisée côté serveur**.
+
+Créer un mécanisme d'initialisation dédié, par exemple :
+
+```text
+scripts/
+   init-super-admin
+```
+
+ou une structure équivalente adaptée au projet.
+
+---
+
+# 7. INITIALISATION DU SUPER ADMIN
+
+La procédure doit respecter les règles suivantes :
+
+* exécution côté serveur uniquement ;
+* aucun accès depuis le navigateur ;
+* aucun endpoint public ;
+* aucune clé secrète dans le code ;
+* aucun mot de passe codé en dur ;
+* aucun secret dans Git ;
+* aucun secret dans les logs ;
+* utilisation des variables d'environnement ;
+* génération cryptographiquement sécurisée des secrets temporaires ;
+* procédure contrôlée et documentée ;
+* empêcher une réinitialisation accidentelle du compte existant.
+
+Le script doit vérifier si un Super Admin existe déjà.
+
+Si oui :
+
+```text
+NE PAS créer automatiquement un deuxième Super Admin.
+```
+
+---
+
+# 8. PREMIÈRE CONNEXION DU SUPER ADMIN
+
+Le premier accès doit être considéré comme une activation.
+
+Le compte doit disposer d'un état indiquant que l'activation initiale est obligatoire.
+
+Exemple :
+
+```text
+status = FIRST_LOGIN_REQUIRED
+```
+
+Lors de la première connexion :
+
+```text
+Connexion
+   ↓
+FIRST_LOGIN_REQUIRED
+   ↓
+Écran obligatoire de sécurisation
+   ↓
+Définition des nouveaux identifiants
+   ↓
+Validation
+   ↓
+Compte normal
+```
+
+Les identifiants temporaires ne doivent plus être utilisables après cette activation.
+
+Le compte réel du Super Admin n'est PAS supprimé.
+
+Seuls les éléments temporaires d'initialisation doivent devenir invalides/inutilisables.
+
+---
+
+# 9. MFA / 2FA SUPER ADMIN
+
+Préparer l'architecture pour l'authentification multifacteur.
+
+Le Super Admin doit être le premier rôle concerné par le MFA.
+
+Si la fonctionnalité MFA de Supabase est disponible dans l'architecture retenue, l'intégrer correctement.
+
+Sinon :
+
+* préparer l'architecture ;
+* ne pas inventer un mécanisme cryptographique ;
+* documenter clairement ce qui reste à activer.
+
+Le mot de passe seul ne doit pas être considéré comme la protection définitive du Super Admin.
+
+---
+
+# 10. DIRECTEUR
+
+Le Directeur est le responsable principal d'un établissement.
+
+Il est créé à partir de la demande de création d'un établissement.
+
+Flux :
+
+```text
+Landing
+   ↓
+Créer mon établissement
+   ↓
+Informations responsable
+   ↓
+Informations établissement
+   ↓
+Création de la demande
+   ↓
+PENDING
+```
+
+Le responsable possède son propre compte.
+
+Il ne doit pas partager ses identifiants avec les comptables.
+
+---
+
+# 11. INSCRIPTION D'UN ÉTABLISSEMENT
+
+Créer un flux d'inscription professionnel.
+
+Le formulaire doit collecter au minimum :
+
+### Responsable
+
+```text
+first_name
+last_name
+email
+phone
+password
+```
+
+### Établissement
+
+```text
+name
+type
+address
+city
+phone
+email
+```
+
+Les champs exacts doivent être adaptés à l'architecture déjà présente.
+
+---
+
+# 12. STATUT DE LA DEMANDE
+
+Après inscription :
+
+```text
+PENDING
+```
+
+Le compte du responsable et l'établissement doivent être associés correctement.
+
+Le système doit empêcher l'accès aux fonctionnalités complètes d'un établissement non approuvé.
+
+---
+
+# 13. VALIDATION PAR LE SUPER ADMIN
+
+Le Super Admin pourra ultérieurement approuver la demande.
+
+La logique doit être conçue pour permettre :
+
+```text
+PENDING
+   ↓
+APPROVED
+   ↓
+ACTIVE
+```
+
+ou :
+
+```text
+PENDING
+   ↓
+REJECTED
+```
+
+Pour cette phase, mettre en place les fondations nécessaires sans développer tout le module de gestion des établissements si celui-ci est prévu en Phase 4.
+
+---
+
+# 14. COMPTE COMPTABLE
+
+Le comptable ne s'inscrit PAS publiquement.
+
+Le Directeur pourra l'inviter.
+
+Flux :
+
+```text
+DIRECTOR
+   ↓
+Ajouter comptable
+   ↓
+Nom
+Email
+Téléphone
+Rôle
+   ↓
+Invitation
+   ↓
+ACCOUNTANT
+```
+
+Le comptable doit posséder son propre compte.
+
+Il ne doit jamais utiliser le compte du directeur.
+
+---
+
+# 15. COMPTE PARENT
+
+Le parent ne crée pas lui-même son compte dans la première version.
+
+Le compte parent est créé automatiquement lorsque l'établissement ajoute le premier enfant et renseigne le parent.
+
+Règle métier fondamentale :
+
+> Un parent possède un seul compte par établissement.
+
+Un même parent peut avoir plusieurs enfants dans cet établissement.
+
+Exemple :
+
+```text
+Parent : Marie Dupont
+       │
+       ├── Jean Dupont
+       ├── Paul Dupont
+       └── Sarah Dupont
+```
+
+Il n'existe qu'un seul compte parent.
+
+---
+
+# 16. CRÉATION AUTOMATIQUE DU PARENT
+
+Lorsqu'un établissement crée un premier élève :
+
+```text
+Créer élève
+     ↓
+Renseigner parent
+     ↓
+Parent existe ?
+```
+
+### Si NON
+
+```text
+Créer compte parent
+     ↓
+Générer accès temporaire
+     ↓
+Associer parent ↔ élève
+```
+
+### Si OUI
+
+```text
+Ne PAS créer un deuxième compte
+     ↓
+Associer simplement le nouvel élève
+```
+
+---
+
+# 17. IDENTIFICATION DU PARENT
+
+La détection d'un parent existant doit utiliser des identifiants fiables.
+
+Priorité recommandée :
+
+```text
+Téléphone
+Email
+```
+
+Le nom seul ne doit jamais suffire pour fusionner automatiquement deux parents.
+
+Si une ambiguïté existe :
+
+```text
+PLUSIEURS PARENTS POSSIBLES
+        ↓
+Demander confirmation à l'établissement
+```
+
+Ne jamais associer automatiquement deux personnes uniquement parce qu'elles ont le même nom.
+
+---
+
+# 18. PREMIÈRE CONNEXION DU PARENT
+
+Lors de la création automatique du compte parent :
+
+```text
+Compte créé
+   ↓
+Identifiants temporaires
+   ↓
+Parent se connecte
+   ↓
+Changement obligatoire du mot de passe
+   ↓
+Compte activé
+```
+
+Le mot de passe temporaire ne doit jamais être conservé en clair.
+
+Après activation :
+
+```text
+temporary credentials = invalides
+```
+
+Le compte parent reste actif.
+
+---
+
+# 19. PARENT AVEC PLUSIEURS ENFANTS
+
+Lorsqu'un deuxième enfant est ajouté :
+
+```text
+Élève 2
+   ↓
+Parent existant
+   ↓
+Association
+```
+
+Aucune nouvelle invitation.
+
+Aucun deuxième compte.
+
+Aucun nouveau mot de passe.
+
+Le nouvel enfant doit automatiquement devenir visible dans le portail du parent.
+
+---
+
+# 20. ÉLÈVE SANS COMPTE
+
+Ne jamais créer de compte Supabase Auth pour l'élève.
+
+L'élève est uniquement une entité métier.
+
+```text
+Student
+   ↓
+Parent
+   ↓
+Compte Parent
+```
+
+---
+
+# 21. MODÈLE DE PROFIL
+
+Créer ou adapter une table `profiles`.
+
+Elle doit être reliée au `user.id` de Supabase Auth.
+
+Conceptuellement :
+
+```text
+profiles
+--------------------
+id
+user_id
+role
+first_name
+last_name
+phone
+status
+created_at
+updated_at
+```
+
+Ne duplique pas les informations Auth inutilement.
+
+Respecte les conventions du projet.
+
+---
+
+# 22. RÔLES
+
+Utiliser une représentation stricte des rôles.
+
+```text
+SUPER_ADMIN
+DIRECTOR
+ACCOUNTANT
+PARENT
+```
+
+Ne jamais accepter arbitrairement une chaîne provenant du frontend pour définir un rôle privilégié.
+
+Le frontend ne doit jamais pouvoir envoyer :
+
+```text
+{
+  role: "SUPER_ADMIN"
+}
+```
+
+et obtenir ce rôle.
+
+---
+
+# 23. RELATION UTILISATEUR / ÉTABLISSEMENT
+
+Les comptes établissement doivent être liés à leur établissement.
+
+Conceptuellement :
+
+```text
+User
+ ↓
+Profile
+ ↓
+Establishment
+```
+
+Pour les rôles :
+
+```text
+DIRECTOR → establishment_id
+ACCOUNTANT → establishment_id
+PARENT → establishment_id
+```
+
+Le Super Admin est global à la plateforme.
+
+Il n'est pas limité à un établissement.
+
+---
+
+# 24. MULTI-TENANT
+
+EducPAY est multi-établissement.
+
+C'est une règle de sécurité critique.
+
+Exemple :
+
+```text
+ESTABLISHMENT A
+   ↓
+users A
+students A
+parents A
+payments A
+```
+
+ne doit jamais pouvoir accéder aux données :
+
+```text
+ESTABLISHMENT B
+   ↓
+users B
+students B
+parents B
+payments B
+```
+
+L'isolation doit être assurée au niveau PostgreSQL/RLS.
+
+Ne jamais compter uniquement sur :
+
+```text
+if (user.establishment_id === ...)
+```
+
+dans le frontend.
+
+---
+
+# 25. RLS
+
+Mettre en place les fondations Row Level Security.
+
+Les politiques doivent être conçues selon :
+
+```text
+authenticated user
+        ↓
+profile
+        ↓
+role
+        ↓
+establishment_id
+        ↓
+authorized data
+```
+
+Le Super Admin aura une logique spécifique permettant la gestion globale de la plateforme.
+
+Les utilisateurs d'établissement ne doivent accéder qu'aux données autorisées de leur établissement.
+
+---
+
+# 26. PROTECTION DES ROUTES
+
+Toutes les routes privées doivent vérifier :
+
+1. utilisateur authentifié ;
+2. session valide ;
+3. rôle autorisé ;
+4. établissement autorisé si nécessaire.
+
+Exemple :
+
+```text
+/admin/*
+    → SUPER_ADMIN
+
+/director/*
+    → DIRECTOR
+
+/accountant/*
+    → ACCOUNTANT
+
+/parent/*
+    → PARENT
+```
+
+Respecter les conventions de routing déjà présentes dans le projet.
+
+---
+
+# 27. NE PAS SE LIMITER AU FRONTEND
+
+Une route cachée dans la Sidebar n'est PAS une protection.
+
+Un utilisateur ne doit pas pouvoir accéder à une route protégée en tapant directement son URL.
+
+Les contrôles doivent être appliqués au niveau serveur et base de données lorsque nécessaire.
+
+---
+
+# 28. SESSION
+
+Mettre en place une gestion correcte des sessions Supabase.
+
+Vérifier :
+
+* login ;
+* logout ;
+* refresh ;
+* expiration ;
+* récupération de session ;
+* navigation après connexion ;
+* navigation après déconnexion ;
+* protection SSR ;
+* cookies/session selon l'architecture Next.js utilisée.
+
+Éviter les hacks de stockage manuel de tokens.
+
+Utiliser les mécanismes officiels et appropriés de Supabase.
+
+---
+
+# 29. LOGIN
+
+Créer ou adapter la page de connexion existante.
+
+Elle doit permettre :
+
+```text
+Email / identifiant
+Mot de passe
+
+[Se connecter]
+
+Mot de passe oublié ?
+```
+
+Après connexion, rediriger selon le rôle :
+
+```text
+SUPER_ADMIN → Dashboard Super Admin
+DIRECTOR → Dashboard Directeur
+ACCOUNTANT → Dashboard Comptable
+PARENT → Portail Parent
+```
+
+Ne jamais rediriger un utilisateur vers un espace auquel il n'a pas accès.
+
+---
+
+# 30. LOGOUT
+
+Le bouton de déconnexion doit :
+
+* terminer correctement la session ;
+* nettoyer l'état client nécessaire ;
+* rediriger vers une page publique ;
+* empêcher l'accès aux pages privées avec l'ancienne session.
+
+---
+
+# 31. MOT DE PASSE OUBLIÉ
+
+Mettre en place :
+
+```text
+Mot de passe oublié ?
+      ↓
+Email
+      ↓
+Lien sécurisé
+      ↓
+Nouveau mot de passe
+```
+
+Ne jamais révéler si un email existe ou non dans la base.
+
+Éviter les messages du type :
+
+```text
+Cet email n'existe pas.
+```
+
+Utiliser une réponse neutre.
+
+---
+
+# 32. SÉCURITÉ DES MOTS DE PASSE
+
+Ne jamais stocker les mots de passe dans notre propre base.
+
+Supabase Auth doit gérer les mots de passe.
+
+Ne jamais :
+
+* logger les mots de passe ;
+* envoyer les mots de passe au frontend après création ;
+* stocker un mot de passe en clair ;
+* écrire un mot de passe dans une migration ;
+* écrire un mot de passe dans Git.
+
+---
+
+# 33. IDENTIFIANTS TEMPORAIRES
+
+Pour les comptes créés automatiquement :
+
+* générer des secrets suffisamment aléatoires ;
+* durée d'utilisation limitée si le mécanisme le permet ;
+* ne jamais stocker le secret en clair dans nos tables métier ;
+* invalider l'accès temporaire après activation ;
+* obliger le changement du mot de passe.
+
+---
+
+# 34. RATE LIMITING
+
+Préparer une protection contre :
+
+* brute-force login ;
+* abus des endpoints ;
+* tentatives répétées ;
+* création massive de comptes.
+
+Utiliser les mécanismes disponibles dans Supabase et/ou l'infrastructure serveur.
+
+Ne pas implémenter un système de sécurité maison fragile.
+
+---
+
+# 35. AUDIT LOG
+
+Préparer un système d'audit pour les actions sensibles.
+
+Au minimum, prévoir la possibilité d'enregistrer :
+
+```text
+actor_user_id
+action
+resource_type
+resource_id
+establishment_id
+timestamp
+metadata
+```
+
+Les mots de passe, tokens et secrets ne doivent JAMAIS apparaître dans les logs.
+
+Actions importantes :
+
+```text
+LOGIN
+LOGOUT
+CREATE_USER
+INVITE_USER
+ROLE_CHANGE
+ESTABLISHMENT_APPROVAL
+ESTABLISHMENT_SUSPENSION
+PASSWORD_RESET
+```
+
+Les événements exacts peuvent être étendus plus tard.
+
+---
+
+# 36. LOCAL POSTGRESQL
+
+Le développement local doit fonctionner avec PostgreSQL local.
+
+Préparer les migrations nécessaires.
+
+Ne pas créer manuellement les tables uniquement dans l'interface Supabase.
+
+Architecture :
+
+```text
+Migration
+    ↓
+PostgreSQL local
+    ↓
+Tests
+    ↓
+Git
+    ↓
+Supabase production
+```
+
+Le schéma doit rester reproductible.
+
+---
+
+# 37. SUPABASE PRODUCTION
+
+Préparer la connexion avec le projet Supabase de production.
+
+Vérifier :
+
+* Supabase URL ;
+* clés publiques ;
+* secrets serveur ;
+* Auth ;
+* PostgreSQL ;
+* RLS ;
+* migrations ;
+* redirects ;
+* URLs de production.
+
+---
+
+# 38. VARIABLES D'ENVIRONNEMENT
+
+Créer/mettre à jour :
+
+```text
+.env.local
+.env.example
+```
+
+Ne jamais mettre les secrets dans Git.
+
+Toute clé à privilèges élevés doit être strictement côté serveur.
+
+La clé Service Role ne doit :
+
+* jamais être envoyée au navigateur ;
+* jamais être utilisée dans un composant client ;
+* jamais être commitée ;
+* jamais apparaître dans les logs.
+
+---
+
+# 39. VERCEL
+
+Le système d'authentification doit fonctionner correctement sur Vercel.
+
+Vérifier :
+
+* build ;
+* runtime ;
+* middleware ;
+* cookies ;
+* callbacks ;
+* redirect URLs ;
+* variables d'environnement ;
+* session ;
+* logout ;
+* reset password.
+
+Après déploiement, effectuer des tests réels sur l'environnement de production.
+
+---
+
+# 40. SÉCURITÉ DES ROUTES ADMIN
+
+Toutes les routes Super Admin doivent être protégées.
+
+Un :
+
+```text
+DIRECTOR
+```
+
+ne doit jamais pouvoir accéder à :
+
+```text
+/admin
+```
+
+Même en tapant directement l'URL.
+
+Même principe pour les autres rôles.
+
+---
+
+# 41. PAS DE SYSTÈME D'ABONNEMENT
+
+Important :
+
+EducPAY est actuellement GRATUIT.
+
+NE PAS développer maintenant :
+
+* abonnement mensuel ;
+* abonnement annuel ;
+* paiement d'établissement ;
+* facturation ;
+* Stripe ;
+* plans Premium.
+
+Cette fonctionnalité sera ajoutée dans une phase future.
+
+Prévoir uniquement une architecture suffisamment propre pour pouvoir l'ajouter plus tard sans réécrire l'authentification.
+
+---
+
+# 42. DONNÉES FICTIVES
+
+Les dashboards des Phases 1 et 2 peuvent actuellement utiliser des données fictives.
+
+Ne détruis pas ces interfaces.
+
+Dans cette Phase 3 :
+
+* identifie où elles sont utilisées ;
+* ne remplace pas arbitrairement tous les mocks par des requêtes métier qui appartiennent à la Phase 4 ;
+* prépare uniquement les points de connexion nécessaires à l'authentification.
+
+Le nettoyage complet des données fictives et le branchement des modules métier seront traités dans la phase suivante.
+
+---
+
+# 43. TESTS OBLIGATOIRES
+
+Créer/tester les scénarios suivants.
+
+## Test 1 — Super Admin
+
+```text
+Initialisation
+↓
+Premier login
+↓
+Changement obligatoire
+↓
+Activation
+↓
+Dashboard
+```
+
+## Test 2 — Directeur
+
+```text
+Création de demande
+↓
+Compte responsable
+↓
+Connexion
+↓
+Accès espace directeur
+```
+
+## Test 3 — Comptable
+
+```text
+Invitation
+↓
+Activation
+↓
+Connexion
+↓
+Accès espace comptable
+```
+
+## Test 4 — Parent
+
+```text
+Création automatique
+↓
+Identifiants temporaires
+↓
+Premier login
+↓
+Changement obligatoire
+↓
+Compte actif
+```
+
+## Test 5 — Deuxième enfant
+
+```text
+Ajouter deuxième enfant
+↓
+Parent existant
+↓
+Pas de deuxième compte
+↓
+Nouvelle association
+```
+
+## Test 6 — Isolation
+
+Créer deux établissements :
+
+```text
+A
+B
+```
+
+Tester :
+
+```text
+User A → données A ✓
+User A → données B ✗
+
+User B → données B ✓
+User B → données A ✗
+```
+
+## Test 7 — Accès aux routes
+
+Tester :
+
+```text
+Parent → /admin ✗
+Comptable → /admin ✗
+Directeur → /admin ✗
+
+Parent → /director ✗
+Comptable → /director ✗
+```
+
+---
+
+# 44. TESTS DE SÉCURITÉ
+
+Vérifier notamment :
+
+* accès direct aux routes protégées ;
+* manipulation du rôle côté client ;
+* accès à un autre établissement ;
+* accès avec session expirée ;
+* logout puis retour arrière ;
+* reset password ;
+* brute-force basique ;
+* exposition des secrets ;
+* accès à la Service Role Key ;
+* politiques RLS ;
+* appels directs aux APIs.
+
+---
+
+# 45. QUALITÉ DU CODE
+
+Le code doit être :
+
+* TypeScript strict ;
+* propre ;
+* modulaire ;
+* typé ;
+* maintenable ;
+* sécurisé ;
+* réutilisable ;
+* cohérent avec l'architecture existante.
+
+Éviter :
+
+* `any` inutile ;
+* duplication ;
+* logique métier dans les composants UI ;
+* secrets hardcodés ;
+* requêtes SQL dangereuses ;
+* contournement de RLS ;
+* logique d'autorisation uniquement côté client.
+
+---
+
+# 46. MIGRATIONS
+
+Toutes les modifications de base doivent être versionnées.
+
+Chaque migration doit être :
+
+* claire ;
+* reproductible ;
+* idempotente lorsque possible ;
+* adaptée à PostgreSQL ;
+* compatible avec Supabase.
+
+Ne pas modifier silencieusement la structure de production.
+
+---
+
+# 47. DOCUMENTATION
+
+À la fin de la Phase 3, documenter :
+
+```text
+Architecture Auth
+Rôles
+Permissions
+Relations utilisateurs
+Relations établissements
+RLS
+Migrations
+Variables d'environnement
+Procédure Super Admin
+Procédure premier login
+Procédure reset password
+```
+
+Ajouter également les instructions nécessaires pour qu'un développeur puisse lancer le système en local.
+
+---
+
+# 48. RAPPORT FINAL OBLIGATOIRE
+
+Lorsque tout est terminé, fournir un rapport contenant :
+
+### Architecture
+
+* système Auth utilisé ;
+* structure des profils ;
+* rôles ;
+* relations.
+
+### Base de données
+
+* migrations créées ;
+* tables créées/modifiées ;
+* contraintes ;
+* politiques RLS.
+
+### Routes
+
+* routes publiques ;
+* routes protégées ;
+* routes par rôle.
+
+### Sécurité
+
+* protection des sessions ;
+* protection des rôles ;
+* isolation multi-tenant ;
+* gestion des secrets ;
+* procédure Super Admin ;
+* audit ;
+* MFA si activé/préparé.
+
+### Tests
+
+* tests effectués ;
+* résultats ;
+* éventuels problèmes.
+
+### Déploiement
+
+Confirmer :
+
+```text
+LOCAL
+✓
+
+VERCEL
+✓
+
+SUPABASE
+✓
+```
+
+---
+
+# 49. CRITÈRE DE VALIDATION FINAL
+
+La Phase 3 est considérée comme terminée uniquement lorsque :
+
+* Supabase Auth fonctionne ;
+* PostgreSQL local fonctionne ;
+* les migrations fonctionnent ;
+* les sessions fonctionnent ;
+* login fonctionne ;
+* logout fonctionne ;
+* reset password fonctionne ;
+* les rôles fonctionnent ;
+* les routes sont protégées ;
+* le Super Admin est sécurisé ;
+* le Directeur est correctement géré ;
+* le Comptable est correctement géré ;
+* le Parent est correctement géré ;
+* l'élève n'a aucun compte Auth ;
+* le parent peut être associé à plusieurs enfants ;
+* les établissements sont isolés ;
+* RLS fonctionne ;
+* aucun secret n'est exposé ;
+* le projet fonctionne localement ;
+* le projet build correctement ;
+* le déploiement Vercel fonctionne ;
+* les Phases 1 et 2 restent intactes.
+
+**NE PAS passer à la Phase 4 tant que cette phase n'est pas stable.**
+
+La Phase 4 pourra ensuite s'occuper du branchement complet des données réelles et du module de gestion des établissements/années scolaires.

@@ -1,0 +1,1018 @@
+EDUCPAY — PHASE 1
+
+Fondation du projet + Architecture initiale + Design System + Landing Page
+
+Tu es un Senior Full-Stack Engineer / Software Architect spécialisé dans les SaaS multi-tenant, avec une forte expérience en TypeScript, Next.js, Node.js, NestJS, PostgreSQL, Expo/React Native, architecture modulaire, sécurité et UX/UI moderne.
+
+Tu travailles sur EducPAY, un SaaS destiné aux établissements scolaires privée pour la gestion de la scolarité et des paiements.
+
+Cette tâche correspond UNIQUEMENT À LA PHASE 1 du développement.
+
+---
+
+1. CONTEXTE DU PRODUIT
+
+EducPAY est un SaaS multi-établissement destiné à la gestion de la scolarité.
+
+Le produit permettra notamment :
+
+- gérer plusieurs établissements ;
+- gérer les années scolaires ;
+- gérer les classes ;
+- gérer les élèves ;
+- gérer les parents ;
+- gérer les frais scolaires ;
+- gérer les frais mensuels ;
+- gérer les frais supplémentaires ;
+- enregistrer les paiements en espèces ;
+- gérer les paiements partiels ;
+- générer des reçus ;
+- permettre aux parents de consulter la situation financière de leurs enfants ;
+- fournir un portail Web ;
+- fournir ultérieurement une application mobile Expo ;
+- gérer les abonnements SaaS des établissements.
+
+Règles métier déjà validées
+
+Élève
+
+- L’élève n’a PAS de compte utilisateur.
+- L’élève est une entité métier.
+- Il est lié à un ou plusieurs parents/tuteurs.
+- Son historique d’inscription doit être conservé.
+
+Parent
+
+- Le parent possède un compte.
+- Le compte parent appartient à un établissement.
+- Un parent peut avoir plusieurs enfants dans cet établissement.
+- Dans la V1, un compte parent n’est pas global à plusieurs établissements.
+- Si le même parent a un enfant dans un autre établissement utilisant EducPAY, il aura actuellement un compte distinct pour cet autre établissement.
+
+Frais
+
+EducPAY doit gérer notamment :
+
+- frais mensuels ;
+- frais d’inscription ;
+- frais d’examen ;
+- autres frais supplémentaires.
+
+Les paiements peuvent être partiels.
+
+Paiement
+
+Pour la V1 :
+
+- paiement uniquement en espèces ;
+- pas de paiement en ligne ;
+- paiement partiel autorisé.
+
+Utilisateurs
+
+Les principaux rôles prévus sont :
+
+- SUPER_ADMIN ;
+- DIRECTOR ;
+- ACCOUNTANT ;
+- PARENT.
+
+---
+
+2. STACK TECHNIQUE À RESPECTER
+
+Ne change pas cette stack sans raison majeure.
+
+Web
+
+- Next.js
+- React
+- TypeScript
+
+Le portail Web devra plus tard contenir :
+
+- portail administrateur SaaS ;
+- portail établissement ;
+- portail parent.
+
+Mobile
+
+- Expo
+- React Native
+- TypeScript
+
+L’application mobile sera développée dans une phase ultérieure.
+
+Backend
+
+- Node.js
+- NestJS
+- TypeScript
+- API REST
+
+Le backend sera développé dans une phase ultérieure, mais la structure du monorepo doit déjà prévoir son emplacement.
+
+Base de données
+
+Développement local
+
+- PostgreSQL installé directement sur la machine.
+- PAS de Docker.
+- PAS de SQLite.
+
+Production
+
+- Supabase PostgreSQL.
+
+Authentification future
+
+- Supabase Auth.
+
+L’authentification n’est PAS à implémenter dans cette phase.
+
+Déploiement futur
+
+- Next.js → Vercel
+- Backend NestJS → infrastructure serveur adaptée
+- PostgreSQL → Supabase
+- Mobile → Expo/EAS
+
+---
+
+3. OBJECTIF DE LA PHASE 1
+
+Cette phase possède quatre objectifs :
+
+Objectif A
+
+Créer une architecture de projet propre et extensible.
+
+Objectif B
+
+Mettre en place les fondations frontend et le Design System.
+
+Objectif C
+
+Créer la structure préparatoire du monorepo pour le Web, le Mobile et l’API.
+
+Objectif D
+
+Construire un Landing Page EducPAY complet, professionnel, responsive et prêt pour la production.
+
+---
+
+4. IMPORTANT : NE PAS DÉVELOPPER LES MODULES MÉTIER
+
+Dans cette phase, tu NE dois PAS développer :
+
+- authentification ;
+- login fonctionnel ;
+- inscription ;
+- gestion des utilisateurs ;
+- gestion des rôles fonctionnelle ;
+- multi-tenancy fonctionnel ;
+- gestion des établissements ;
+- gestion des élèves ;
+- gestion des parents ;
+- gestion des classes ;
+- gestion des frais ;
+- gestion des paiements ;
+- reçus ;
+- rapports ;
+- abonnements ;
+- dashboard fonctionnel.
+
+Ces éléments seront développés dans les phases suivantes.
+
+Tu peux uniquement créer les structures nécessaires pour les accueillir plus tard.
+
+---
+
+5. AVANT DE MODIFIER LE PROJET
+
+Commence par inspecter intégralement le projet existant.
+
+Analyse :
+
+- structure actuelle ;
+- package manager ;
+- fichiers de configuration ;
+- dépendances ;
+- conventions ;
+- fichiers existants ;
+- éventuel code déjà présent ;
+- configuration Next.js ;
+- configuration TypeScript ;
+- configuration Expo si déjà présente.
+
+Ne supprime rien d’important sans justification.
+
+Si le projet existe déjà, adapte la structure au lieu de repartir aveuglément de zéro.
+
+---
+
+6. ARCHITECTURE DU MONOREPO
+
+Prépare une architecture propre pouvant évoluer vers :
+
+educpay/
+│
+├── apps/
+│   ├── web/
+│   │   └── Next.js
+│   │
+│   ├── mobile/
+│   │   └── Expo / React Native
+│   │
+│   └── api/
+│       └── NestJS
+│
+├── packages/
+│   ├── ui/
+│   ├── types/
+│   ├── validation/
+│   ├── api-client/
+│   ├── config/
+│   └── shared/
+│
+├── database/
+│
+├── docs/
+│
+├── .env.example
+├── package.json
+└── README.md
+
+Adapte cette structure aux bonnes pratiques du stack choisi.
+
+Ne crée pas artificiellement des dizaines de fichiers vides.
+
+Les dossiers peuvent être préparés lorsqu’ils ont une vraie utilité future, mais ne remplis pas le projet de fichiers inutiles.
+
+---
+
+7. ARCHITECTURE FRONTEND WEB
+
+Le Web doit être conçu pour pouvoir évoluer vers plusieurs espaces :
+
+Web
+│
+├── Marketing / Landing
+│
+├── Admin SaaS
+│
+├── Établissement
+│   ├── Directeur
+│   └── Comptable
+│
+└── Parent
+
+Pour cette phase, seul le Marketing / Landing doit être réellement développé.
+
+Les autres espaces peuvent uniquement avoir leur structure prévue si nécessaire.
+
+---
+
+8. DESIGN SYSTEM EDUCPAY
+
+Avant de construire le Landing Page, établis un petit Design System cohérent.
+
+Il doit définir notamment :
+
+- couleurs ;
+- typographies ;
+- tailles ;
+- espacements ;
+- border radius ;
+- ombres ;
+- boutons ;
+- inputs ;
+- cards ;
+- badges ;
+- navigation ;
+- sections ;
+- états hover ;
+- états focus ;
+- responsive breakpoints.
+
+Le Design System doit être cohérent et réutilisable plus tard dans :
+
+- dashboard ;
+- portail établissement ;
+- portail parent ;
+- application mobile.
+
+Ne crée pas un design spécifique impossible à réutiliser.
+
+---
+
+9. DESIGN DU LANDING PAGE
+
+Je vais te fournir des captures d’écran de sites/interfaces servant d’inspiration visuelle.
+
+Analyse-les avant de coder.
+
+Tu dois t’inspirer :
+
+- de la composition ;
+- du rythme visuel ;
+- des espacements ;
+- de la hiérarchie ;
+- des formes ;
+- de la qualité des interactions ;
+- de la structure ;
+- de l’utilisation des images ;
+- du style général.
+
+Mais :
+
+NE COPIE PAS directement le design, le code, les textes, les logos ou les éléments propriétaires des références.
+
+Transforme l’inspiration en une identité propre à EducPAY.
+
+---
+
+10. IDENTITÉ DU LANDING
+
+Le site doit immédiatement communiquer :
+
+«EducPAY est une plateforme moderne de gestion de scolarité et de paiements pour les établissements scolaires.»
+
+Le design doit transmettre :
+
+- confiance ;
+- sécurité ;
+- simplicité ;
+- modernité ;
+- sérieux ;
+- transparence ;
+- efficacité.
+
+Le produit traite des données financières : l’interface ne doit donc jamais donner une impression de produit amateur.
+
+---
+
+11. STRUCTURE DU LANDING PAGE
+
+Construis au minimum les sections suivantes.
+
+Header
+
+Contenir :
+
+- logo EducPAY ;
+- navigation ;
+- fonctionnalités ;
+- solution ;
+- tarifs ;
+- FAQ ;
+- bouton de connexion ;
+- CTA principal.
+
+Le header doit être responsive.
+
+Sur mobile :
+
+- menu compact ;
+- navigation accessible ;
+- CTA correctement positionné.
+
+---
+
+12. HERO SECTION
+
+Le Hero doit immédiatement expliquer :
+
+- ce qu’est EducPAY ;
+- à qui il s’adresse ;
+- le bénéfice principal.
+
+Il doit contenir :
+
+- titre fort ;
+- sous-titre ;
+- CTA principal ;
+- CTA secondaire si pertinent ;
+- représentation visuelle du produit.
+
+Le texte doit être professionnel et orienté bénéfice.
+
+Ne pas utiliser de texte générique du type :
+
+«"The future of everything."»
+
+Le visiteur doit comprendre EducPAY en quelques secondes.
+
+---
+
+13. SECTION PROBLÈME
+
+Présenter les problèmes que rencontrent les établissements dans la gestion de la scolarité :
+
+- suivi manuel ;
+- difficulté à suivre les paiements ;
+- manque de visibilité ;
+- erreurs ;
+- difficulté à retrouver l’historique ;
+- gestion des paiements partiels ;
+- communication avec les parents.
+
+La section doit rester concise.
+
+---
+
+14. SECTION SOLUTION
+
+Présenter EducPAY comme solution.
+
+Mettre en avant :
+
+- centralisation ;
+- suivi des frais ;
+- suivi des paiements ;
+- reçus ;
+- visibilité ;
+- portail parent ;
+- historique.
+
+---
+
+15. SECTION FONCTIONNALITÉS
+
+Présenter les fonctionnalités principales sous forme de cartes ou d’une composition visuelle moderne.
+
+Minimum :
+
+Gestion des élèves
+
+Suivi des élèves et inscriptions.
+
+Gestion des parents
+
+Un parent peut suivre plusieurs enfants dans son établissement.
+
+Gestion des frais
+
+Frais mensuels et frais supplémentaires.
+
+Paiements
+
+Enregistrement des paiements cash et paiements partiels.
+
+Reçus
+
+Génération et consultation des reçus.
+
+Portail parent
+
+Consultation des frais, paiements et soldes.
+
+Rapports
+
+Vue claire sur les opérations financières.
+
+---
+
+16. SECTION COMMENT ÇA FONCTIONNE
+
+Présenter un parcours simple :
+
+1. L’établissement crée son espace
+        ↓
+2. Configure son année scolaire
+        ↓
+3. Ajoute élèves et parents
+        ↓
+4. Configure les frais
+        ↓
+5. Enregistre les paiements
+        ↓
+6. Les parents suivent la situation
+
+Utiliser une présentation visuelle claire.
+
+---
+
+17. SECTION POUR LES ÉTABLISSEMENTS
+
+Présenter les bénéfices pour :
+
+Direction
+
+- visibilité ;
+- supervision ;
+- rapports ;
+- contrôle.
+
+Comptable
+
+- saisie rapide ;
+- historique ;
+- reçus ;
+- suivi des soldes.
+
+Parents
+
+- accès aux informations ;
+- suivi des enfants ;
+- historique ;
+- transparence.
+
+---
+
+18. SECTION APERÇU PRODUIT
+
+Présenter des mockups ou représentations du produit.
+
+Important :
+
+Ne pas afficher de fonctionnalités qui n’existent pas encore comme si elles étaient déjà disponibles.
+
+Si nécessaire, utiliser des données fictives clairement conçues pour la présentation elle pourront être replacer par les donnée réel plus tard .
+
+Préparer l’interface afin qu’elle puisse être remplacée plus tard par de vraies captures du dashboard.
+
+---
+
+19. SECTION PORTAIL PARENT
+
+Présenter les deux futurs modes d'accès :
+
+Web
++
+Application mobile
+
+Mettre en avant :
+
+- consultation des enfants ;
+- frais ;
+- paiements ;
+- soldes ;
+- reçus.
+
+Ne pas présenter le paiement en ligne comme disponible.
+
+---
+
+20. SECTION TARIFICATION
+
+Prévoir une section de tarification compatible avec le modèle actuel :
+
+- abonnement mensuel ;
+- abonnement annuel ;
+- facturation par établissement.
+
+Ne pas inventer de prix définitifs si aucun prix n’a encore été validé.
+
+Utiliser des placeholders propres si nécessaire.
+
+La structure doit permettre de remplacer facilement les tarifs plus tard.
+
+---
+
+21. FAQ
+
+Prévoir des questions pertinentes, par exemple :
+
+- Qu’est-ce qu’EducPAY ?
+- À quels établissements s’adresse EducPAY ?
+- Le parent peut-il avoir plusieurs enfants ?
+- Les paiements peuvent-ils être partiels ?
+- Quels moyens de paiement sont disponibles ?
+- Le parent peut-il utiliser son téléphone ?
+- EducPAY propose-t-il une application mobile ?
+- Les données des établissements sont-elles isolées ?
+- Comment fonctionne l’abonnement ?
+
+Ne pas promettre de fonctionnalités non prévues.
+
+---
+
+22. CTA FINAL
+
+Créer un appel à l'action clair.
+
+Exemples de logique :
+
+Découvrez EducPAY
+
+ou
+
+Commencer avec EducPAY
+
+ou
+
+Demander une démonstration
+
+Choisis le wording le plus cohérent avec le positionnement final.
+
+---
+
+23. FOOTER
+
+Inclure :
+
+- logo ;
+- description courte ;
+- navigation ;
+- produit ;
+- ressources ;
+- contact ;
+- mentions légales si nécessaires ;
+- confidentialité ;
+- copyright.
+
+Préparer les liens pour pouvoir les connecter plus tard.
+
+---
+
+24. RESPONSIVE DESIGN
+
+Le Landing doit être parfaitement responsive.
+
+Tester au minimum :
+
+- petit mobile ;
+- grand mobile ;
+- tablette ;
+- laptop ;
+- desktop large.
+
+Attention particulière à :
+
+- navigation ;
+- Hero ;
+- images ;
+- cards ;
+- tableaux de prix ;
+- CTA ;
+- typographie ;
+- espacements.
+
+Aucune section ne doit provoquer de débordement horizontal.
+
+---
+
+25. ACCESSIBILITÉ
+
+Respecter les bonnes pratiques :
+
+- HTML sémantique ;
+- navigation clavier ;
+- focus visible ;
+- labels accessibles ;
+- boutons correctement identifiés ;
+- contraste suffisant ;
+- alt text pour les images pertinentes ;
+- structure correcte des titres.
+
+---
+
+26. PERFORMANCE
+
+Le Landing doit être rapide.
+
+Éviter :
+
+- dépendances inutiles ;
+- bibliothèques lourdes sans nécessité ;
+- animations excessives ;
+- images non optimisées ;
+- JavaScript inutile.
+
+Utiliser correctement les capacités de Next.js.
+
+Les animations doivent servir l'expérience et non ralentir le site.
+
+---
+
+27. SEO DE BASE
+
+Préparer :
+
+- title ;
+- meta description ;
+- Open Graph ;
+- favicon ;
+- structure H1/H2/H3 correcte ;
+- URLs propres ;
+- metadata Next.js ;
+- robots si nécessaire ;
+- sitemap lorsque pertinent.
+
+Prévoir le référencement futur d’EducPAY.
+
+---
+
+28. ANIMATIONS
+
+Utiliser des animations légères et professionnelles.
+
+Exemples :
+
+- apparition progressive ;
+- hover ;
+- transitions ;
+- micro-interactions ;
+- léger mouvement dans certaines illustrations.
+
+Ne pas transformer le Landing en démonstration excessive d'animations.
+
+La priorité reste :
+
+clarté > performance > élégance.
+
+---
+
+29. COMPOSANTS RÉUTILISABLES
+
+Construire le Landing avec des composants réutilisables.
+
+Exemple :
+
+components/
+├── marketing/
+│   ├── Header
+│   ├── Hero
+│   ├── Problem
+│   ├── Solution
+│   ├── Features
+│   ├── HowItWorks
+│   ├── Benefits
+│   ├── ProductPreview
+│   ├── ParentPortal
+│   ├── Pricing
+│   ├── FAQ
+│   ├── CTA
+│   └── Footer
+│
+└── ui/
+    ├── Button
+    ├── Card
+    ├── Badge
+    └── ...
+
+Adapter cette structure si ton architecture frontend recommande mieux.
+
+---
+
+30. DONNÉES DU LANDING
+
+Ne hardcode pas inutilement des blocs répétitifs directement dans le JSX.
+
+Pour les éléments répétitifs, utiliser des structures de données.
+
+Exemple conceptuel :
+
+features[]
+pricingPlans[]
+faqItems[]
+benefits[]
+
+Cela facilitera les modifications futures.
+
+---
+
+31. VARIABLES D'ENVIRONNEMENT
+
+Créer uniquement les variables réellement nécessaires.
+
+Fournir :
+
+.env.example
+
+Ne jamais mettre :
+
+- secrets ;
+- clés privées ;
+- tokens ;
+- credentials réels ;
+
+dans Git.
+
+---
+
+32. README
+
+Créer ou mettre à jour le README avec :
+
+- présentation d’EducPAY ;
+- stack ;
+- architecture ;
+- prérequis ;
+- installation locale ;
+- lancement du projet ;
+- variables d’environnement ;
+- commandes disponibles ;
+- structure du projet ;
+- règles importantes.
+
+Le README doit permettre à un autre développeur de comprendre rapidement le projet.
+
+---
+
+33. GIT
+
+Le projet doit avoir une structure Git propre.
+
+Prévoir :
+
+- ".gitignore" ;
+- exclusion des secrets ;
+- exclusion des builds ;
+- commits cohérents si tu effectues les commits ;
+- aucune donnée sensible dans le repository.
+
+---
+
+34. QUALITÉ DU CODE
+
+Respecter :
+
+- TypeScript strict ;
+- composants lisibles ;
+- fonctions courtes ;
+- séparation des responsabilités ;
+- aucun code mort ;
+- aucun "any" inutile ;
+- aucun secret hardcodé ;
+- aucune duplication inutile.
+
+Ne crée pas d’abstraction complexe sans nécessité.
+
+---
+
+35. TESTS DE PHASE 1
+
+Même si cette phase est principalement frontend, effectuer au minimum :
+
+Vérification structurelle
+
+- projet installable ;
+- build réussi ;
+- TypeScript valide ;
+- lint valide.
+
+Vérification UI
+
+- Landing accessible ;
+- toutes les sections visibles ;
+- responsive ;
+- navigation fonctionnelle ;
+- menu mobile fonctionnel ;
+- CTA fonctionnels ou correctement préparés ;
+- aucun overflow horizontal.
+
+Vérification performance
+
+- images optimisées ;
+- pas de dépendances inutiles ;
+- pas d'erreurs console critiques.
+
+---
+
+36. CRITÈRES D'ACCEPTATION
+
+La Phase 1 est considérée comme terminée uniquement si :
+
+- [ ] structure du projet créée ;
+- [ ] architecture compatible Web + Mobile + API ;
+- [ ] Next.js correctement configuré ;
+- [ ] Expo prévu dans le monorepo ;
+- [ ] NestJS prévu dans le monorepo ;
+- [ ] PostgreSQL prévu pour le développement local ;
+- [ ] Docker non utilisé ;
+- [ ] Design System initial créé ;
+- [ ] Landing Page complet ;
+- [ ] design cohérent avec les captures fournies ;
+- [ ] responsive mobile/tablette/desktop ;
+- [ ] SEO de base ;
+- [ ] accessibilité de base ;
+- [ ] performance correcte ;
+- [ ] README mis à jour ;
+- [ ] ".env.example" présent ;
+- [ ] lint réussi ;
+- [ ] typecheck réussi ;
+- [ ] build réussi ;
+- [ ] aucune fonctionnalité métier des phases suivantes implémentée.
+
+---
+
+37. CE QUI EST STRICTEMENT INTERDIT DANS CETTE PHASE
+
+Ne pas :
+
+- implémenter Supabase Auth ;
+- créer de vrais comptes utilisateurs ;
+- créer les API métier ;
+- créer les tables métier ;
+- créer le système de paiement ;
+- créer la logique multi-tenant ;
+- créer les dashboards fonctionnels ;
+- créer les écrans de gestion des élèves ;
+- créer les écrans de gestion des parents ;
+- créer les écrans de gestion des frais ;
+- créer les écrans de paiement ;
+- installer des dépendances inutiles ;
+- utiliser Docker ;
+- modifier arbitrairement la stack ;
+- inventer des fonctionnalités non validées.
+
+---
+
+38. IMPORTANT — PRÉPARATION DES PHASES SUIVANTES
+
+La Phase 1 doit préparer le terrain pour :
+
+Phase 2
+App Shell
+Dashboard
+Navbar
+Sidebar
+Responsive
+        ↓
+Phase 3
+Auth
+Roles
+Permissions
+Multi-tenant
+        ↓
+Phase 4+
+Modules métier
+
+Ne crée donc pas une architecture qui obligerait à refaire le frontend lorsque les dashboards et les rôles seront introduits.
+
+---
+
+39. MÉTHODE DE TRAVAIL OBLIGATOIRE
+
+Travaille dans cet ordre :
+
+Étape 1
+
+Inspecter le projet existant.
+
+Étape 2
+
+Proposer brièvement la structure finale prévue.
+
+Étape 3
+
+Mettre en place la structure technique.
+
+Étape 4
+
+Mettre en place le Design System.
+
+Étape 5
+
+Analyser les captures de design que je vais fournir.
+
+Étape 6
+
+Construire le Landing Page.
+
+Étape 7
+
+Tester responsive, build, lint et typecheck.
+
+Étape 8
+
+Faire un contrôle final de conformité avec ce prompt.
+
+Ne passe pas à la Phase 2.
+
+---
+
+40. LIVRABLE FINAL
+
+À la fin de cette phase, je veux :
+
+1. Un projet EducPAY proprement structuré.
+2. Une base frontend Next.js fonctionnelle.
+3. La structure préparée pour Expo.
+4. La structure préparée pour NestJS.
+5. Un Design System initial.
+6. Un Landing Page professionnel complet.
+7. Une expérience responsive.
+8. Une base SEO/accessibilité/performance correcte.
+9. Un README clair.
+10. Un ".env.example".
+11. Un projet qui passe lint, typecheck et build.
+12. Aucun module métier développé prématurément.
+
+RÈGLE FINALE
+
+Ne cherche pas à montrer que tu peux coder beaucoup. Cherche à construire une fondation propre qui permettra à EducPAY d'évoluer pendant plusieurs années sans devoir être réécrit.
+
+Lorsque la Phase 1 est terminée, arrête-toi et fournis un rapport indiquant :
+
+- ce qui a été créé ;
+- la structure finale ;
+- les dépendances ajoutées ;
+- les décisions techniques prises ;
+- les tests effectués ;
+- les éventuels problèmes ;
+- les points qui devront être traités en Phase 2.
+
+N'implémente pas la Phase 2 dans cette tâche.

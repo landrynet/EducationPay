@@ -1,0 +1,1064 @@
+# EDUCPAY — PHASE 3A
+
+# TEMPLATE D’AUTHENTIFICATION + SIMULATION LOCALE
+
+## 0. CONTEXTE DU PROJET
+
+Tu travailles sur **EducPAY**, un SaaS professionnel destiné à la gestion de la scolarité des établissements scolaires.
+
+L'architecture du projet doit être construite progressivement, proprement et sans anticiper les phases futures.
+
+### Phases déjà réalisées
+
+**Phase 1 — Fondation + Landing Page**
+
+* architecture initiale ;
+* Design System ;
+* composants UI ;
+* Landing Page ;
+* responsive ;
+* routes publiques ;
+* déploiement Vercel.
+
+**Phase 2 — Dashboard Super Admin**
+
+* Dashboard Super Admin ;
+* layout applicatif ;
+* Sidebar ;
+* Navbar ;
+* navigation du Super Admin ;
+* structure de son espace.
+
+Ces deux phases sont considérées comme la base actuelle du projet.
+
+---
+
+# 1. MISSION DE CETTE PHASE
+
+Nous commençons maintenant :
+
+> **PHASE 3A — TEMPLATE D’AUTHENTIFICATION + SIMULATION LOCALE**
+
+Cette phase est extrêmement importante.
+
+L'authentification constitue la **porte d'entrée d'EducPAY**.
+
+Nous devons donc construire cette partie avec une qualité professionnelle :
+
+* architecture propre ;
+* UX excellente ;
+* design cohérent ;
+* responsive ;
+* accessibilité ;
+* composants réutilisables ;
+* séparation claire des responsabilités ;
+* préparation à Supabase.
+
+---
+
+# 2. RÈGLE ABSOLUE : PHASE 3A UNIQUEMENT
+
+Tu dois travailler **uniquement sur la Phase 3A**.
+
+Ne développe aucune fonctionnalité appartenant aux phases suivantes.
+
+### Interdit pour cette phase
+
+Ne développe pas :
+
+* gestion des établissements ;
+* gestion des élèves ;
+* gestion des parents ;
+* gestion des frais ;
+* gestion des paiements ;
+* abonnements ;
+* portail parent ;
+* application mobile Expo ;
+* gestion des utilisateurs métier ;
+* fonctionnalités métier du Super Admin ;
+* multi-tenant métier.
+
+---
+
+# 3. SUPABASE : PAS ENCORE
+
+### Très important
+
+**NE CONNECTE PAS SUPABASE DANS CETTE PHASE.**
+
+Pas de :
+
+* Supabase Auth ;
+* connexion réelle à Supabase ;
+* tables Supabase ;
+* migrations métier ;
+* RLS métier ;
+* comptes utilisateurs réels ;
+* API Supabase pour l'authentification.
+
+La connexion réelle à Supabase sera faite dans :
+
+> **Phase 3B — Authentification réelle avec Supabase.**
+
+---
+
+# 4. POURQUOI UNE SIMULATION LOCALE ?
+
+Nous voulons d'abord valider :
+
+* le design ;
+* l'UX ;
+* les formulaires ;
+* les routes ;
+* les états ;
+* les erreurs ;
+* la navigation ;
+* la protection du dashboard ;
+* le comportement responsive.
+
+Nous allons donc créer une **simulation locale temporaire**.
+
+Cette simulation doit être clairement séparée de l'authentification réelle.
+
+Elle sera entièrement remplacée ou adaptée en Phase 3B.
+
+---
+
+# 5. NE JAMAIS PRÉSENTER LA SIMULATION COMME UNE VRAIE AUTHENTIFICATION
+
+La simulation locale n'est pas une sécurité de production.
+
+Elle sert uniquement au développement.
+
+Ne jamais écrire dans le projet que :
+
+```text
+Authentication secured
+```
+
+ou une formulation similaire indiquant que l'authentification réelle est déjà sécurisée.
+
+À cette étape :
+
+```text
+Authentification réelle : NON
+Supabase : NON
+Simulation locale : OUI
+```
+
+---
+
+# 6. AUDIT OBLIGATOIRE AVANT DE CODER
+
+Avant toute modification :
+
+inspecte le projet existant.
+
+Analyse :
+
+* structure des dossiers ;
+* routes ;
+* composants ;
+* Design System ;
+* layouts ;
+* Dashboard Super Admin ;
+* hooks ;
+* services ;
+* utilitaires ;
+* types ;
+* styles ;
+* dépendances ;
+* configuration ;
+* variables d'environnement.
+
+### Objectif
+
+Comprendre ce qui existe déjà avant de créer quoi que ce soit.
+
+**Ne recrée jamais quelque chose qui existe déjà.**
+
+---
+
+# 7. RESPECT DU DESIGN SYSTEM EXISTANT
+
+C'est une règle obligatoire.
+
+Avant de créer l'interface d'authentification :
+
+**étudie le Design System actuel d'EducPAY.**
+
+Réutilise au maximum :
+
+* Button ;
+* Input ;
+* Label ;
+* Card ;
+* Dialog ;
+* Toast ;
+* Alert ;
+* Typography ;
+* Icon ;
+* Loading ;
+* composants de formulaire ;
+* spacing ;
+* couleurs ;
+* radius ;
+* shadows ;
+* transitions ;
+* breakpoints ;
+* conventions existantes.
+
+### Interdiction
+
+Ne crée pas un deuxième Design System.
+
+Ne crée pas une autre palette.
+
+Ne crée pas une autre typographie.
+
+Ne crée pas des composants doublons.
+
+Si un composant existant doit être amélioré, améliore-le de manière générique afin qu'il reste réutilisable.
+
+---
+
+# 8. OBJECTIF DESIGN
+
+Les pages d'authentification doivent être :
+
+* modernes ;
+* élégantes ;
+* professionnelles ;
+* sobres ;
+* cohérentes avec EducPAY ;
+* rassurantes ;
+* rapides à comprendre ;
+* parfaitement responsive.
+
+Ce ne doit pas être un simple formulaire posé au milieu de l'écran.
+
+L'utilisateur doit immédiatement comprendre qu'il entre dans une plateforme SaaS professionnelle.
+
+---
+
+# 9. ARCHITECTURE AUTH
+
+Créer une architecture réutilisable.
+
+Par exemple, selon l'architecture existante :
+
+```text
+auth/
+├── components/
+├── layouts/
+├── services/
+├── types/
+└── validation/
+```
+
+ou une structure équivalente adaptée au projet.
+
+### Important
+
+Ne copie pas cette structure aveuglément.
+
+Utilise l'architecture actuelle d'EducPAY si elle est déjà meilleure.
+
+---
+
+# 10. AUTH LAYOUT
+
+Créer un layout d'authentification réutilisable.
+
+Exemple conceptuel :
+
+```text
+AuthLayout
+│
+├── Branding EducPAY
+│
+├── Auth Content
+│
+└── Footer / informations
+```
+
+Le layout doit être partagé par les différentes pages d'authentification.
+
+Ne duplique pas le même code visuel dans chaque page.
+
+---
+
+# 11. PAGE LOGIN
+
+Créer :
+
+```text
+/auth/login
+```
+
+### Contenu
+
+* logo EducPAY ;
+* titre ;
+* description courte ;
+* email ;
+* mot de passe ;
+* afficher/masquer le mot de passe ;
+* bouton de connexion ;
+* lien mot de passe oublié ;
+* éventuellement lien inscription selon le comportement défini dans le projet.
+
+### États
+
+Gérer :
+
+```text
+idle
+loading
+success
+error
+```
+
+Exemple :
+
+```text
+Connexion...
+```
+
+pendant le traitement.
+
+Empêcher les doubles soumissions.
+
+---
+
+# 12. PAGE INSCRIPTION
+
+Créer :
+
+```text
+/auth/register
+```
+
+Préparer une interface professionnelle comprenant :
+
+* nom ;
+* email ;
+* mot de passe ;
+* confirmation ;
+* validation ;
+* erreurs ;
+* loading ;
+* succès.
+
+### Important
+
+Nous préparons uniquement le template.
+
+Ne définis pas maintenant la logique métier définitive de création des différents rôles.
+
+La logique réelle sera définie avec Supabase et les phases suivantes.
+
+---
+
+# 13. PAGE MOT DE PASSE OUBLIÉ
+
+Créer :
+
+```text
+/auth/forgot-password
+```
+
+Contenu :
+
+* email ;
+* bouton ;
+* loading ;
+* succès ;
+* erreur ;
+* retour vers Login.
+
+Aucun email réel ne doit être envoyé.
+
+La simulation doit simplement reproduire l'expérience utilisateur.
+
+---
+
+# 14. PAGE RESET PASSWORD
+
+Créer :
+
+```text
+/auth/reset-password
+```
+
+Contenu :
+
+* nouveau mot de passe ;
+* confirmation ;
+* indicateur de robustesse ;
+* validation ;
+* loading ;
+* succès ;
+* erreur.
+
+Le système de token réel sera implémenté en Phase 3B.
+
+---
+
+# 15. PAGE PREMIÈRE CONNEXION
+
+Créer :
+
+```text
+/auth/first-login
+```
+
+Cette page servira plus tard pour les comptes créés par l'administration avec des identifiants temporaires.
+
+Préparer :
+
+* nouveau mot de passe ;
+* confirmation ;
+* informations de sécurité ;
+* validation ;
+* loading ;
+* succès ;
+* erreur.
+
+### Important
+
+Ne pas implémenter ici le mécanisme définitif de compte temporaire.
+
+---
+
+# 16. SIMULATION LOCALE D'AUTHENTIFICATION
+
+Créer un système de simulation propre et isolé.
+
+Architecture conceptuelle :
+
+```text
+UI
+ ↓
+Auth abstraction
+ ↓
+Mock Auth
+```
+
+La future architecture sera :
+
+```text
+UI
+ ↓
+Auth abstraction
+ ↓
+Supabase Auth
+```
+
+Ainsi, la Partie B pourra remplacer le Mock Auth sans reconstruire toute l'interface.
+
+---
+
+# 17. COMPORTEMENT DE LA SIMULATION
+
+La simulation doit permettre de tester :
+
+### Login réussi
+
+Avec des identifiants de démonstration clairement définis.
+
+Exemple conceptuel :
+
+```text
+Email : superadmin@demo.local
+Mot de passe : valeur de démonstration
+```
+
+Utilise des données de démonstration qui ne correspondent à aucun vrai secret.
+
+### Login incorrect
+
+Afficher un message d'erreur utilisateur clair.
+
+### Loading
+
+Simuler un traitement asynchrone.
+
+### Session simulée
+
+Après connexion :
+
+```text
+Login
+ ↓
+Mock Auth
+ ↓
+Session locale
+ ↓
+Dashboard Super Admin
+```
+
+### Logout
+
+```text
+Dashboard
+ ↓
+Logout
+ ↓
+Suppression session simulée
+ ↓
+Login
+```
+
+---
+
+# 18. PROTECTION DU DASHBOARD
+
+Le Dashboard Super Admin existe déjà.
+
+Ne reconstruis pas son design.
+
+Ajoute uniquement le mécanisme nécessaire pour tester :
+
+### Sans session
+
+```text
+/dashboard
+      ↓
+/auth/login
+```
+
+### Avec session simulée
+
+```text
+/auth/login
+      ↓
+/dashboard
+```
+
+### Après logout
+
+```text
+/dashboard
+      ↓
+/auth/login
+```
+
+---
+
+# 19. IMPORTANT : NE PAS DÉTRUIRE LA PHASE 2
+
+Le Dashboard Super Admin est déjà développé.
+
+Ne le supprime pas.
+
+Ne le refais pas.
+
+Ne change pas son architecture inutilement.
+
+Tu dois uniquement connecter temporairement son accès à la simulation locale.
+
+---
+
+# 20. STOCKAGE LOCAL
+
+Si une session simulée doit être conservée après refresh, utilise uniquement un mécanisme de stockage local approprié à la simulation.
+
+### Attention
+
+Ne jamais présenter ce mécanisme comme une solution de sécurité.
+
+Ne jamais y stocker un véritable mot de passe.
+
+Ne jamais simuler un système de sécurité complexe avec des secrets en clair.
+
+---
+
+# 21. VALIDATION FORMULAIRES
+
+Les formulaires doivent être proprement validés.
+
+### Email
+
+* obligatoire ;
+* format valide.
+
+### Mot de passe
+
+* longueur minimale ;
+* règles cohérentes ;
+* confirmation obligatoire lorsque nécessaire.
+
+### Messages
+
+Les messages doivent être :
+
+* clairs ;
+* courts ;
+* compréhensibles ;
+* cohérents avec le design.
+
+---
+
+# 22. ACCESSIBILITÉ
+
+Respecter les bonnes pratiques :
+
+* labels associés aux inputs ;
+* navigation clavier ;
+* focus visible ;
+* boutons accessibles ;
+* messages d'erreur accessibles ;
+* contraste correct ;
+* HTML sémantique ;
+* aria uniquement si réellement nécessaire.
+
+---
+
+# 23. RESPONSIVE DESIGN
+
+Les pages doivent être testées sur :
+
+```text
+Mobile
+Tablet
+Desktop
+Large Desktop
+```
+
+Vérifier :
+
+* aucune barre horizontale ;
+* aucun contenu coupé ;
+* formulaire correctement dimensionné ;
+* boutons accessibles ;
+* textes lisibles ;
+* navigation correcte ;
+* clavier mobile ;
+* spacing cohérent.
+
+---
+
+# 24. PERFORMANCE
+
+Ne pas ajouter de complexité inutile.
+
+Éviter :
+
+* composants client inutiles ;
+* JavaScript inutile ;
+* dépendances supplémentaires inutiles ;
+* images lourdes ;
+* animations excessives.
+
+Utiliser les capacités natives du framework lorsqu'elles suffisent.
+
+---
+
+# 25. DÉPENDANCES
+
+### RÈGLE PERMANENTE EDUCPAY
+
+**NE JAMAIS UTILISER UNE BIBLIOTHÈQUE DÉFECTUEUSE.**
+
+Avant toute nouvelle dépendance :
+
+1. vérifier qu'elle est maintenue ;
+2. vérifier sa compatibilité ;
+3. vérifier son état de sécurité ;
+4. vérifier les problèmes connus ;
+5. vérifier les conflits ;
+6. vérifier si le projet possède déjà une solution ;
+7. vérifier si une API native suffit.
+
+### Interdiction
+
+Ne jamais ajouter une bibliothèque :
+
+* abandonnée ;
+* obsolète ;
+* instable ;
+* inutile ;
+* incompatible ;
+* présentant une vulnérabilité critique connue sans justification.
+
+### Principe
+
+> **Moins de dépendances, mais de meilleures dépendances.**
+
+Ne mets pas à jour massivement les dépendances existantes.
+
+---
+
+# 26. NOMMAGE
+
+Tous les fichiers et dossiers doivent avoir des noms professionnels.
+
+Exemples :
+
+```text
+AuthLayout
+LoginForm
+RegisterForm
+ForgotPasswordForm
+ResetPasswordForm
+FirstLoginForm
+AuthGuard
+AuthService
+MockAuthService
+```
+
+Interdit :
+
+```text
+testAuth
+authTest2
+newLogin
+loginFinal
+finalAuth
+tempAuth
+replitAuth
+test2
+```
+
+Ne jamais nommer un dossier selon l'outil utilisé pour développer le projet.
+
+---
+
+# 27. ENVIRONNEMENT POUR LA PHASE 3B
+
+Même si Supabase n'est pas encore connecté, prépare correctement l'environnement pour la prochaine partie.
+
+Vérifier :
+
+```text
+.env.example
+```
+
+et la structure générale des variables d'environnement.
+
+### Ne pas ajouter de vraies clés Supabase.
+
+Ne pas créer de fausses clés.
+
+Ne pas mettre de secrets dans Git.
+
+La Partie B pourra ensuite ajouter les variables Supabase nécessaires.
+
+---
+
+# 28. ARCHITECTURE POUR SUPABASE
+
+L'objectif est que le passage :
+
+```text
+Mock Auth
+```
+
+vers :
+
+```text
+Supabase Auth
+```
+
+soit simple.
+
+Par exemple :
+
+```text
+Auth UI
+   ↓
+Auth Service / abstraction
+   ↓
+Mock implementation
+```
+
+En Phase 3B :
+
+```text
+Auth UI
+   ↓
+Auth Service / abstraction
+   ↓
+Supabase implementation
+```
+
+Ne mélange pas directement toute la logique Supabase dans les composants UI.
+
+---
+
+# 29. ROUTES
+
+Les routes finales de cette phase doivent être propres :
+
+```text
+/auth/login
+/auth/register
+/auth/forgot-password
+/auth/reset-password
+/auth/first-login
+```
+
+Respecter les conventions de routing déjà utilisées dans le projet.
+
+---
+
+# 30. TESTS LOCAUX
+
+Tester manuellement toute la chaîne.
+
+## Login
+
+* affichage ;
+* email vide ;
+* email invalide ;
+* mot de passe vide ;
+* mauvais identifiants ;
+* identifiants valides ;
+* loading ;
+* redirection ;
+* refresh ;
+* logout.
+
+## Register
+
+* champs invalides ;
+* confirmation incorrecte ;
+* succès simulé ;
+* erreurs.
+
+## Forgot Password
+
+* email invalide ;
+* email valide ;
+* loading ;
+* succès simulé.
+
+## Reset Password
+
+* mot de passe invalide ;
+* confirmation incorrecte ;
+* succès.
+
+## First Login
+
+* validation ;
+* mot de passe ;
+* confirmation ;
+* succès simulé.
+
+## Dashboard
+
+* accès sans session ;
+* accès avec session ;
+* logout ;
+* accès après logout.
+
+---
+
+# 31. TESTS TECHNIQUES
+
+Exécuter les commandes réellement disponibles dans le projet.
+
+Vérifier au minimum :
+
+```text
+TypeScript
+Lint
+Build
+Runtime
+```
+
+Aucune erreur critique ne doit rester.
+
+---
+
+# 32. VERCEL
+
+Après validation locale :
+
+1. lancer le build production ;
+2. corriger toutes les erreurs ;
+3. commit ;
+4. push ;
+5. attendre le déploiement Vercel ;
+6. ouvrir l'application en production ;
+7. tester les pages Auth ;
+8. tester la simulation ;
+9. tester le Dashboard ;
+10. tester le responsive ;
+11. vérifier la console navigateur.
+
+### Important
+
+La simulation doit fonctionner sur Vercel sans Supabase.
+
+---
+
+# 33. GIT
+
+Avant le commit :
+
+```text
+git status
+```
+
+Inspecter tous les fichiers.
+
+Vérifier :
+
+* aucun secret ;
+* aucun mot de passe réel ;
+* aucun token ;
+* aucun fichier `.env` sensible ;
+* aucune donnée personnelle ;
+* aucun fichier temporaire inutile.
+
+Puis effectuer un commit propre.
+
+Exemple :
+
+```text
+feat(auth): add authentication UI and local simulation
+```
+
+Puis pousser les changements sur le dépôt distant conformément au workflow actuel.
+
+---
+
+# 34. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, donne un rapport précis.
+
+## Architecture
+
+Explique où se trouvent :
+
+* layouts ;
+* pages ;
+* composants ;
+* services ;
+* simulation ;
+* types ;
+* validations.
+
+## Pages
+
+```text
+/auth/login
+/auth/register
+/auth/forgot-password
+/auth/reset-password
+/auth/first-login
+```
+
+## Composants
+
+Liste les nouveaux composants.
+
+## Composants réutilisés
+
+Liste les composants existants réutilisés.
+
+## Simulation
+
+Explique exactement comment elle fonctionne.
+
+## Supabase
+
+Confirme explicitement :
+
+```text
+Supabase connecté : NON
+Supabase Auth : NON
+Base de données : NON
+```
+
+## Préparation Phase 3B
+
+Explique ce qui a été préparé pour permettre l'intégration Supabase sans refaire l'UI.
+
+## Tests
+
+Donne les résultats :
+
+```text
+TypeScript : PASS / FAIL
+Lint : PASS / FAIL
+Build : PASS / FAIL
+Login : PASS / FAIL
+Register : PASS / FAIL
+Forgot password : PASS / FAIL
+Reset password : PASS / FAIL
+First login : PASS / FAIL
+Session simulée : PASS / FAIL
+Logout : PASS / FAIL
+Protection Dashboard : PASS / FAIL
+Responsive : PASS / FAIL
+Vercel : PASS / FAIL
+```
+
+## Git
+
+Confirmer :
+
+```text
+Commit : effectué
+Push : effectué
+Déploiement Vercel : effectué
+```
+
+---
+
+# 35. CRITÈRE DE VALIDATION
+
+La Phase 3A est considérée comme terminée uniquement si :
+
+* l'interface Auth est professionnelle ;
+* elle respecte le Design System EducPAY ;
+* les composants existants sont réutilisés ;
+* les pages sont responsive ;
+* les formulaires fonctionnent ;
+* la simulation locale fonctionne ;
+* la session simulée fonctionne ;
+* le Dashboard Super Admin reste intact ;
+* la protection simulée fonctionne ;
+* le build passe ;
+* Vercel fonctionne ;
+* aucun secret n'est exposé ;
+* le code est propre ;
+* l'architecture est prête pour Supabase ;
+* le commit est effectué ;
+* les changements sont poussés.
+
+---
+
+# 36. ARRÊT OBLIGATOIRE
+
+Une fois tous les critères validés :
+
+**ARRÊTE-TOI.**
+
+Ne commence pas la Phase 3B.
+
+Ne connecte pas Supabase.
+
+Ne crée pas les tables Supabase.
+
+Ne crée pas les utilisateurs réels.
+
+Ne développe pas les établissements.
+
+Ne développe pas les parents.
+
+Ne développe pas les élèves.
+
+Ne développe pas les paiements.
+
+Ne développe pas les abonnements.
+
+La prochaine étape sera exclusivement :
+
+> **PHASE 3B — CONNEXION RÉELLE À SUPABASE + SUPABASE AUTH.**
+
+Nous validerons d'abord complètement cette Phase 3A avant de continuer.

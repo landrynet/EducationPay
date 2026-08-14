@@ -1,0 +1,1308 @@
+EDUCPAY — PHASE 3C
+INSCRIPTION, VALIDATION ET ACTIVATION DES ÉTABLISSEMENTS
+
+==================================================
+CONTEXTE DU PROJET
+==================================================
+
+EducPAY est un SaaS destiné à la gestion de la scolarité des établissements.
+
+Les phases précédentes sont déjà implémentées et validées :
+
+PHASE 1
+→ Structure du projet + Landing Page
+→ VALIDÉE
+
+PHASE 2
+→ Dashboard Super Admin
+→ VALIDÉE
+
+PHASE 3A
+→ Création initiale du premier Super Admin
+→ VALIDÉE
+
+PHASE 3B
+→ Authentification et sécurisation du Super Admin
+→ VALIDÉE
+
+Nous sommes maintenant dans :
+
+PHASE 3C
+→ Inscription, validation et activation des établissements.
+
+IMPORTANT :
+Cette partie doit être développée sans casser les phases précédentes.
+
+==================================================
+1. OBJECTIF DE LA PHASE 3C
+==================================================
+
+Mettre en place un système permettant à un établissement de :
+
+1. s'inscrire lui-même ;
+2. créer les informations de son établissement ;
+3. créer son Responsable principal ;
+4. configurer les paramètres initiaux nécessaires ;
+5. vérifier toutes ses informations ;
+6. soumettre sa demande ;
+7. attendre la validation du Super Admin ;
+8. recevoir un email lorsque la demande est validée ;
+9. activer son compte via un lien sécurisé ;
+10. définir son mot de passe ;
+11. se connecter ensuite à son espace.
+
+Le Super Admin doit pouvoir :
+
+1. recevoir une notification lorsqu'un établissement s'inscrit ;
+2. recevoir un email ;
+3. consulter la demande ;
+4. vérifier les informations ;
+5. accepter ;
+6. refuser avec un motif ;
+7. permettre à l'établissement de corriger sa demande ;
+8. conserver l'historique de la demande.
+
+==================================================
+2. RÈGLE ABSOLUE — INSPECTER AVANT DE CODER
+==================================================
+
+AVANT toute modification :
+
+Inspecter entièrement le projet.
+
+Identifier :
+
+- architecture ;
+- routes ;
+- composants ;
+- Design System ;
+- pages existantes ;
+- formulaires existants ;
+- composants d'authentification ;
+- page Login ;
+- page Inscription existante ;
+- Dashboard Super Admin ;
+- système de notifications ;
+- configuration Supabase ;
+- variables d'environnement ;
+- modèles de données existants ;
+- éventuelles pages ou templates déjà commencés.
+
+NE PAS commencer par créer de nouveaux templates.
+
+D'abord comprendre ce qui existe.
+
+==================================================
+3. RÈGLE DESIGN — TRÈS IMPORTANTE
+==================================================
+
+Certaines pages existent déjà.
+
+Exemples :
+
+- Login ;
+- Inscription ;
+- Mot de passe oublié ;
+- autres pages d'authentification.
+
+NE PAS redesigner ces pages.
+
+NE PAS créer une deuxième version.
+
+NE PAS changer leur apparence inutilement.
+
+Le nouveau parcours d'inscription doit utiliser :
+
+- les mêmes composants ;
+- les mêmes boutons ;
+- les mêmes champs ;
+- les mêmes couleurs ;
+- la même typographie ;
+- les mêmes espacements ;
+- les mêmes cartes ;
+- les mêmes animations ;
+- les mêmes règles responsive.
+
+Si un template existe mais est incomplet :
+
+→ le compléter.
+
+NE PAS le remplacer.
+
+Si une page nécessaire n'existe réellement pas :
+
+→ la créer en reprenant exactement le Design System existant.
+
+Toutes les nouvelles pages doivent sembler appartenir au même produit.
+
+==================================================
+4. INSCRIPTION SOUS FORME D'ASSISTANT
+==================================================
+
+L'inscription d'un établissement NE DOIT PAS être un énorme formulaire sur une seule page.
+
+Créer un assistant multi-étapes.
+
+Exemple :
+
+ÉTAPE 1
+Informations de l'établissement
+
+ÉTAPE 2
+Informations du Responsable principal
+
+ÉTAPE 3
+Configuration initiale
+
+ÉTAPE 4
+Vérification finale
+
+ÉTAPE 5
+Soumission
+
+Le nombre exact d'étapes peut être adapté si l'architecture existante le nécessite.
+
+Mais l'expérience doit rester simple et professionnelle.
+
+==================================================
+5. INDICATEUR DE PROGRESSION
+==================================================
+
+L'assistant doit afficher clairement la progression.
+
+Exemple :
+
+[1 Établissement] — [2 Responsable] — [3 Configuration] — [4 Vérification]
+
+L'utilisateur doit savoir :
+
+- où il se trouve ;
+- quelles étapes sont terminées ;
+- quelle étape vient ensuite.
+
+Utiliser le Design System existant.
+
+NE PAS créer un composant visuellement différent du reste de l'application.
+
+==================================================
+6. ÉTAPE 1 — INFORMATIONS DE L'ÉTABLISSEMENT
+==================================================
+
+Collecter uniquement les informations nécessaires.
+
+Exemples :
+
+- nom officiel ;
+- type d'établissement ;
+- niveaux :
+  - Primaire ;
+  - Secondaire ;
+  - Primaire + Secondaire ;
+- adresse ;
+- ville ;
+- province ;
+- téléphone ;
+- email officiel ;
+- autres informations essentielles définies par le modèle de données.
+
+Créer un identifiant/code établissement automatiquement.
+
+Exemple :
+
+EDU-7F42K9
+
+Le code doit être généré côté système.
+
+L'utilisateur ne doit pas pouvoir choisir un identifiant qui crée un conflit.
+
+==================================================
+7. ÉTAPE 2 — RESPONSABLE PRINCIPAL
+==================================================
+
+Créer le Responsable principal de l'établissement.
+
+Règles :
+
+1 établissement
+→ 1 Responsable principal au départ.
+
+1 Responsable
+→ 1 établissement au départ.
+
+Informations possibles :
+
+- prénom ;
+- nom ;
+- email ;
+- téléphone ;
+- fonction.
+
+Le Responsable ne doit PAS pouvoir choisir :
+
+SUPER_ADMIN
+
+Le rôle est attribué par le système.
+
+Exemple conceptuel :
+
+role = ESTABLISHMENT_ADMIN
+
+ou le rôle professionnel choisi dans l'architecture existante.
+
+NE PAS permettre au frontend de définir librement le rôle.
+
+==================================================
+8. MOT DE PASSE DU RESPONSABLE
+==================================================
+
+NE PAS demander au responsable de créer immédiatement son mot de passe définitif pendant la demande si cela entre en conflit avec le système d'activation.
+
+Le compte peut être créé dans un état :
+
+PENDING_ACTIVATION
+
+Après validation de l'établissement :
+
+→ envoyer un lien d'activation.
+
+Le Responsable clique sur le lien.
+
+Il définit alors son mot de passe.
+
+Cette approche évite que l'établissement crée un compte actif avant validation.
+
+==================================================
+9. ÉTAPE 3 — CONFIGURATION INITIALE
+==================================================
+
+L'établissement doit pouvoir fournir quelques paramètres fondamentaux.
+
+Mais NE PAS transformer l'inscription en configuration complète du système.
+
+Configuration minimale possible :
+
+- année scolaire actuelle ;
+- niveau(x) ;
+- informations nécessaires au fonctionnement initial.
+
+Ne PAS demander maintenant :
+
+- tous les élèves ;
+- tous les parents ;
+- tous les comptables ;
+- tous les frais détaillés ;
+- tous les paiements.
+
+Ces fonctionnalités seront développées dans les phases suivantes.
+
+Après activation, le Responsable pourra compléter la configuration depuis son Dashboard.
+
+==================================================
+10. SAUVEGARDE DU FORMULAIRE
+==================================================
+
+Le parcours multi-étapes doit être robuste.
+
+Lorsque l'utilisateur passe :
+
+Étape 1
+→ Étape 2
+→ Étape 3
+
+les informations déjà saisies ne doivent pas disparaître.
+
+Le système doit conserver l'état du formulaire pendant le parcours.
+
+Éviter de faire perdre les données à l'utilisateur lorsqu'il revient en arrière.
+
+==================================================
+11. NAVIGATION ARRIÈRE
+==================================================
+
+L'utilisateur doit pouvoir revenir à une étape précédente.
+
+Exemple :
+
+Étape 3
+→ Retour
+→ Étape 2
+
+Il peut modifier les informations.
+
+Puis :
+
+Étape 2
+→ Continuer
+→ Étape 3
+
+Les données doivent être conservées.
+
+NE PAS forcer l'utilisateur à recommencer depuis le début.
+
+==================================================
+12. VALIDATION DES CHAMPS
+==================================================
+
+Chaque étape doit valider ses données avant de permettre de continuer.
+
+Exemples :
+
+- champs obligatoires ;
+- format email ;
+- téléphone ;
+- longueur minimale ;
+- valeurs autorisées ;
+- cohérence des informations.
+
+Les erreurs doivent apparaître clairement à proximité des champs concernés.
+
+NE PAS attendre uniquement la dernière étape pour détecter toutes les erreurs.
+
+==================================================
+13. ÉTAPE 4 — VÉRIFICATION FINALE
+==================================================
+
+C'est une étape OBLIGATOIRE.
+
+Avant de soumettre la demande, afficher une page :
+
+"Vérifiez vos informations"
+
+Cette page doit présenter un résumé clair de toutes les informations.
+
+Exemple :
+
+ÉTABLISSEMENT
+Nom : ...
+Type : ...
+Niveaux : ...
+Adresse : ...
+Téléphone : ...
+
+RESPONSABLE
+Nom : ...
+Email : ...
+Téléphone : ...
+
+CONFIGURATION
+Année scolaire : ...
+Niveaux : ...
+
+==================================================
+14. MODIFICATION DEPUIS LA VÉRIFICATION
+==================================================
+
+À côté de chaque section du récapitulatif, prévoir :
+
+"Modifier"
+
+Exemple :
+
+Informations établissement
+[Modifier]
+
+Responsable
+[Modifier]
+
+Configuration
+[Modifier]
+
+Lorsque l'utilisateur clique :
+
+→ retour à l'étape correspondante.
+
+Il peut modifier.
+
+Puis revenir à la page de vérification.
+
+Le résumé doit être mis à jour automatiquement.
+
+==================================================
+15. SOUMISSION FINALE
+==================================================
+
+La page finale doit contenir une action claire :
+
+"Soumettre ma demande"
+
+Avant la soumission :
+
+- vérifier une dernière fois les données ;
+- vérifier la cohérence ;
+- empêcher les doubles soumissions ;
+- afficher un état de chargement.
+
+Après clic :
+
+→ désactiver temporairement le bouton ;
+→ envoyer la demande ;
+→ gérer correctement les erreurs.
+
+NE PAS créer deux demandes si l'utilisateur double-clique.
+
+==================================================
+16. APRÈS SOUMISSION
+==================================================
+
+Après succès :
+
+Afficher une page de confirmation.
+
+Exemple :
+
+"Votre demande d'inscription a bien été envoyée."
+
+Afficher :
+
+- numéro/référence de demande ;
+- email utilisé ;
+- statut ;
+- prochaines étapes.
+
+Statut :
+
+PENDING_REVIEW
+
+Informer l'utilisateur :
+
+"Votre établissement est actuellement en attente de validation par EducPAY."
+
+NE PAS donner accès au Dashboard établissement à ce stade.
+
+==================================================
+17. EMAIL DE CONFIRMATION
+==================================================
+
+Après soumission :
+
+envoyer un email au Responsable indiquant que la demande a été reçue.
+
+Exemple conceptuel :
+
+"Votre demande d'inscription EducPAY a bien été reçue et est en cours de vérification."
+
+Ne pas envoyer de mot de passe.
+
+==================================================
+18. NOTIFICATION SUPER ADMIN
+==================================================
+
+Lorsqu'une nouvelle demande est créée :
+
+Le Super Admin doit recevoir :
+
+1. notification dans son Dashboard ;
+2. email.
+
+Le Dashboard doit permettre de voir :
+
+"Nouvelle demande d'établissement"
+
+==================================================
+19. DASHBOARD SUPER ADMIN
+==================================================
+
+Réutiliser le Dashboard Super Admin existant.
+
+NE PAS recréer son design.
+
+Ajouter uniquement les fonctionnalités nécessaires.
+
+Créer une section :
+
+Établissements
+
+avec au minimum :
+
+- demandes en attente ;
+- établissements approuvés ;
+- établissements refusés ;
+- établissements suspendus si le modèle le prévoit.
+
+==================================================
+20. FICHE D'UNE DEMANDE
+==================================================
+
+Le Super Admin doit pouvoir ouvrir une demande.
+
+Afficher :
+
+- informations établissement ;
+- Responsable ;
+- configuration initiale ;
+- date de demande ;
+- statut ;
+- historique.
+
+Actions :
+
+[Valider]
+
+[Refuser]
+
+==================================================
+21. VALIDATION
+==================================================
+
+Lorsque le Super Admin clique :
+
+"Valider"
+
+effectuer les opérations nécessaires de manière atomique et sécurisée.
+
+Changer le statut :
+
+PENDING_REVIEW
+→ APPROVED
+
+Puis préparer l'activation du compte Responsable.
+
+Envoyer l'email d'activation.
+
+==================================================
+22. REFUS
+==================================================
+
+Lorsque le Super Admin clique :
+
+"Refuser"
+
+NE PAS supprimer la demande.
+
+Demander un motif.
+
+Exemple :
+
+"Motif du refus"
+
+Le motif doit être obligatoire.
+
+Après confirmation :
+
+PENDING_REVIEW
+→ REJECTED
+
+Conserver le motif et l'historique.
+
+==================================================
+23. EMAIL DE REFUS
+==================================================
+
+Le Responsable reçoit un email indiquant :
+
+- que la demande a été refusée ;
+- le motif ;
+- qu'il peut corriger les informations ;
+- qu'il peut soumettre à nouveau.
+
+NE PAS exposer d'informations internes.
+
+==================================================
+24. CORRECTION APRÈS REFUS
+==================================================
+
+Un établissement REJECTED doit pouvoir corriger sa demande.
+
+Workflow :
+
+REJECTED
+↓
+Modifier
+↓
+Correction
+↓
+Vérification
+↓
+Soumission
+↓
+PENDING_REVIEW
+
+Ne pas créer un nouvel établissement.
+
+Conserver la même demande / identité établissement selon l'architecture retenue.
+
+Conserver l'historique des changements.
+
+==================================================
+25. RÉSOUMISSION
+==================================================
+
+Lorsqu'une demande corrigée est soumise :
+
+→ statut PENDING_REVIEW.
+
+Le Super Admin reçoit une nouvelle notification.
+
+Le système doit conserver l'historique :
+
+- première soumission ;
+- refus ;
+- correction ;
+- nouvelle soumission ;
+- validation.
+
+==================================================
+26. ACTIVATION DU RESPONSABLE
+==================================================
+
+Après validation :
+
+APPROVED
++
+PENDING_ACTIVATION
+
+Envoyer un lien d'activation sécurisé.
+
+Le lien doit être :
+
+- unique ;
+- difficile à deviner ;
+- à usage contrôlé ;
+- valable 48 heures.
+
+Le lien ne doit jamais contenir le mot de passe.
+
+==================================================
+27. EXPIRATION DU LIEN
+==================================================
+
+Après 48 heures :
+
+le lien devient invalide.
+
+Le Responsable doit pouvoir demander :
+
+"Renvoyer le lien d'activation"
+
+Créer un nouveau lien sécurisé.
+
+Invalider correctement l'ancien si nécessaire.
+
+NE PAS permettre l'utilisation indéfinie du même token.
+
+==================================================
+28. ACTIVATION
+==================================================
+
+Le Responsable clique :
+
+Email
+↓
+Lien
+↓
+Page d'activation
+↓
+Définition du mot de passe
+↓
+Confirmation
+↓
+Compte ACTIVE
+↓
+Connexion
+
+Utiliser Supabase Auth.
+
+NE PAS créer un système de mot de passe parallèle.
+
+==================================================
+29. APRÈS ACTIVATION
+==================================================
+
+Une fois le compte activé :
+
+Le Responsable peut se connecter.
+
+Il doit accéder uniquement à son établissement.
+
+Il ne doit voir aucune donnée d'un autre établissement.
+
+==================================================
+30. MULTI-TENANCY
+==================================================
+
+C'est une règle CRITIQUE.
+
+Chaque établissement constitue un tenant.
+
+Exemple :
+
+TENANT A
+↓
+Données A
+
+TENANT B
+↓
+Données B
+
+Aucune requête utilisateur ne doit permettre à un Responsable de récupérer les données d'un autre établissement.
+
+Le tenant_id / establishment_id doit être correctement utilisé selon l'architecture de données.
+
+NE PAS se fier uniquement à une valeur envoyée par le frontend.
+
+Utiliser les mécanismes serveur + RLS appropriés.
+
+==================================================
+31. STATUTS
+==================================================
+
+Utiliser une séparation claire entre :
+
+STATUT ÉTABLISSEMENT
+
+PENDING_REVIEW
+APPROVED
+REJECTED
+SUSPENDED
+
+et :
+
+STATUT COMPTE RESPONSABLE
+
+PENDING_ACTIVATION
+ACTIVE
+DISABLED
+
+Ne pas mélanger les deux.
+
+==================================================
+32. ABONNEMENT — NE PAS IMPLÉMENTER
+==================================================
+
+Le futur système d'abonnement n'est PAS développé dans cette Phase 3C.
+
+Cependant, l'architecture doit pouvoir accueillir plus tard :
+
+FREE
+ACTIVE
+PAST_DUE
+EXPIRED
+CANCELLED
+
+Aujourd'hui :
+
+APPROVED
+→ accès gratuit selon les règles actuelles.
+
+Plus tard :
+
+APPROVED
++
+ABONNEMENT ACTIF
+→ accès.
+
+Si abonnement expiré :
+
+→ accès limité/bloqué selon les futures règles.
+
+NE PAS coder cette logique maintenant.
+
+==================================================
+33. SÉCURITÉ
+==================================================
+
+NE JAMAIS :
+
+- faire confiance au rôle envoyé par le frontend ;
+- faire confiance au tenant_id envoyé par le frontend ;
+- permettre à un utilisateur de devenir SUPER_ADMIN ;
+- stocker des mots de passe en clair ;
+- stocker des tokens d'activation en clair si une architecture plus sécurisée est possible ;
+- exposer des secrets ;
+- désactiver RLS pour simplifier le développement ;
+- utiliser une clé service côté frontend.
+
+Utiliser Supabase Auth et RLS correctement.
+
+==================================================
+34. RLS
+==================================================
+
+Configurer les politiques nécessaires.
+
+Le Super Admin doit pouvoir gérer les demandes selon son rôle.
+
+Un établissement doit pouvoir accéder uniquement à ses propres données autorisées.
+
+Un établissement ne doit pas pouvoir :
+
+- voir les autres établissements ;
+- modifier les autres établissements ;
+- modifier son rôle ;
+- modifier son statut ;
+- valider sa propre demande ;
+- devenir SUPER_ADMIN.
+
+==================================================
+35. AUDIT
+==================================================
+
+Conserver un historique des actions importantes.
+
+Exemples :
+
+- demande créée ;
+- demande soumise ;
+- demande refusée ;
+- demande corrigée ;
+- demande resoumise ;
+- demande approuvée ;
+- activation envoyée ;
+- compte activé.
+
+Pour les actions administratives importantes :
+
+- qui ;
+- quoi ;
+- quand ;
+- établissement concerné ;
+- ancienne valeur ;
+- nouvelle valeur si nécessaire.
+
+==================================================
+36. DESIGN DES PAGES MANQUANTES
+==================================================
+
+Si des pages nécessaires manquent :
+
+les créer avec le Design System existant.
+
+Exemples possibles :
+
+- assistant d'inscription ;
+- vérification finale ;
+- confirmation de demande ;
+- statut de demande ;
+- activation du compte ;
+- correction d'une demande refusée.
+
+NE PAS inventer un nouveau style.
+
+Utiliser les composants existants.
+
+==================================================
+37. RESPONSIVE
+==================================================
+
+L'assistant d'inscription doit fonctionner correctement :
+
+- desktop ;
+- tablette ;
+- mobile.
+
+L'utilisateur doit pouvoir effectuer toute l'inscription depuis un téléphone.
+
+==================================================
+38. DONNÉES DE TEST
+==================================================
+
+Pendant le développement, des données de test peuvent être utilisées uniquement si nécessaire.
+
+Mais avant validation finale :
+
+supprimer :
+
+- faux établissements ;
+- faux comptes ;
+- faux tokens ;
+- fausses demandes ;
+- mocks inutiles ;
+- bypass d'authentification.
+
+Le système final doit utiliser les vraies données et les vrais flux Supabase.
+
+==================================================
+39. VERCEL
+==================================================
+
+Vercel n'est PAS encore connecté.
+
+NE PAS prétendre avoir effectué le déploiement Vercel.
+
+Après validation locale :
+
+1. vérifier le projet ;
+2. vérifier le build ;
+3. vérifier les variables nécessaires ;
+4. commit ;
+5. push vers Git.
+
+STOP.
+
+Ne pas inventer un résultat Vercel.
+
+==================================================
+40. VARIABLES VERCEL À PRÉPARER
+==================================================
+
+À la fin, fournir exactement les variables utilisées réellement par le projet.
+
+Pour chaque variable :
+
+- nom ;
+- description ;
+- où obtenir la valeur ;
+- public/secrète ;
+- environnement concerné.
+
+Ne pas inventer de variables.
+
+Ne jamais afficher de secrets réels.
+
+==================================================
+41. CONFIGURATION SUPABASE À DOCUMENTer
+==================================================
+
+À la fin, indiquer ce qui devra être configuré dans Supabase :
+
+- Auth ;
+- Email ;
+- Redirect URLs ;
+- templates email si nécessaire ;
+- RLS ;
+- tables ;
+- policies ;
+- fonctions éventuelles ;
+- triggers éventuels.
+
+Ne pas prétendre avoir effectué ce qui n'a pas été effectué.
+
+==================================================
+42. EMAILS
+==================================================
+
+Identifier clairement les emails nécessaires :
+
+1. confirmation de demande ;
+2. demande approuvée / activation ;
+3. demande refusée ;
+4. éventuellement renvoi du lien d'activation.
+
+Utiliser une architecture propre.
+
+Ne pas mettre de logique email directement dans les composants UI.
+
+==================================================
+43. GESTION DES ERREURS
+==================================================
+
+Prévoir les cas :
+
+- email déjà utilisé ;
+- établissement déjà enregistré ;
+- erreur réseau ;
+- erreur Supabase ;
+- demande déjà soumise ;
+- token expiré ;
+- token invalide ;
+- demande déjà approuvée ;
+- demande déjà refusée ;
+- double soumission.
+
+Afficher des messages compréhensibles.
+
+NE PAS afficher :
+
+- stack trace ;
+- secrets ;
+- tokens ;
+- informations internes ;
+- erreurs SQL détaillées.
+
+==================================================
+44. BUILD ET TESTS
+==================================================
+
+Exécuter les commandes réellement présentes dans le projet.
+
+Vérifier :
+
+- TypeScript ;
+- lint ;
+- build ;
+- tests existants.
+
+Ne pas inventer de commandes inexistantes.
+
+==================================================
+45. TESTS FONCTIONNELS OBLIGATOIRES
+==================================================
+
+TEST 1
+
+Établissement
+→ ouvre inscription
+→ étape 1
+→ étape 2
+→ étape 3
+→ étape 4
+→ soumission
+
+Résultat :
+PENDING_REVIEW
+
+TEST 2
+
+Retour arrière
+
+Étape 3
+→ Étape 2
+→ modification
+→ Étape 3
+
+Les données sont conservées.
+
+TEST 3
+
+Vérification finale
+
+→ afficher toutes les informations
+→ Modifier une section
+→ revenir
+→ vérifier que les données sont mises à jour.
+
+TEST 4
+
+Double clic sur soumission
+
+→ une seule demande créée.
+
+TEST 5
+
+Nouvelle demande
+
+→ notification Super Admin
+→ email Super Admin.
+
+TEST 6
+
+Super Admin
+→ ouvre demande
+→ valide.
+
+Résultat :
+APPROVED
+
+TEST 7
+
+Validation
+→ email d'activation.
+
+TEST 8
+
+Lien valide
+→ activation réussie.
+
+TEST 9
+
+Lien après 48 h
+→ REFUSÉ.
+
+TEST 10
+
+Renvoi activation
+→ nouveau lien.
+
+TEST 11
+
+Super Admin refuse
+→ motif obligatoire.
+
+TEST 12
+
+Établissement refusé
+→ reçoit le motif.
+
+TEST 13
+
+Établissement corrige
+→ resoumet.
+
+Résultat :
+PENDING_REVIEW
+
+TEST 14
+
+Responsable activé
+→ Login
+→ Dashboard établissement.
+
+TEST 15
+
+Responsable A
+→ tentative d'accès aux données établissement B
+→ REFUSÉ.
+
+TEST 16
+
+Utilisateur normal
+→ tentative de devenir SUPER_ADMIN
+→ REFUSÉ.
+
+==================================================
+46. GIT
+==================================================
+
+Après validation :
+
+1. git status ;
+2. vérifier les modifications ;
+3. vérifier qu'aucun secret n'est présent ;
+4. vérifier .gitignore ;
+5. commit ;
+6. push.
+
+Le commit doit être propre et descriptif.
+
+Exemple :
+
+feat: implement establishment registration and approval workflow
+
+==================================================
+47. RAPPORT FINAL
+==================================================
+
+À la fin fournir :
+
+### Pages existantes réutilisées
+
+Lister les pages existantes utilisées.
+
+### Pages complétées
+
+Lister les templates existants qui ont été complétés.
+
+### Pages nouvelles
+
+Lister uniquement les pages réellement créées.
+
+### Parcours d'inscription
+
+Décrire les étapes.
+
+### Workflow validation
+
+Décrire :
+
+PENDING_REVIEW
+→ APPROVED / REJECTED
+→ activation.
+
+### Sécurité
+
+Décrire :
+
+- Auth ;
+- RLS ;
+- multi-tenancy ;
+- activation ;
+- tokens ;
+- rôles.
+
+### Tests
+
+Indiquer :
+
+TypeScript : PASS / FAIL
+Lint : PASS / FAIL
+Build : PASS / FAIL
+Inscription : PASS / FAIL
+Navigation étapes : PASS / FAIL
+Retour/modification : PASS / FAIL
+Vérification finale : PASS / FAIL
+Soumission : PASS / FAIL
+Notification : PASS / FAIL
+Validation : PASS / FAIL
+Refus : PASS / FAIL
+Resoumission : PASS / FAIL
+Activation : PASS / FAIL
+Expiration 48h : PASS / FAIL
+Multi-tenancy : PASS / FAIL
+
+### Git
+
+Commit : PASS / FAIL
+Push : PASS / FAIL
+
+==================================================
+48. INFORMATIONS À ME FOURNIR À LA FIN
+==================================================
+
+Ajouter obligatoirement :
+
+CONFIGURATION SUPABASE À FAIRE
+
+VARIABLES VERCEL À AJOUTER
+
+PROCÉDURE POUR TESTER L'INSCRIPTION
+
+PROCÉDURE POUR CRÉER / ACTIVER UN ÉTABLISSEMENT
+
+PROCÉDURE POUR OBTENIR LE PREMIER COMPTE RESPONSABLE
+
+Ne donner aucune valeur secrète réelle.
+
+==================================================
+49. CONDITION DE FIN
+==================================================
+
+La Phase 3C est considérée comme terminée uniquement lorsque :
+
+✓ l'établissement peut s'inscrire seul ;
+✓ le parcours est multi-étapes ;
+✓ la progression est visible ;
+✓ retour arrière fonctionnel ;
+✓ modification fonctionnelle ;
+✓ vérification finale obligatoire ;
+✓ soumission sécurisée ;
+✓ statut PENDING_REVIEW ;
+✓ Super Admin reçoit notification ;
+✓ Super Admin reçoit email ;
+✓ Super Admin peut consulter ;
+✓ Super Admin peut valider ;
+✓ Super Admin peut refuser avec motif ;
+✓ l'établissement peut corriger ;
+✓ l'établissement peut resoumettre ;
+✓ email d'activation envoyé après validation ;
+✓ lien valable 48 heures ;
+✓ activation fonctionnelle ;
+✓ Responsable peut définir son mot de passe ;
+✓ Responsable peut se connecter ;
+✓ isolation des établissements fonctionnelle ;
+✓ RLS correctement configuré ;
+✓ aucun mot de passe ou secret exposé ;
+✓ aucune page existante inutilement recréée ;
+✓ aucune page existante inutilement redesignée ;
+✓ les nouvelles pages utilisent le design existant ;
+✓ aucun abonnement implémenté ;
+✓ aucun module métier futur implémenté ;
+✓ Phase 1 toujours fonctionnelle ;
+✓ Phase 2 toujours fonctionnelle ;
+✓ Phase 3A toujours fonctionnelle ;
+✓ Phase 3B toujours fonctionnelle ;
+✓ build réussi ;
+✓ commit effectué ;
+✓ push effectué.
+
+==================================================
+50. ARRÊT OBLIGATOIRE
+==================================================
+
+APRÈS LA VALIDATION DE LA PHASE 3C :
+
+NE PAS COMMENCER LA PHASE 4.
+
+NE PAS développer :
+
+- gestion des comptables ;
+- gestion des parents ;
+- gestion des élèves ;
+- frais ;
+- paiements ;
+- portail parent ;
+- application mobile ;
+- abonnements.
+
+La Phase 3 doit être considérée comme TERMINÉE.
+
+Attendre les instructions pour la Phase 4.

@@ -1,0 +1,1099 @@
+# EDUCPAY — PHASE 2
+
+## APP SHELL — SIDEBAR — NAVBAR — DASHBOARD DE BASE
+
+### PROMPT STRICT DE DÉVELOPPEMENT
+
+---
+
+# 0. CONTEXTE DU PROJET
+
+EducPAY est un SaaS de gestion de scolarité destiné aux établissements scolaires.
+
+La **Phase 1 est terminée et validée**.
+
+Elle contient notamment :
+
+* structure initiale du projet ;
+* architecture frontend ;
+* Landing Page ;
+* Design System ;
+* typographie ;
+* couleurs ;
+* composants UI ;
+* responsive ;
+* navigation publique ;
+* configuration du projet ;
+* déploiement Vercel.
+
+Les anciennes Phases 2, 3 et 4 ont été supprimées afin de repartir sur une base propre.
+
+Tu dois maintenant développer **UNIQUEMENT LA PHASE 2**.
+
+---
+
+# 1. PRIORITÉ ABSOLUE : RESPECTER L'ARCHITECTURE EXISTANTE
+
+### RÈGLE NON NÉGOCIABLE
+
+**Tu dois respecter l'architecture déjà définie dans le projet EducPAY.**
+
+Tu ne dois pas créer une nouvelle architecture simplement parce qu'une autre organisation te paraît meilleure.
+
+Avant de modifier quoi que ce soit :
+
+1. inspecte l'architecture actuelle ;
+2. comprends les responsabilités des dossiers ;
+3. comprends les conventions de nommage ;
+4. comprends les composants existants ;
+5. comprends le routing ;
+6. comprends le système de styles ;
+7. comprends la configuration ;
+8. identifie les composants réutilisables.
+
+Ensuite, **intègre la Phase 2 dans cette architecture**.
+
+### Interdiction
+
+Ne pas :
+
+* déplacer arbitrairement les fichiers ;
+* renommer massivement les dossiers ;
+* créer une architecture parallèle ;
+* dupliquer le Design System ;
+* créer un deuxième système de composants ;
+* créer un deuxième système de styles ;
+* modifier la structure de la Phase 1 sans nécessité.
+
+---
+
+# 2. RÈGLE : NE PAS CASSER LA PHASE 1
+
+La Phase 1 est validée.
+
+Elle doit continuer à fonctionner exactement comme avant.
+
+Avant toute modification, identifier les éléments critiques de la Landing Page.
+
+Après chaque modification importante :
+
+* tester la Landing Page ;
+* vérifier les styles ;
+* vérifier les assets ;
+* vérifier le routing ;
+* vérifier le responsive.
+
+### IMPORTANT
+
+Si une modification de la Phase 2 casse la Phase 1 :
+
+> **corrige immédiatement avant de continuer.**
+
+Ne jamais laisser une régression connue.
+
+---
+
+# 3. CORRECTION OBLIGATOIRE DE VERCEL
+
+Il existe actuellement cette erreur lors du déploiement Vercel :
+
+```text
+No Output Directory named "public" found after the Build completed.
+
+Configure the Output Directory in your Project Settings.
+
+Alternatively, configure vercel.json#outputDirectory.
+```
+
+### Cette erreur doit être corrigée dans cette phase.
+
+Mais attention :
+
+**Ne fais pas simplement une modification arbitraire de Vercel pour faire disparaître l'erreur.**
+
+Commence par identifier :
+
+* framework utilisé ;
+* commande de build ;
+* dossier réellement généré après le build ;
+* configuration Vercel actuelle ;
+* `vercel.json` s'il existe ;
+* `package.json` ;
+* éventuelle configuration du framework.
+
+Détermine pourquoi Vercel cherche un dossier :
+
+```text
+public
+```
+
+alors que le build génère probablement un autre dossier ou utilise un framework qui gère automatiquement son output.
+
+### Objectif
+
+Configurer Vercel **correctement pour le framework utilisé**.
+
+Ne jamais créer un faux dossier `public` uniquement pour satisfaire Vercel.
+
+Ne jamais copier les fichiers build dans `public` comme hack.
+
+Ne jamais utiliser une solution temporaire.
+
+---
+
+# 4. VÉRIFICATION DU BUILD
+
+Avant de corriger Vercel, exécuter le build localement.
+
+Identifier précisément :
+
+```text
+Build command
+Output directory
+Framework
+Node version
+Package manager
+```
+
+Puis vérifier le résultat réel du build.
+
+La configuration Vercel doit correspondre à ce résultat.
+
+### Si le framework gère automatiquement son output
+
+Laisser Vercel utiliser la configuration native du framework lorsque cela est approprié.
+
+### Si un `outputDirectory` est réellement nécessaire
+
+Configurer le vrai dossier généré.
+
+Ne jamais mettre :
+
+```text
+public
+```
+
+simplement parce que Vercel le demande dans l'erreur.
+
+---
+
+# 5. VERCEL — VALIDATION OBLIGATOIRE
+
+Après correction :
+
+```text
+Local build
+     ↓
+PASS
+     ↓
+Git push
+     ↓
+Vercel build
+     ↓
+PASS
+     ↓
+Production
+     ↓
+Landing Page accessible
+     ↓
+Application accessible
+```
+
+Vérifier également qu'il n'y a pas d'erreur runtime en production.
+
+---
+
+# 6. OBJECTIF DE LA PHASE 2
+
+La Phase 2 consiste à construire l'ossature de l'application.
+
+Elle comprend :
+
+```text
+Application Shell
+       │
+       ├── Sidebar
+       ├── Navbar / Topbar
+       ├── Navigation interne
+       ├── Main Content
+       └── Dashboard de base
+```
+
+Cette phase prépare l'application pour les futures fonctionnalités.
+
+---
+
+# 7. CE QUI EST STRICTEMENT HORS PÉRIMÈTRE
+
+NE PAS implémenter :
+
+* authentification ;
+* login ;
+* inscription ;
+* logout ;
+* sessions ;
+* Supabase Auth ;
+* rôles ;
+* permissions ;
+* Super Admin ;
+* Directeur ;
+* Comptable ;
+* Parent ;
+* Élève ;
+* établissement ;
+* paiement ;
+* frais ;
+* année scolaire ;
+* abonnement ;
+* comptabilité ;
+* notifications métier ;
+* API métier ;
+* CRUD métier.
+
+Ces fonctionnalités seront implémentées dans les phases suivantes.
+
+---
+
+# 8. APP SHELL
+
+Créer un App Shell réutilisable.
+
+Structure conceptuelle :
+
+```text
+┌─────────────────────────────────────────────┐
+│                  NAVBAR                     │
+├────────────────┬────────────────────────────┤
+│                │                            │
+│    SIDEBAR     │       MAIN CONTENT         │
+│                │                            │
+│                │                            │
+│                │                            │
+└────────────────┴────────────────────────────┘
+```
+
+Le Shell doit être :
+
+* propre ;
+* responsive ;
+* réutilisable ;
+* accessible ;
+* performant ;
+* cohérent avec la Landing Page.
+
+---
+
+# 9. SIDEBAR — MODÈLES FOURNIS
+
+Je vais te fournir plusieurs modèles de Sidebar.
+
+Tu dois les **analyser et choisir celui qui s'intègre le mieux à EducPAY**.
+
+### RÈGLE IMPORTANTE
+
+Tu ne dois pas choisir le modèle parce qu'il est :
+
+* plus sophistiqué ;
+* plus animé ;
+* plus impressionnant ;
+* plus complexe.
+
+Tu dois choisir celui qui correspond le mieux au **langage visuel de la Landing Page EducPAY**.
+
+La priorité est :
+
+```text
+Landing Page
+      ↓
+Design Language
+      ↓
+Sidebar
+```
+
+et non :
+
+```text
+Sidebar impressionnante
+      ↓
+Landing Page adaptée ensuite
+```
+
+---
+
+# 10. SIDEBAR — COHÉRENCE VISUELLE
+
+La Sidebar doit reprendre :
+
+* typographie ;
+* famille de police ;
+* poids de police ;
+* tailles ;
+* couleurs ;
+* border radius ;
+* spacing ;
+* marges ;
+* paddings ;
+* hauteur des éléments ;
+* style des icônes ;
+* effets ;
+* transitions ;
+* états actifs ;
+* états hover ;
+* états focus.
+
+Tout doit sembler appartenir au **même produit**.
+
+Lorsque l'utilisateur passe de la Landing Page à l'application :
+
+> il doit avoir l'impression d'entrer dans le même produit.
+
+---
+
+# 11. NE PAS SURDESIGNER
+
+Le modèle fourni peut être très joli.
+
+Mais :
+
+**ne cherche pas à faire "mieux" que la Landing Page.**
+
+La Landing Page reste la référence.
+
+Si un effet du modèle :
+
+* est trop lourd ;
+* trop animé ;
+* trop coloré ;
+* trop complexe ;
+* ralentit l'interface ;
+* casse le responsive ;
+* ne correspond pas à EducPAY ;
+
+alors **ne l'utilise pas**.
+
+---
+
+# 12. EFFETS ET ANIMATIONS
+
+Les animations doivent être discrètes et professionnelles.
+
+Utiliser seulement lorsque nécessaire :
+
+* hover ;
+* transition ;
+* ouverture/fermeture ;
+* changement d'état ;
+* micro-interactions.
+
+Éviter :
+
+* animations permanentes ;
+* effets excessifs ;
+* mouvements inutiles ;
+* transitions lourdes ;
+* animations qui bloquent l'utilisation.
+
+### Règle
+
+> **Un effet ne doit jamais être plus important que la fonctionnalité.**
+
+---
+
+# 13. TYPOGRAPHIE
+
+La typographie de la Landing Page est la référence.
+
+**Ne change pas de police pour la Phase 2.**
+
+Conserver :
+
+* famille de police ;
+* poids ;
+* hiérarchie ;
+* tailles ;
+* line-height ;
+* letter-spacing ;
+* style général.
+
+Si le modèle de Sidebar fourni utilise une autre police :
+
+> adapter le modèle à la typographie EducPAY.
+
+Ne pas adapter EducPAY au modèle.
+
+---
+
+# 14. RESPONSIVE
+
+Le responsive de la Landing Page constitue également une référence.
+
+La Sidebar et la Navbar doivent fonctionner correctement sur :
+
+```text
+Mobile
+Tablet
+Desktop
+Large Desktop
+```
+
+### Mobile
+
+La Sidebar doit devenir une navigation mobile adaptée.
+
+Par exemple :
+
+```text
+┌─────────────────────────┐
+│ ☰   EducPAY             │
+├─────────────────────────┤
+│                         │
+│       CONTENT           │
+│                         │
+└─────────────────────────┘
+```
+
+Le comportement doit être propre :
+
+* ouverture ;
+* fermeture ;
+* overlay si nécessaire ;
+* verrouillage éventuel du scroll ;
+* navigation clavier ;
+* focus ;
+* fermeture après navigation si approprié.
+
+---
+
+# 15. NAVBAR
+
+Créer une Navbar / Topbar cohérente avec la Sidebar.
+
+Elle doit pouvoir contenir :
+
+* menu mobile ;
+* titre de page ;
+* breadcrumb si nécessaire ;
+* espace d'actions ;
+* emplacement futur du profil.
+
+### MAIS
+
+Ne pas créer de véritable profil utilisateur.
+
+Ne pas afficher :
+
+```text
+Jean Dupont
+Directeur
+```
+
+comme si un utilisateur était connecté.
+
+Il n'y a pas encore d'authentification.
+
+Utiliser uniquement des éléments neutres si un placeholder est nécessaire.
+
+---
+
+# 16. NAVIGATION INTERNE
+
+Créer une configuration centralisée de navigation.
+
+Ne pas répéter les liens dans plusieurs fichiers.
+
+La navigation doit être facilement extensible.
+
+Exemple conceptuel :
+
+```text
+navigation/
+    navigation.config
+```
+
+ou l'équivalent correspondant à l'architecture actuelle.
+
+---
+
+# 17. PAS DE LOGIQUE DE RÔLES
+
+La navigation de cette phase est générique.
+
+NE PAS faire :
+
+```text
+if role === "SUPER_ADMIN"
+```
+
+ou :
+
+```text
+if role === "PARENT"
+```
+
+Il n'existe pas encore de système d'authentification.
+
+La Phase 3 intégrera :
+
+```text
+Utilisateur
+    ↓
+Rôle
+    ↓
+Permissions
+    ↓
+Navigation
+```
+
+---
+
+# 18. ROUTE APPLICATION
+
+Créer proprement l'espace applicatif.
+
+Exemple :
+
+```text
+/app
+```
+
+La route exacte doit respecter la convention déjà utilisée dans le projet.
+
+Elle doit afficher l'App Shell.
+
+---
+
+# 19. DASHBOARD DE BASE
+
+Créer un dashboard générique.
+
+Il doit démontrer :
+
+* Page Header ;
+* cartes ;
+* sections ;
+* contenu ;
+* états UI ;
+* responsive.
+
+### PAS DE DONNÉES MÉTIER FICTIVES
+
+Ne pas inventer :
+
+```text
+1 245 élèves
+875 paiements
+4 500 000 FC
+350 parents
+```
+
+Utiliser plutôt :
+
+```text
+—
+Aucune donnée disponible
+```
+
+ou des placeholders.
+
+---
+
+# 20. COMPOSANTS UI RÉUTILISABLES
+
+Créer uniquement les composants réellement nécessaires.
+
+Par exemple :
+
+```text
+PageHeader
+EmptyState
+LoadingState
+ErrorState
+StatCard
+```
+
+Mais :
+
+**ne duplique aucun composant déjà présent dans la Phase 1.**
+
+Avant de créer un composant :
+
+1. rechercher s'il existe ;
+2. vérifier s'il peut être réutilisé ;
+3. l'étendre si nécessaire ;
+4. seulement ensuite en créer un nouveau.
+
+---
+
+# 21. DESIGN SYSTEM UNIQUE
+
+Il ne doit exister qu'un seul langage visuel EducPAY.
+
+Ne crée pas :
+
+```text
+Landing Design System
++
+Dashboard Design System
+```
+
+Il doit exister :
+
+```text
+EDUCPAY DESIGN SYSTEM
+```
+
+utilisé partout.
+
+---
+
+# 22. COULEURS
+
+Les couleurs de la Landing Page sont la référence.
+
+Ne crée pas une nouvelle palette pour le Dashboard.
+
+Si le modèle fourni utilise d'autres couleurs :
+
+> adapter le modèle aux couleurs EducPAY.
+
+---
+
+# 23. ESPACEMENTS
+
+Conserver la logique de spacing de la Landing Page.
+
+Les marges et paddings doivent être cohérents.
+
+Éviter :
+
+```text
+padding: 37px
+margin: 19px
+gap: 13px
+```
+
+sans raison.
+
+Utiliser les conventions de spacing déjà présentes dans le projet.
+
+---
+
+# 24. BORDER RADIUS
+
+Conserver les mêmes principes de :
+
+* cards ;
+* boutons ;
+* inputs ;
+* containers ;
+* menus.
+
+Le Dashboard ne doit pas soudainement devenir beaucoup plus arrondi ou beaucoup plus carré que la Landing Page.
+
+---
+
+# 25. ICÔNES
+
+Réutiliser la bibliothèque d'icônes déjà utilisée par EducPAY si elle est saine.
+
+Ne pas installer une nouvelle bibliothèque uniquement pour la Sidebar.
+
+Si une nouvelle bibliothèque est absolument nécessaire :
+
+vérifier :
+
+* maintenance ;
+* compatibilité ;
+* sécurité ;
+* taille ;
+* qualité ;
+* licence.
+
+---
+
+# 26. BIBLIOTHÈQUES DÉFECTUEUSES — INTERDICTION
+
+**Ne jamais utiliser une bibliothèque défectueuse.**
+
+Avant toute nouvelle dépendance :
+
+```text
+Nom :
+Version :
+Utilité :
+Maintenance :
+Compatibilité :
+Sécurité :
+Alternative existante :
+```
+
+Si une solution existante suffit :
+
+> ne rien installer.
+
+---
+
+# 27. PERFORMANCE
+
+La Phase 2 ne doit pas dégrader les performances de la Phase 1.
+
+Éviter :
+
+* JS inutile ;
+* animations lourdes ;
+* bibliothèques inutiles ;
+* composants client inutiles ;
+* images lourdes ;
+* imports inutiles.
+
+Une animation qui ralentit le dashboard doit être supprimée.
+
+---
+
+# 28. ACCESSIBILITÉ
+
+La Sidebar et Navbar doivent être accessibles :
+
+* clavier ;
+* focus ;
+* boutons ;
+* navigation ;
+* aria ;
+* contraste ;
+* titres ;
+* landmarks.
+
+Le menu mobile doit être utilisable au clavier.
+
+---
+
+# 29. PAS DE BASE DE DONNÉES
+
+Aucune nouvelle table métier.
+
+Aucune requête métier.
+
+Aucun CRUD.
+
+Aucun service métier.
+
+Aucune RLS métier.
+
+La Phase 2 est principalement une phase **UI / architecture applicative**.
+
+---
+
+# 30. PAS D'AUTHENTIFICATION
+
+Aucun :
+
+* login ;
+* register ;
+* session ;
+* middleware auth ;
+* Supabase Auth ;
+* utilisateur fictif.
+
+Les routes de développement peuvent être accessibles directement.
+
+La protection arrivera en Phase 3.
+
+---
+
+# 31. VÉRIFICATION VERCEL AVANT FIN
+
+Après implémentation :
+
+### Local
+
+```text
+npm run build
+```
+
+ou la commande réelle du projet.
+
+Vérifier le dossier de sortie réel.
+
+### Vercel
+
+Vérifier :
+
+* Framework Preset ;
+* Build Command ;
+* Output Directory ;
+* Install Command ;
+* Node version ;
+* variables nécessaires.
+
+Corriger définitivement l'erreur :
+
+```text
+No Output Directory named "public" found after the Build completed.
+```
+
+---
+
+# 32. NE PAS UTILISER UN HACK POUR VERCEL
+
+Interdit :
+
+```text
+créer un dossier public vide
+```
+
+uniquement pour supprimer l'erreur.
+
+Interdit :
+
+```text
+copier artificiellement le build dans public
+```
+
+Interdit :
+
+```text
+désactiver des fonctionnalités du framework
+```
+
+uniquement pour contourner l'erreur.
+
+La configuration doit être **techniquement correcte**.
+
+---
+
+# 33. TESTS
+
+### Phase 1
+
+```text
+Landing Page : PASS
+Navigation publique : PASS
+Responsive : PASS
+Design : PASS
+```
+
+### Phase 2
+
+```text
+App Shell : PASS
+Sidebar : PASS
+Navbar : PASS
+Navigation : PASS
+Dashboard : PASS
+Mobile : PASS
+Tablet : PASS
+Desktop : PASS
+```
+
+### Qualité
+
+```text
+TypeScript : PASS
+Lint : PASS
+Build : PASS
+Runtime : PASS
+```
+
+### Production
+
+```text
+Vercel Build : PASS
+Landing Production : PASS
+Application Production : PASS
+```
+
+---
+
+# 34. TEST DE COHÉRENCE VISUELLE
+
+Avant de considérer la Phase 2 terminée, comparer visuellement :
+
+```text
+Landing Page
+      ↕
+Application Shell
+      ↕
+Sidebar
+      ↕
+Navbar
+      ↕
+Dashboard
+```
+
+Ils doivent partager :
+
+* même typographie ;
+* même palette ;
+* même hiérarchie ;
+* même philosophie de spacing ;
+* même style de composants ;
+* même philosophie responsive ;
+* même niveau de sobriété.
+
+La Sidebar/Navbar ne doit pas donner l'impression d'appartenir à un autre produit.
+
+---
+
+# 35. RAPPORT FINAL
+
+À la fin, fournir :
+
+## Architecture
+
+Fichiers et dossiers créés/modifiés.
+
+## App Shell
+
+Composants créés.
+
+## Sidebar
+
+Modèle choisi et raisons du choix.
+
+## Navbar
+
+Structure et comportement.
+
+## Dashboard
+
+Composants et routes.
+
+## Design
+
+Expliquer comment la cohérence avec la Landing Page a été conservée.
+
+## Vercel
+
+Expliquer :
+
+* cause de l'erreur `public` ;
+* correction appliquée ;
+* output réel du build ;
+* résultat du déploiement.
+
+## Dépendances
+
+```text
+Ajoutées :
+Supprimées :
+Modifiées :
+```
+
+Justifier chaque ajout.
+
+## Tests
+
+```text
+Phase 1 : PASS / FAIL
+Phase 2 : PASS / FAIL
+TypeScript : PASS / FAIL
+Lint : PASS / FAIL
+Build : PASS / FAIL
+Responsive : PASS / FAIL
+Vercel : PASS / FAIL
+```
+
+---
+
+# 36. CONDITION DE FIN
+
+La Phase 2 est considérée comme terminée uniquement si :
+
+* l'architecture existante a été respectée ;
+* la Phase 1 fonctionne toujours ;
+* la Landing Page n'a pas été dégradée ;
+* App Shell fonctionne ;
+* Sidebar fonctionne ;
+* Navbar fonctionne ;
+* Dashboard fonctionne ;
+* responsive fonctionne ;
+* typographie cohérente ;
+* couleurs cohérentes ;
+* spacing cohérent ;
+* effets maîtrisés ;
+* aucune donnée métier fictive ;
+* aucune authentification ;
+* aucun rôle ;
+* aucune base métier ;
+* aucune fonctionnalité de Phase 3+ ;
+* erreur Vercel corrigée proprement ;
+* build local réussi ;
+* build Vercel réussi ;
+* production fonctionnelle.
+
+---
+
+# 37. RÈGLE FINALE
+
+Tu dois toujours suivre cette priorité :
+
+```text
+1. Architecture existante
+        ↓
+2. Fonctionnement de la Phase 1
+        ↓
+3. Design System EducPAY
+        ↓
+4. Simplicité
+        ↓
+5. Responsive
+        ↓
+6. Performance
+        ↓
+7. Effets visuels
+```
+
+**Jamais l'inverse.**
+
+Un effet visuel ne doit jamais justifier une dégradation de :
+
+* performance ;
+* accessibilité ;
+* responsive ;
+* architecture ;
+* lisibilité ;
+* stabilité.
+
+---
+
+# 38. ARRÊT OBLIGATOIRE
+
+Lorsque la Phase 2 est validée :
+
+> **ARRÊTE-TOI.**
+
+Ne commence pas la Phase 3.
+
+Ne développe pas l'authentification.
+
+Ne crée pas de comptes.
+
+Ne crée pas de rôles.
+
+Ne crée pas de modules métier.
+
+Attends une nouvelle instruction.
+
+---
+
+## PRINCIPLE EDUCPAY
+
+> **Construire moins, mais construire proprement.**
+
+Chaque phase doit être :
+
+```text
+PLANIFIÉE
+   ↓
+IMPLÉMENTÉE
+   ↓
+TESTÉE
+   ↓
+CORRIGÉE
+   ↓
+VALIDÉE
+   ↓
+STOP
+```
+
+**Aucune anticipation des phases suivantes.**

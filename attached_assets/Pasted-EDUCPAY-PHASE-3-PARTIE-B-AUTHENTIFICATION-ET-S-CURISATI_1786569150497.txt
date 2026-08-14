@@ -1,0 +1,986 @@
+EDUCPAY — PHASE 3 — PARTIE B
+AUTHENTIFICATION ET SÉCURISATION DU SUPER ADMIN
+VERSION FINALE À IMPLÉMENTER
+
+==================================================
+CONTEXTE IMPORTANT
+==================================================
+
+La Phase 1 est VALIDÉE.
+
+La Phase 2 — Dashboard Super Admin — est déjà implémentée.
+
+Nous sommes maintenant dans :
+
+PHASE 3
+└── PARTIE B
+    └── Authentification et sécurisation de l'accès du Super Admin
+
+La Partie A concernant la procédure de création initiale du Super Admin a déjà été définie.
+
+IMPORTANT :
+
+Certaines pages d'authentification existent DÉJÀ dans le projet.
+
+Exemples :
+
+- page Login ;
+- page Création de compte ;
+- page Mot de passe oublié ;
+- éventuellement d'autres pages liées à l'authentification.
+
+==================================================
+1. RÈGLE ABSOLUE — NE PAS RECRÉER
+==================================================
+
+AVANT TOUTE MODIFICATION :
+
+Inspecte le projet et identifie toutes les pages d'authentification déjà existantes.
+
+SI UNE PAGE EXISTE DÉJÀ :
+
+→ NE PAS la recréer.
+→ NE PAS créer une deuxième version.
+→ NE PAS changer inutilement son design.
+→ NE PAS créer une route concurrente.
+→ NE PAS remplacer son interface sans raison technique.
+
+Il faut utiliser les pages existantes et les rendre réellement fonctionnelles avec Supabase Auth.
+
+Exemples :
+
+Si /login existe déjà :
+
+→ utiliser /login existant.
+
+Si /register existe déjà :
+
+→ utiliser /register existant.
+
+Si /forgot-password existe déjà :
+
+→ utiliser /forgot-password existant.
+
+==================================================
+2. DESIGN EXISTANT — RÈGLE STRICTE
+==================================================
+
+Le design actuel d'EducPAY est déjà défini.
+
+NE PAS redesigner les pages existantes.
+
+NE PAS changer :
+
+- couleurs ;
+- typographie ;
+- spacing ;
+- boutons ;
+- cartes ;
+- animations ;
+- disposition ;
+- responsive ;
+
+sauf si une correction technique est réellement nécessaire.
+
+Si une page nécessaire à cette Partie B N'EXISTE PAS :
+
+→ créer la page manquante
+→ en utilisant EXACTEMENT le même Design System
+→ les mêmes composants UI
+→ les mêmes styles
+→ la même hiérarchie visuelle
+→ les mêmes conventions de responsive.
+
+La nouvelle page doit donner l'impression d'avoir toujours fait partie d'EducPAY.
+
+==================================================
+3. MÉTHODE DE TRAVAIL OBLIGATOIRE
+==================================================
+
+Avant de coder :
+
+1. inspecter l'architecture ;
+2. inspecter les pages existantes ;
+3. inspecter les composants UI ;
+4. inspecter les routes ;
+5. inspecter la configuration Supabase ;
+6. inspecter les variables d'environnement ;
+7. inspecter les éventuels mocks d'authentification ;
+8. identifier ce qui est réel et ce qui est temporaire.
+
+Ensuite seulement, implémenter les éléments manquants.
+
+NE PAS commencer directement par créer des fichiers.
+
+==================================================
+4. OBJECTIF DE CETTE PARTIE
+==================================================
+
+Rendre le système d'authentification du Super Admin réellement fonctionnel et sécurisé.
+
+Le système doit permettre :
+
+- connexion ;
+- gestion de session ;
+- protection du Dashboard ;
+- vérification du rôle SUPER_ADMIN ;
+- déconnexion ;
+- changement de mot de passe ;
+- récupération du mot de passe ;
+- première connexion ;
+- protection contre les utilisateurs non autorisés.
+
+Utiliser Supabase Auth.
+
+==================================================
+5. SUPABASE AUTH
+==================================================
+
+Utiliser exclusivement les mécanismes officiels de Supabase Auth.
+
+NE PAS créer un système d'authentification maison.
+
+NE PAS stocker les mots de passe dans une table personnalisée.
+
+NE PAS créer de hash manuel.
+
+NE PAS conserver de mot de passe en clair.
+
+Supabase Auth est responsable de l'identité et du mot de passe.
+
+==================================================
+6. PAGE LOGIN EXISTANTE
+==================================================
+
+Si la page Login existe déjà :
+
+NE PAS la recréer.
+
+NE PAS la redesigner.
+
+Connecter la page existante à Supabase Auth.
+
+Le formulaire existant doit permettre :
+
+- email ;
+- mot de passe ;
+- connexion ;
+- état loading ;
+- erreurs propres ;
+- redirection après connexion.
+
+Après authentification :
+
+1. récupérer la session ;
+2. récupérer l'utilisateur ;
+3. vérifier son profil ;
+4. vérifier son rôle ;
+5. vérifier son statut ;
+6. vérifier s'il doit changer son mot de passe ;
+7. rediriger correctement.
+
+==================================================
+7. PAGE CRÉATION DE COMPTE EXISTANTE
+==================================================
+
+Si une page "Créer un compte" existe déjà :
+
+NE PAS la supprimer automatiquement.
+
+NE PAS la redesigner.
+
+Mais ATTENTION :
+
+Le Super Admin ne doit pas pouvoir s'auto-attribuer le rôle SUPER_ADMIN depuis cette page.
+
+Cette page doit respecter l'architecture d'EducPAY.
+
+Si l'inscription publique n'est finalement pas nécessaire à ce stade :
+
+ne pas exposer un moyen permettant à quelqu'un de devenir SUPER_ADMIN.
+
+NE JAMAIS faire confiance à un champ frontend du type :
+
+role = SUPER_ADMIN
+
+Toute attribution du rôle doit être contrôlée côté serveur.
+
+Si cette page est actuellement un mock de développement :
+
+identifier clairement son rôle et ne pas conserver une fausse logique de création d'un Super Admin.
+
+==================================================
+8. PAGE MOT DE PASSE OUBLIÉE EXISTANTE
+==================================================
+
+Si elle existe :
+
+NE PAS la recréer.
+
+NE PAS la redesigner.
+
+La connecter au système officiel Supabase Auth.
+
+Le flux doit être :
+
+Utilisateur
+↓
+Mot de passe oublié
+↓
+Email
+↓
+Lien Supabase
+↓
+Nouveau mot de passe
+↓
+Connexion
+
+NE JAMAIS envoyer le mot de passe par email.
+
+Utiliser un message générique afin d'éviter l'énumération des comptes.
+
+==================================================
+9. PAGE MANQUANTE — NOUVELLE PAGE
+==================================================
+
+Si une page nécessaire manque réellement, par exemple :
+
+/first-login
+
+alors créer uniquement cette page.
+
+Elle doit reprendre :
+
+- le même design ;
+- les mêmes composants ;
+- les mêmes boutons ;
+- les mêmes champs ;
+- la même typographie ;
+- les mêmes espacements ;
+- le même responsive ;
+
+que les pages d'authentification existantes.
+
+NE PAS inventer un nouveau design.
+
+==================================================
+10. PREMIÈRE CONNEXION DU SUPER ADMIN
+==================================================
+
+Le premier Super Admin est créé selon la procédure définie dans la Partie A.
+
+Le compte peut avoir un état :
+
+must_change_password = true
+
+Lors de la première connexion :
+
+Login
+↓
+Authentification réussie
+↓
+Vérification du profil
+↓
+must_change_password = true
+↓
+/first-login
+↓
+Nouveau mot de passe
+↓
+Confirmation
+↓
+Mise à jour du compte
+↓
+must_change_password = false
+↓
+Dashboard Super Admin
+
+Tant que cette étape n'est pas terminée :
+
+→ aucun accès au Dashboard.
+
+==================================================
+11. AUTHENTIFICATION ≠ AUTORISATION
+==================================================
+
+Séparer clairement :
+
+AUTHENTICATION
+=
+L'utilisateur est-il connecté ?
+
+AUTHORIZATION
+=
+A-t-il le droit d'accéder au Dashboard Super Admin ?
+
+Un utilisateur authentifié mais qui n'est pas SUPER_ADMIN doit être refusé.
+
+==================================================
+12. RÔLE SUPER_ADMIN
+==================================================
+
+Le rôle SUPER_ADMIN ne doit jamais être contrôlé uniquement côté frontend.
+
+NE PAS faire confiance à :
+
+localStorage
+frontend state
+URL
+paramètre de requête
+champ envoyé par formulaire
+
+Le serveur / Supabase doit être la source de vérité.
+
+Un utilisateur normal ne doit jamais pouvoir modifier son rôle afin de devenir :
+
+SUPER_ADMIN
+
+Toute tentative doit être refusée.
+
+==================================================
+13. PROTECTION DU DASHBOARD EXISTANT
+==================================================
+
+Le Dashboard Super Admin existe déjà.
+
+NE PAS le recréer.
+
+NE PAS le redesigner.
+
+NE PAS modifier son design sauf nécessité technique.
+
+Il faut maintenant le protéger.
+
+Comportement :
+
+Utilisateur non connecté
+→ accès Dashboard
+→ redirection Login.
+
+Utilisateur connecté mais non SUPER_ADMIN
+→ accès refusé.
+
+Utilisateur SUPER_ADMIN
+→ accès autorisé.
+
+Utilisateur désactivé
+→ accès refusé.
+
+==================================================
+14. ROUTES
+==================================================
+
+Inspecter les routes existantes.
+
+Ne pas créer de routes dupliquées.
+
+Utiliser les routes déjà existantes lorsque possible.
+
+Protéger uniquement les routes qui doivent l'être.
+
+Tester les accès directs aux URLs.
+
+==================================================
+15. SESSION
+==================================================
+
+Utiliser correctement la gestion de session Supabase.
+
+Vérifier :
+
+- récupération ;
+- persistance ;
+- expiration ;
+- renouvellement ;
+- changement d'état ;
+- logout.
+
+NE PAS créer une gestion de session parallèle inutile.
+
+==================================================
+16. LOGOUT
+==================================================
+
+Utiliser la fonctionnalité de déconnexion Supabase.
+
+Après logout :
+
+→ session terminée
+→ état utilisateur nettoyé
+→ redirection Login
+→ Dashboard inaccessible.
+
+Tester également :
+
+Retour navigateur
+Refresh
+Accès direct à l'URL du Dashboard
+
+==================================================
+17. CHANGEMENT DE MOT DE PASSE
+==================================================
+
+Si une page existe déjà :
+
+→ la réutiliser.
+
+Si elle n'existe pas :
+
+→ créer uniquement la page nécessaire avec le design existant.
+
+Utiliser Supabase Auth.
+
+Ne jamais modifier directement un mot de passe dans une table applicative.
+
+==================================================
+18. RÉCUPÉRATION DE MOT DE PASSE
+==================================================
+
+Utiliser Supabase Auth.
+
+Vérifier que les URLs de redirection fonctionnent correctement en local et en production.
+
+Ne jamais exposer de secret.
+
+==================================================
+19. RLS
+==================================================
+
+Inspecter les politiques RLS existantes.
+
+NE PAS désactiver RLS.
+
+NE PAS utiliser une politique :
+
+allow everything
+
+simplement pour faire fonctionner le système.
+
+Appliquer le principe :
+
+DEFAULT DENY
++
+POLICIES EXPLICITES
+
+Un utilisateur ne doit pas pouvoir modifier son propre rôle pour devenir SUPER_ADMIN.
+
+==================================================
+20. COMPTE SUPER ADMIN
+==================================================
+
+Ne PAS créer un nouveau système de création de Super Admin.
+
+La procédure de création initiale définie dans la Partie A reste la référence.
+
+La Partie B doit uniquement permettre à ce compte de :
+
+- se connecter ;
+- gérer sa session ;
+- changer son mot de passe ;
+- récupérer son accès ;
+- accéder au Dashboard de manière sécurisée.
+
+==================================================
+21. PAS DE CRÉATION DE COMPTES SUPPLÉMENTAIRES
+==================================================
+
+IMPORTANT :
+
+Ne pas implémenter maintenant :
+
+- création de Super Admin supplémentaire ;
+- création Directeur ;
+- création Responsable ;
+- création Comptable ;
+- création Parent.
+
+Ces fonctionnalités viendront plus tard.
+
+==================================================
+22. VARIABLES D'ENVIRONNEMENT
+==================================================
+
+Inspecter les variables existantes.
+
+Créer ou mettre à jour :
+
+.env.example
+
+sans aucune valeur secrète réelle.
+
+NE JAMAIS mettre dans le frontend :
+
+- service role key ;
+- secret ;
+- mot de passe ;
+- clé privée.
+
+Une clé Supabase publique destinée au frontend peut être utilisée conformément à la documentation et à l'architecture Supabase.
+
+==================================================
+23. VERCEL — IMPORTANT
+==================================================
+
+Vercel n'est PAS encore connecté à mon environnement de production dans cette étape.
+
+DONC :
+
+NE PAS prétendre avoir configuré les variables Vercel.
+
+NE PAS prétendre avoir vérifié le fonctionnement de Supabase sur Vercel.
+
+NE PAS inventer un résultat de déploiement.
+
+Tu dois simplement :
+
+1. préparer correctement le projet ;
+2. vérifier le build ;
+3. commit les modifications ;
+4. push les modifications vers le repository Git ;
+5. t'arrêter.
+
+Le déploiement/configuration Vercel sera effectué ensuite.
+
+==================================================
+24. À LA FIN — VARIABLES VERCEL
+==================================================
+
+À la fin du travail, donne-moi précisément la liste des variables que je devrai ajouter manuellement dans Vercel.
+
+Pour chacune :
+
+- nom ;
+- rôle ;
+- environnement concerné ;
+- où récupérer sa valeur ;
+- si elle est publique ou secrète.
+
+IMPORTANT :
+
+Ne donne jamais de vraie valeur secrète.
+
+Utiliser uniquement des exemples du type :
+
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxxx
+
+si ces noms correspondent réellement aux variables utilisées dans le projet.
+
+La liste finale doit correspondre EXACTEMENT aux variables réellement utilisées par le code.
+
+Ne pas inventer de variables.
+
+==================================================
+25. PROCÉDURE POUR OBTENIR LE SUPER ADMIN
+==================================================
+
+À la fin de la mission, explique clairement :
+
+1. comment le premier Super Admin est créé ;
+2. quelles variables/secrets sont nécessaires ;
+3. quelle commande/script est utilisé ;
+4. où exécuter cette commande ;
+5. comment savoir que le compte a été créé ;
+6. comment effectuer la première connexion ;
+7. comment le changement obligatoire du mot de passe fonctionne ;
+8. comment accéder ensuite au Dashboard.
+
+NE PAS créer automatiquement un nouveau compte si la Partie A possède déjà son propre mécanisme.
+
+Si un script d'initialisation existe déjà :
+
+→ le réutiliser ;
+→ le sécuriser ;
+→ le documenter.
+
+==================================================
+26. FIN DES TESTS DE DÉVELOPPEMENT
+==================================================
+
+IMPORTANT :
+
+Pendant le développement local, tu peux utiliser des comptes/tests temporaires uniquement pour vérifier le fonctionnement.
+
+Mais une fois la Partie B validée :
+
+TOUS LES COMPTES DE TEST
+ET
+TOUTES LES DONNÉES DE TEST D'AUTHENTIFICATION
+
+doivent être supprimés s'ils ne sont pas nécessaires au système final.
+
+Il ne doit pas rester :
+
+- faux Super Admin ;
+- utilisateur de test ;
+- mot de passe de test ;
+- données mock d'authentification ;
+- bypass d'authentification ;
+- logique temporaire permettant de contourner Login.
+
+==================================================
+27. AUTHENTIFICATION RÉALISTE
+==================================================
+
+Après validation :
+
+Le système doit fonctionner avec :
+
+VRAI Supabase Auth
++
+VRAI utilisateur
++
+VRAIE session
++
+VRAI rôle
++
+VRAIE protection des routes
+
+et non avec :
+
+mock user
+fake session
+localStorage auth
+hardcoded admin
+bypass
+if email === ...
+if password === ...
+
+INTERDICTION ABSOLUE des contournements de développement dans la version finale.
+
+==================================================
+28. DÉPENDANCES
+==================================================
+
+RÈGLE PERMANENTE EDUCPAY :
+
+NE JAMAIS utiliser une bibliothèque :
+
+- abandonnée ;
+- défectueuse ;
+- instable ;
+- incompatible ;
+- présentant une vulnérabilité critique connue sans justification ;
+- inutile.
+
+Avant toute nouvelle dépendance :
+
+- vérifier sa maintenance ;
+- vérifier sa compatibilité ;
+- vérifier les problèmes connus ;
+- vérifier si une solution existante suffit.
+
+PRIORITÉ :
+
+1. APIs natives ;
+2. fonctionnalités du framework ;
+3. Supabase officiel ;
+4. dépendances déjà présentes ;
+5. bibliothèque fiable uniquement si réellement nécessaire.
+
+NE PAS installer une dépendance juste pour résoudre un petit problème.
+
+NE PAS mettre à jour toutes les dépendances du projet sans raison.
+
+==================================================
+29. NE PAS CASSER LA PHASE 1
+==================================================
+
+Après l'implémentation :
+
+tester que la Landing Page continue de fonctionner.
+
+Ne pas modifier inutilement son design.
+
+Vérifier :
+
+- navigation ;
+- responsive ;
+- images ;
+- animations ;
+- footer ;
+- routes publiques.
+
+==================================================
+30. TESTS OBLIGATOIRES
+==================================================
+
+Tester réellement :
+
+TEST 1
+Utilisateur non connecté
+→ Dashboard
+→ REFUSÉ
+
+TEST 2
+Utilisateur non connecté
+→ Login
+→ OK
+
+TEST 3
+Vrai Super Admin
+→ Login
+→ SUCCÈS
+
+TEST 4
+Vrai Super Admin
+→ Dashboard
+→ AUTORISÉ
+
+TEST 5
+Utilisateur authentifié non SUPER_ADMIN
+→ Dashboard
+→ REFUSÉ
+
+TEST 6
+Super Admin
+→ Logout
+→ session terminée
+
+TEST 7
+Après logout
+→ Dashboard
+→ REFUSÉ
+
+TEST 8
+Première connexion
+→ changement obligatoire du mot de passe
+
+TEST 9
+Après changement
+→ Dashboard
+
+TEST 10
+Mot de passe oublié
+→ récupération Supabase
+
+TEST 11
+Nouveau mot de passe
+→ nouvelle connexion
+
+TEST 12
+Tentative de modification du rôle
+→ REFUSÉE
+
+TEST 13
+Refresh navigateur
+→ session correcte
+
+TEST 14
+Accès direct à une route protégée
+→ protection correcte
+
+==================================================
+31. BUILD
+==================================================
+
+Exécuter les commandes réellement présentes dans le projet.
+
+Exemple :
+
+npm install
+
+npm run build
+
+Et les commandes existantes de :
+
+- type-check ;
+- lint ;
+- tests ;
+
+si elles sont déjà configurées.
+
+Ne pas inventer de commandes inexistantes.
+
+Corriger les erreurs introduites par cette Partie B.
+
+==================================================
+32. GIT
+==================================================
+
+Après validation :
+
+1. vérifier git status ;
+2. vérifier les fichiers modifiés ;
+3. vérifier les fichiers supprimés ;
+4. vérifier qu'aucun secret n'est présent ;
+5. vérifier .gitignore ;
+6. commit ;
+7. push.
+
+Ne pas attendre que je connecte Vercel.
+
+Le travail demandé ici s'arrête au repository Git.
+
+==================================================
+33. RAPPORT FINAL
+==================================================
+
+À la fin, fournir un rapport clair.
+
+### Pages existantes réutilisées
+
+Lister les pages d'authentification qui existaient déjà et qui ont été réutilisées.
+
+### Pages nouvelles
+
+Lister uniquement les pages qui ont réellement dû être créées.
+
+### Modifications
+
+Lister les principaux fichiers modifiés.
+
+### Authentification
+
+- Login ;
+- Logout ;
+- Session ;
+- Password reset ;
+- Password change ;
+- First login.
+
+### Autorisation
+
+- SUPER_ADMIN ;
+- protection Dashboard ;
+- protection routes ;
+- RLS.
+
+### Tests
+
+TypeScript : PASS / FAIL
+Lint : PASS / FAIL
+Build : PASS / FAIL
+Login : PASS / FAIL
+Logout : PASS / FAIL
+Session : PASS / FAIL
+First Login : PASS / FAIL
+Password Reset : PASS / FAIL
+Role Protection : PASS / FAIL
+Dashboard Protection : PASS / FAIL
+
+### Git
+
+Indiquer :
+
+Commit : OK / FAIL
+Push : OK / FAIL
+
+NE PAS prétendre que Vercel a été configuré.
+
+==================================================
+34. INFORMATIONS VERCEL À ME DONNER
+==================================================
+
+À la fin du rapport, ajouter obligatoirement une section :
+
+"CONFIGURATION VERCEL À FAIRE"
+
+Donner :
+
+- toutes les variables d'environnement nécessaires ;
+- où récupérer chaque valeur ;
+- quelles variables sont publiques ;
+- quelles variables sont secrètes ;
+- les Redirect URLs Supabase à configurer ;
+- les éventuelles configurations supplémentaires nécessaires.
+
+Mais NE PAS effectuer cette configuration toi-même.
+
+==================================================
+35. PROCÉDURE SUPER ADMIN À ME DONNER
+==================================================
+
+Ajouter également :
+
+"PROCÉDURE DE CRÉATION DU SUPER ADMIN"
+
+Expliquer concrètement :
+
+1. préparer les variables ;
+2. exécuter la procédure Partie A ;
+3. vérifier la création ;
+4. se connecter ;
+5. effectuer le changement obligatoire ;
+6. accéder au Dashboard.
+
+Cette procédure doit correspondre EXACTEMENT au code réellement implémenté.
+
+==================================================
+36. NETTOYAGE FINAL
+==================================================
+
+Une fois les tests terminés :
+
+SUPPRIMER les éléments de test temporaires utilisés uniquement pendant le développement.
+
+Il ne doit rester aucun :
+
+- bypass ;
+- mock auth ;
+- fake session ;
+- compte de test ;
+- mot de passe de test ;
+- route temporaire ;
+- code de debug ;
+- console.log sensible ;
+- secret.
+
+Le système final doit utiliser une authentification réelle.
+
+==================================================
+37. CONDITION DE FIN
+==================================================
+
+La Partie B est terminée uniquement lorsque :
+
+✓ les pages d'authentification existantes sont réutilisées ;
+✓ aucun design existant n'a été inutilement recréé ;
+✓ les pages manquantes utilisent le même design ;
+✓ Supabase Auth fonctionne réellement ;
+✓ le Super Admin peut se connecter ;
+✓ la session fonctionne ;
+✓ le Dashboard est protégé ;
+✓ le rôle SUPER_ADMIN est vérifié ;
+✓ Logout fonctionne ;
+✓ récupération du mot de passe fonctionne ;
+✓ première connexion fonctionne ;
+✓ changement obligatoire fonctionne ;
+✓ aucune possibilité d'auto-attribution SUPER_ADMIN ;
+✓ RLS est correctement configuré ;
+✓ aucun secret n'est exposé ;
+✓ aucun mock/bypass de développement ne reste ;
+✓ Phase 1 continue de fonctionner ;
+✓ build réussi ;
+✓ modifications commit ;
+✓ modifications pushées ;
+✓ aucune configuration Vercel n'est prétendue comme effectuée.
+
+==================================================
+38. ARRÊT OBLIGATOIRE
+==================================================
+
+APRÈS CETTE PARTIE :
+
+NE PAS commencer la Partie C.
+
+NE PAS créer les établissements.
+
+NE PAS créer les comptes Directeur.
+
+NE PAS créer les Comptables.
+
+NE PAS créer les Parents.
+
+NE PAS créer les Élèves.
+
+NE PAS créer les Paiements.
+
+NE PAS créer les Frais.
+
+NE PAS créer les abonnements.
+
+ARRÊTE-TOI APRÈS LA VALIDATION COMPLÈTE DE LA PARTIE B.
+
+La prochaine étape sera définie séparément.

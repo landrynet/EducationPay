@@ -1,0 +1,750 @@
+EDUCPAY — VALIDATION COMPLÈTE PHASE 3A
+QA, ROUTES, NAVIGATION ET STABILITÉ
+MISSION
+
+La Phase 3A — Template d'authentification + simulation locale — vient d'être implémentée.
+
+Avant de commencer la Phase 3B et avant toute connexion à Supabase, nous devons effectuer une validation complète de la Phase 3A.
+
+Ta mission est exclusivement de :
+
+VÉRIFIER, TESTER, CORRIGER ET VALIDER LA PHASE 3A.
+
+Tu ne dois pas développer de nouvelles fonctionnalités.
+
+Tu dois t'assurer que tout ce qui existe actuellement fonctionne correctement, aussi bien en local que sur Vercel.
+
+1. RÈGLE ABSOLUE
+
+Cette intervention est une intervention de :
+
+QA + correction.
+
+Ne commence pas :
+
+Phase 3B ;
+Supabase ;
+Supabase Auth ;
+base de données ;
+nouvelles fonctionnalités métier ;
+gestion des établissements ;
+nouveaux rôles ;
+paiements ;
+élèves ;
+parents.
+
+Si tu trouves un problème, corrige-le s'il concerne la Phase 3A ou les routes nécessaires au fonctionnement actuel.
+
+2. COMMENCER PAR UN AUDIT DU PROJET
+
+Avant les tests, inspecte :
+
+routes ;
+pages ;
+layouts ;
+composants ;
+liens ;
+navigation ;
+middleware éventuel ;
+simulation Auth ;
+Dashboard Super Admin ;
+Landing Page ;
+boutons CTA ;
+Navbar ;
+Footer ;
+liens internes ;
+liens externes ;
+responsive ;
+configuration Vercel.
+
+Ne suppose pas que quelque chose fonctionne parce que le code existe.
+
+Teste réellement.
+
+3. CARTOGRAPHIE DES ROUTES
+
+Commence par établir une liste réelle des routes présentes dans le projet.
+
+Sépare-les en catégories.
+
+Routes publiques
+
+Exemple :
+
+/
+
+et les autres routes publiques réellement présentes.
+
+Routes Auth
+/auth/login
+/auth/register
+/auth/forgot-password
+/auth/reset-password
+/auth/first-login
+Routes protégées
+
+Le Dashboard Super Admin et toutes les routes internes réellement présentes.
+
+Ne crée pas de routes supplémentaires simplement pour remplir cette liste.
+
+4. TEST DE LA LANDING PAGE
+
+Tester la Landing Page depuis une nouvelle session navigateur.
+
+Vérifier :
+
+chargement ;
+logo ;
+navigation ;
+boutons ;
+CTA ;
+sections ;
+images ;
+animations ;
+footer ;
+liens ;
+responsive.
+
+Aucun élément ne doit provoquer :
+
+erreur JavaScript ;
+écran blanc ;
+route inexistante ;
+bouton sans action lorsque celui-ci est censé naviguer.
+5. ROUTES DEPUIS LA LANDING PAGE
+
+C'est un point particulièrement important.
+
+Chaque bouton ou lien de la Landing Page qui doit mener vers l'authentification doit réellement fonctionner.
+
+Par exemple :
+
+Landing Page
+     ↓
+CTA "Se connecter"
+     ↓
+/auth/login
+
+Tester également tous les autres CTA réellement présents.
+
+Pour chaque lien, vérifier :
+
+Destination correcte
+↓
+Page chargée
+↓
+Aucune erreur
+↓
+URL correcte
+Important
+
+Ne modifie pas le texte ou le design des CTA sans raison.
+
+Corrige uniquement les routes ou comportements incorrects.
+
+6. TEST DIRECT DES ROUTES AUTH
+
+Chaque route doit être accessible directement.
+
+Tester :
+
+/auth/login
+/auth/register
+/auth/forgot-password
+/auth/reset-password
+/auth/first-login
+
+Pour chacune :
+
+ouvrir directement l'URL ;
+vérifier le chargement ;
+vérifier le layout ;
+vérifier le design ;
+vérifier les formulaires ;
+vérifier les liens ;
+vérifier le responsive ;
+vérifier la console.
+7. NAVIGATION ENTRE LES PAGES AUTH
+
+Tester tous les chemins logiques.
+
+Login → Forgot Password
+Login
+ ↓
+Forgot password
+Forgot Password → Login
+Forgot password
+ ↓
+Login
+Login → Register
+
+Si le lien existe :
+
+Login
+ ↓
+Register
+Register → Login
+Register
+ ↓
+Login
+Reset Password → Login
+
+Après la simulation :
+
+Reset Password
+ ↓
+Login
+First Login
+
+Vérifier le chemin de navigation prévu.
+
+8. TEST DE LA SIMULATION LOGIN
+
+Tester une connexion simulée complète.
+
+Cas 1 — identifiants corrects
+Login
+ ↓
+Email correct
+ ↓
+Mot de passe correct
+ ↓
+Loading
+ ↓
+Session simulée
+ ↓
+Dashboard Super Admin
+
+Vérifier que la redirection fonctionne réellement.
+
+9. TEST IDENTIFIANTS INCORRECTS
+
+Tester :
+
+email incorrect ;
+mot de passe incorrect ;
+email vide ;
+mot de passe vide ;
+format email incorrect.
+
+Vérifier :
+
+message d'erreur ;
+pas de redirection ;
+pas de session créée ;
+formulaire toujours utilisable.
+10. TEST DOUBLE SOUMISSION
+
+Cliquer plusieurs fois rapidement sur le bouton Login.
+
+Vérifier qu'il n'y a pas :
+
+plusieurs requêtes simulées ;
+plusieurs redirections ;
+état incohérent ;
+boutons bloqués définitivement.
+11. TEST LOADING
+
+Vérifier que le formulaire affiche correctement son état de chargement.
+
+Pendant le loading :
+
+bouton désactivé ;
+indicateur visible ;
+champs correctement gérés ;
+aucun changement de page prématuré.
+
+Après le traitement :
+
+success
+
+ou :
+
+error
+12. TEST SESSION SIMULÉE
+
+Après une connexion réussie :
+
+accéder au Dashboard ;
+actualiser la page ;
+vérifier si la session simulée se comporte comme prévu ;
+naviguer vers les routes internes ;
+revenir vers la Landing Page ;
+revenir au Dashboard.
+
+Le comportement doit être cohérent avec ce qui a été prévu pour la simulation.
+
+13. TEST PROTECTION DU DASHBOARD
+Sans session
+
+Ouvrir directement :
+
+/dashboard
+
+ou la route réelle du Dashboard.
+
+Résultat attendu :
+
+Pas de session
+ ↓
+Redirection
+ ↓
+/auth/login
+Avec session
+Session simulée
+ ↓
+/dashboard
+
+Résultat :
+
+Dashboard accessible.
+
+14. TEST LOGOUT
+
+Depuis le Dashboard :
+
+Logout
+ ↓
+Session supprimée
+ ↓
+Retour Login
+
+Après logout :
+
+le Dashboard ne doit plus être accessible ;
+un accès direct au Dashboard doit rediriger vers Login ;
+la session simulée doit être supprimée.
+15. TEST BACK/FORWARD DU NAVIGATEUR
+
+Tester :
+
+bouton précédent ;
+bouton suivant ;
+navigation entre Login et Dashboard ;
+navigation après logout ;
+navigation après connexion.
+
+S'assurer qu'un utilisateur déconnecté ne peut pas simplement revenir au Dashboard avec l'historique du navigateur.
+
+16. TEST REFRESH
+
+Tester avec :
+
+Landing Page
+
+Refresh.
+
+Login
+
+Refresh.
+
+Register
+
+Refresh.
+
+Forgot Password
+
+Refresh.
+
+Dashboard avec session
+
+Refresh.
+
+Dashboard sans session
+
+Refresh.
+
+Chaque situation doit avoir un comportement cohérent.
+
+17. TEST URL DIRECTE
+
+Entrer directement dans la barre d'adresse :
+
+/auth/login
+/auth/register
+/auth/forgot-password
+/auth/reset-password
+/auth/first-login
+
+Puis tester la route réelle du Dashboard.
+
+Vérifier qu'aucune route ne donne :
+
+404 inattendu ;
+page blanche ;
+erreur serveur ;
+erreur de routing.
+18. TEST NAVIGATION INTERNE DU DASHBOARD
+
+La Phase 2 contient déjà le Dashboard Super Admin.
+
+Tester chaque élément réellement présent dans :
+
+Sidebar ;
+Navbar ;
+menus ;
+boutons ;
+liens ;
+dropdowns ;
+profil ;
+logout.
+
+Pour chaque route interne existante :
+
+Cliquer
+ ↓
+URL correcte
+ ↓
+Page correcte
+ ↓
+Aucune erreur
+Important
+
+Ne crée pas de nouvelles pages pour les liens qui ne sont pas encore prévus.
+
+Si une fonctionnalité est volontairement future, elle doit être clairement traitée selon le comportement déjà prévu dans le projet.
+
+19. TEST DES LIENS MORTS
+
+Rechercher les liens qui pointent vers :
+
+#
+/undefined
+/null
+routes inexistantes
+
+ou des routes qui donnent une erreur.
+
+Corriger tous les liens morts concernant les fonctionnalités actuellement présentes.
+
+20. TEST BOUTONS SANS ACTION
+
+Identifier les boutons qui semblent interactifs mais ne font rien.
+
+Pour chaque bouton :
+
+soit il doit réellement fonctionner ;
+soit il doit être clairement présenté comme non disponible si cette fonctionnalité est volontairement future.
+
+Ne laisse pas de comportement trompeur.
+
+21. TEST RESPONSIVE
+
+Tester toutes les pages :
+
+Landing Page
+Login
+Register
+Forgot Password
+Reset Password
+First Login
+Dashboard
+
+Sur :
+
+Mobile
+Tablet
+Desktop
+Large Desktop
+
+Vérifier :
+
+largeur ;
+hauteur ;
+overflow ;
+menu ;
+formulaire ;
+boutons ;
+typography ;
+spacing ;
+images ;
+sidebar ;
+navbar.
+22. TEST ACCESSIBILITÉ
+
+Vérifier :
+
+labels ;
+focus ;
+clavier ;
+boutons ;
+champs ;
+messages d'erreur ;
+contraste ;
+navigation logique.
+
+Tester au minimum la navigation clavier sur les formulaires.
+
+23. TEST CONSOLE NAVIGATEUR
+
+Ouvrir les DevTools.
+
+Tester chaque parcours principal.
+
+Il ne doit pas rester d'erreurs critiques du type :
+
+Uncaught Error
+TypeError
+ReferenceError
+Failed to fetch
+404
+500
+Hydration error
+
+Les warnings bénins peuvent être documentés, mais toute erreur fonctionnelle doit être corrigée.
+
+24. TEST BUILD
+
+Exécuter les commandes réellement disponibles dans le projet.
+
+Vérifier :
+
+TypeScript
+Lint
+Build
+
+Le build de production doit réussir.
+
+25. TEST VERCEL
+
+Après les tests locaux :
+
+commit les corrections ;
+push ;
+attendre le déploiement Vercel ;
+ouvrir la version de production ;
+refaire les tests critiques.
+
+Tester au minimum :
+
+Landing Page
+↓
+Login
+↓
+Login simulé
+↓
+Dashboard
+↓
+Navigation interne
+↓
+Logout
+↓
+Login
+
+Et :
+
+Landing Page
+↓
+Register
+↓
+Login
+↓
+Forgot Password
+↓
+Reset Password
+26. VÉRIFICATION DES ROUTES VERCEL
+
+Très important :
+
+Tester directement dans le navigateur les URLs de production :
+
+/auth/login
+/auth/register
+/auth/forgot-password
+/auth/reset-password
+/auth/first-login
+
+et la route du Dashboard.
+
+Vérifier qu'un refresh direct sur ces routes fonctionne correctement.
+
+S'il existe un problème de routing propre à Vercel, le corriger proprement selon le framework utilisé.
+
+27. VÉRIFICATION DES VARIABLES D'ENVIRONNEMENT
+
+Vérifier qu'aucune variable inutile ou secrète n'a été exposée.
+
+À cette étape :
+
+Supabase connecté : NON
+
+Ne pas ajouter de credentials Supabase.
+
+28. TEST DES DÉPENDANCES
+
+Vérifier que les corrections n'ont pas introduit de dépendance inutile.
+
+Ne pas installer une bibliothèque simplement pour résoudre un petit problème si une solution native existe.
+
+Si une dépendance problématique est identifiée :
+
+analyser ;
+corriger ;
+remplacer si nécessaire ;
+tester.
+29. VÉRIFICATION ARCHITECTURE
+
+Après les corrections, vérifier :
+
+pas de code dupliqué inutile ;
+pas de composants Auth dupliqués ;
+pas de logique Mock Auth dispersée dans toutes les pages ;
+pas de logique métier dans les composants UI ;
+routes propres ;
+noms professionnels ;
+architecture cohérente avec la Phase 1 et 2.
+30. NE PAS MODIFIER INUTILEMENT LE DESIGN
+
+Cette étape est une validation.
+
+Ne profite pas des tests pour refaire tout le design.
+
+Corriger uniquement :
+
+bugs ;
+incohérences ;
+problèmes responsive ;
+problèmes UX évidents ;
+erreurs de route ;
+problèmes d'accessibilité ;
+erreurs techniques.
+
+Le Design System EducPAY doit rester la référence.
+
+31. CRITÈRES DE VALIDATION
+
+La Phase 3A est validée uniquement si :
+
+Landing Page                         PASS
+CTA Landing → Login                 PASS
+Routes publiques                    PASS
+Login                               PASS
+Register                            PASS
+Forgot Password                     PASS
+Reset Password                      PASS
+First Login                         PASS
+Simulation Login                    PASS
+Mauvais identifiants                PASS
+Loading                             PASS
+Session simulée                     PASS
+Protection Dashboard                PASS
+Navigation Dashboard                PASS
+Logout                              PASS
+Back / Forward                      PASS
+Refresh                             PASS
+URLs directes                       PASS
+Liens internes                      PASS
+Responsive                          PASS
+Accessibilité                       PASS
+Console navigateur                  PASS
+TypeScript                          PASS
+Lint                                PASS
+Build                               PASS
+Vercel                              PASS
+
+Si un élément ne fonctionne pas :
+
+ne déclare pas la Phase validée.
+
+Corrige-le puis reteste.
+
+32. RAPPORT FINAL
+
+À la fin, donne un rapport précis.
+
+Routes vérifiées
+
+Liste toutes les routes réellement testées.
+
+Parcours vérifiés
+
+Exemple :
+
+Landing → Login → Dashboard → Logout → Login
+Login → Forgot Password → Reset Password
+Bugs trouvés
+
+Pour chaque bug :
+
+problème ;
+cause ;
+correction ;
+résultat du nouveau test.
+Modifications effectuées
+
+Liste précisément les fichiers importants modifiés.
+
+Tests
+
+Utilise ce format :
+
+Landing Page : PASS
+Navigation Landing : PASS
+Auth Routes : PASS
+Login Simulation : PASS
+Register : PASS
+Forgot Password : PASS
+Reset Password : PASS
+First Login : PASS
+Session : PASS
+Dashboard Protection : PASS
+Dashboard Navigation : PASS
+Logout : PASS
+Responsive : PASS
+Accessibility : PASS
+Console : PASS
+TypeScript : PASS
+Lint : PASS
+Build : PASS
+Vercel : PASS
+Supabase
+
+Confirmer :
+
+Supabase connecté : NON
+Phase 3B commencée : NON
+33. GIT
+
+Une fois toutes les corrections terminées :
+
+git status
+
+Vérifier :
+
+aucun secret ;
+aucun fichier temporaire ;
+aucun credential ;
+aucune modification non souhaitée.
+
+Puis créer un commit propre.
+
+Exemple :
+
+test(auth): validate phase 3A routes and authentication flow
+
+Puis push vers le dépôt distant.
+
+Vérifier que Vercel déploie correctement le commit.
+
+34. ARRÊT OBLIGATOIRE
+
+Une fois la Phase 3A entièrement validée :
+
+ARRÊTE-TOI.
+
+Ne commence pas :
+
+Supabase ;
+Supabase Auth ;
+base de données ;
+RLS ;
+création réelle du Super Admin ;
+Bootstrap ;
+invitations ;
+permissions avancées.
+
+La prochaine étape sera uniquement :
+
+PHASE 3B — CONNEXION RÉELLE À SUPABASE + AUTHENTIFICATION.
+
+Nous ne passerons à la Phase 3B que lorsque cette validation sera entièrement PASS.

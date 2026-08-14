@@ -1,0 +1,735 @@
+# EDUCPAY — PHASE 4
+
+## Connexion réelle de l'application + gestion des établissements et année scolaire
+
+Tu es l'agent développeur Full-Stack responsable du projet **EducPAY**, un SaaS de gestion de scolarité destiné aux établissements scolaires.
+
+Les **Phases 1 et 2 sont déjà développées et déployées sur Vercel**.
+La base de données est maintenant connectée.
+
+Ta mission dans cette phase est de :
+
+1. auditer et stabiliser l'existant ;
+2. supprimer les données fictives/mock utilisées dans les dashboards ;
+3. connecter correctement les interfaces aux données réelles ;
+4. vérifier et corriger les routes ;
+5. vérifier les relations entre les différents éléments ;
+6. mettre en place le module **Établissements + Année scolaire** ;
+7. faire en sorte que l'application fonctionne correctement en local et sur Vercel ;
+8. ne pas casser le design ni les fonctionnalités déjà réalisées.
+
+---
+
+# 1. RÈGLE ABSOLUE : NE PAS RECONSTRUIRE LE PROJET
+
+Avant toute modification :
+
+* inspecte entièrement le projet existant ;
+* comprends l'architecture actuelle ;
+* identifie le framework et les librairies déjà utilisées ;
+* identifie les composants UI existants ;
+* identifie les layouts ;
+* identifie les routes ;
+* identifie les providers ;
+* identifie les services/API ;
+* identifie la configuration Supabase ;
+* identifie la configuration PostgreSQL ;
+* identifie les variables d'environnement ;
+* identifie les données fictives actuellement utilisées.
+
+NE recrée pas une architecture parallèle.
+
+NE remplace pas inutilement les composants existants.
+
+NE supprime pas une fonctionnalité existante simplement parce qu'elle n'est pas encore connectée à la base.
+
+L'objectif est de faire évoluer proprement l'existant.
+
+---
+
+# 2. VÉRIFICATION DES PHASES 1 ET 2
+
+Vérifie que les éléments suivants fonctionnent toujours :
+
+* Landing Page ;
+* navigation publique ;
+* pages d'authentification déjà présentes ;
+* App Shell ;
+* Sidebar ;
+* Navbar ;
+* responsive design ;
+* dashboards ;
+* layouts par rôle ;
+* routes protégées déjà préparées ;
+* composants UI ;
+* gestion des erreurs ;
+* loading states ;
+* pages 404 ;
+* responsive mobile/tablette/desktop.
+
+Ne modifie pas le design existant sans nécessité.
+
+---
+
+# 3. SUPPRESSION DES DONNÉES FICTIVES
+
+La base de données étant maintenant connectée, les données fictives utilisées uniquement pour simuler l'application doivent être supprimées.
+
+Rechercher notamment :
+
+* mock data ;
+* fake users ;
+* fake establishments ;
+* fake students ;
+* fake payments ;
+* fake statistics ;
+* tableaux hardcodés ;
+* objets statiques utilisés comme données ;
+* données de démonstration ;
+* valeurs fictives dans les dashboards.
+
+Exemple à supprimer :
+
+```ts
+const fakeStudents = [...]
+```
+
+ou :
+
+```ts
+const dashboardStats = {
+  students: 1250,
+  payments: 4500000
+}
+```
+
+si ces données sont censées venir de la base.
+
+IMPORTANT :
+
+Ne supprime pas les composants UI qui utilisent ces données.
+
+Remplace les sources fictives par de vraies sources de données.
+
+---
+
+# 4. UNE SEULE SOURCE DE VÉRITÉ
+
+Les données métier doivent maintenant provenir de la base de données.
+
+Architecture souhaitée :
+
+```text
+UI
+ ↓
+Server / Service Layer
+ ↓
+Supabase / PostgreSQL
+ ↓
+Database
+```
+
+Évite de faire directement des requêtes complexes dans les composants UI.
+
+Centralise les accès aux données dans une couche propre.
+
+Par exemple :
+
+```text
+lib/
+ ├── supabase/
+ ├── services/
+ │    ├── establishments.ts
+ │    ├── school-years.ts
+ │    └── ...
+```
+
+Adapte cette structure à l'architecture déjà présente.
+
+---
+
+# 5. RELATIONS À METTRE AU PROPRE
+
+Le système doit respecter les relations métier suivantes :
+
+```text
+SUPER_ADMIN
+    │
+    └── gère la plateforme
+
+ESTABLISHMENT
+    │
+    ├── DIRECTOR
+    ├── ACCOUNTANT
+    ├── PARENTS
+    ├── STUDENTS
+    └── SCHOOL YEARS
+```
+
+Pour cette phase, on se concentre principalement sur :
+
+```text
+User
+  ↓
+Profile
+  ↓
+Establishment
+  ↓
+School Year
+```
+
+Chaque utilisateur d'établissement doit être correctement rattaché à son établissement.
+
+---
+
+# 6. MULTI-TENANT : RÈGLE CRITIQUE
+
+EducPAY est un SaaS multi-établissement.
+
+Un établissement ne doit jamais pouvoir accéder aux données d'un autre établissement.
+
+Exemple :
+
+```text
+Établissement A
+    ↓
+users A
+school years A
+students A
+payments A
+```
+
+ne doit jamais voir :
+
+```text
+Établissement B
+    ↓
+users B
+school years B
+students B
+payments B
+```
+
+Cette isolation doit être assurée côté base de données avec les mécanismes de sécurité appropriés, notamment les politiques RLS lorsque Supabase est utilisé.
+
+NE te contente jamais de masquer les données côté frontend.
+
+---
+
+# 7. MODULE ÉTABLISSEMENT
+
+Créer/compléter le module permettant de gérer l'établissement.
+
+Un établissement doit pouvoir posséder au minimum :
+
+```text
+id
+name
+logo
+type
+address
+city
+phone
+email
+status
+created_at
+updated_at
+```
+
+Adapte les champs au schéma déjà existant.
+
+Ne duplique pas les tables si elles existent déjà.
+
+---
+
+# 8. STATUT DE L'ÉTABLISSEMENT
+
+Les statuts fonctionnels prévus sont :
+
+```text
+PENDING
+APPROVED
+ACTIVE
+SUSPENDED
+REJECTED
+```
+
+Pour cette version, le système est GRATUIT.
+
+Il n'y a donc PAS encore :
+
+* abonnement ;
+* paiement SaaS ;
+* plan mensuel ;
+* plan annuel ;
+* facturation.
+
+Ne développe aucune logique de paiement de l'abonnement dans cette phase.
+
+---
+
+# 9. SUPER ADMIN
+
+Le Super Admin doit pouvoir consulter les établissements de la plateforme.
+
+Il doit pouvoir :
+
+* voir la liste ;
+* rechercher ;
+* filtrer ;
+* consulter les détails ;
+* approuver une demande ;
+* rejeter une demande ;
+* suspendre un établissement ;
+* réactiver un établissement si la règle métier le permet.
+
+Toutes les actions sensibles doivent être protégées côté serveur.
+
+Le frontend ne doit jamais pouvoir s'attribuer le rôle :
+
+```text
+SUPER_ADMIN
+```
+
+---
+
+# 10. DIRECTEUR
+
+Le directeur doit pouvoir consulter son établissement.
+
+Il doit pouvoir voir :
+
+* informations de l'établissement ;
+* statut ;
+* année scolaire active ;
+* configuration de base.
+
+Il ne doit voir que les données de son établissement.
+
+---
+
+# 11. ANNÉE SCOLAIRE
+
+Créer le concept d'année scolaire.
+
+Exemple :
+
+```text
+2026-2027
+```
+
+Une année scolaire appartient à un établissement.
+
+Relation :
+
+```text
+ESTABLISHMENT
+      │
+      ├── SCHOOL_YEAR 2025-2026
+      │
+      └── SCHOOL_YEAR 2026-2027
+```
+
+Une seule année scolaire peut être active à un instant donné pour un établissement.
+
+Prévoir notamment :
+
+```text
+id
+establishment_id
+name
+start_date
+end_date
+status
+created_at
+updated_at
+```
+
+Les champs exacts doivent rester cohérents avec la base existante.
+
+---
+
+# 12. ANNÉE SCOLAIRE ACTIVE
+
+Chaque établissement doit pouvoir avoir une année scolaire active.
+
+Exemple :
+
+```text
+École XYZ
+
+Années scolaires :
+
+2025-2026    CLOSED
+2026-2027    ACTIVE
+```
+
+Le système doit empêcher qu'un établissement possède simultanément plusieurs années `ACTIVE`.
+
+Cette règle doit être garantie côté base de données lorsque cela est possible.
+
+---
+
+# 13. ROUTES
+
+Vérifier et corriger les routes existantes.
+
+Le routing doit être cohérent avec les rôles.
+
+Exemple conceptuel :
+
+```text
+/
+ /login
+ /register
+
+/admin
+/admin/establishments
+
+/dashboard
+
+/establishment
+/establishment/settings
+/establishment/school-years
+
+/accountant
+/parent
+```
+
+NE crée pas obligatoirement exactement ces URLs si le projet possède déjà une convention différente.
+
+Respecte la structure actuelle du projet.
+
+L'important est :
+
+```text
+SUPER_ADMIN
+    ↓
+routes plateforme
+
+DIRECTOR
+    ↓
+routes établissement
+
+ACCOUNTANT
+    ↓
+routes comptabilité
+
+PARENT
+    ↓
+routes portail parent
+```
+
+---
+
+# 14. PROTECTION DES ROUTES
+
+Une route protégée ne doit jamais être considérée comme sécurisée simplement parce qu'elle est absente de la navigation.
+
+Exemple :
+
+Un parent ne doit pas pouvoir accéder directement à :
+
+```text
+/admin/establishments
+```
+
+en tapant l'URL.
+
+La protection doit être faite au niveau approprié :
+
+```text
+Authentication
+        ↓
+Authorization
+        ↓
+Role
+        ↓
+Establishment isolation
+```
+
+---
+
+# 15. VERCEL
+
+Le projet est déjà déployé sur Vercel.
+
+Tu dois vérifier :
+
+* build production ;
+* variables d'environnement ;
+* URLs Supabase ;
+* clés publiques ;
+* secrets serveur ;
+* routes ;
+* middleware ;
+* SSR ;
+* Server Components / Client Components selon l'architecture ;
+* gestion des cookies/session ;
+* redirections ;
+* erreurs de build ;
+* erreurs runtime.
+
+Le projet doit fonctionner :
+
+```text
+LOCAL
+```
+
+et :
+
+```text
+VERCEL PRODUCTION
+```
+
+avec la même logique applicative.
+
+---
+
+# 16. VARIABLES D'ENVIRONNEMENT
+
+Vérifier la séparation :
+
+```text
+.env.local
+.env.example
+```
+
+Aucun secret ne doit être commité dans Git.
+
+Ne jamais exposer une clé serveur sensible au navigateur.
+
+Si une clé Supabase à privilèges élevés est utilisée, elle doit rester strictement côté serveur.
+
+---
+
+# 17. GESTION DES ERREURS
+
+Toutes les opérations importantes doivent gérer :
+
+* loading ;
+* succès ;
+* erreur ;
+* absence de données ;
+* permission refusée ;
+* session expirée ;
+* établissement inexistant ;
+* année scolaire inexistante.
+
+Ne jamais laisser une erreur silencieuse.
+
+Ne jamais afficher une erreur technique sensible à l'utilisateur.
+
+---
+
+# 18. AUDIT
+
+Avant de terminer cette phase, vérifie qu'on peut déterminer :
+
+```text
+qui
+a effectué
+quelle action
+sur quelle ressource
+à quelle date
+```
+
+Si le système d'audit prévu en Phase 3 existe déjà, utilise-le.
+
+Sinon, prépare proprement son intégration sans construire un système disproportionné.
+
+---
+
+# 19. TESTS
+
+Avant de déclarer la phase terminée, tester au minimum :
+
+### Super Admin
+
+```text
+Connexion
+↓
+Dashboard
+↓
+Liste établissements
+↓
+Approuver établissement
+↓
+Suspendre établissement
+```
+
+### Directeur
+
+```text
+Connexion
+↓
+Dashboard
+↓
+Voir son établissement
+↓
+Voir année scolaire
+↓
+Créer année scolaire
+↓
+Activer année scolaire
+```
+
+### Isolation
+
+Créer :
+
+```text
+Établissement A
+Établissement B
+```
+
+Vérifier que :
+
+```text
+Utilisateur A ❌ → données B
+Utilisateur B ❌ → données A
+```
+
+### Parent
+
+Vérifier qu'un parent ne peut pas accéder aux données d'un autre établissement.
+
+---
+
+# 20. TEST DE PRODUCTION
+
+Après développement :
+
+```text
+npm run build
+```
+
+ou la commande réellement utilisée par le projet.
+
+Puis vérifier le déploiement Vercel.
+
+Tester les principales routes directement en production.
+
+Tester également les redirections après connexion/déconnexion.
+
+---
+
+# 21. MIGRATIONS
+
+Toutes les modifications de base doivent être effectuées avec des migrations versionnées.
+
+NE PAS modifier manuellement la structure de production sans migration traçable.
+
+Le schéma doit pouvoir être reproduit.
+
+Objectif :
+
+```text
+Migration
+    ↓
+PostgreSQL local
+    ↓
+Tests
+    ↓
+Git
+    ↓
+Supabase production
+```
+
+---
+
+# 22. COMPATIBILITÉ AVEC LES PHASES SUIVANTES
+
+Ne construis pas encore :
+
+* gestion complète des élèves ;
+* gestion complète des parents ;
+* gestion des classes détaillée ;
+* frais ;
+* paiements ;
+* reçus ;
+* rapports financiers ;
+* abonnement SaaS.
+
+Prépare uniquement les fondations nécessaires pour que ces futurs modules puissent être ajoutés proprement.
+
+---
+
+# 23. CONTRAINTES DE DÉVELOPPEMENT
+
+Tu dois :
+
+* conserver le design actuel ;
+* conserver le responsive ;
+* éviter les duplications ;
+* éviter les hacks ;
+* éviter les données hardcodées ;
+* utiliser TypeScript correctement ;
+* respecter les types ;
+* gérer les erreurs ;
+* respecter les conventions existantes ;
+* privilégier les composants réutilisables ;
+* ne pas introduire de dépendance inutile ;
+* ne pas exposer de secrets ;
+* ne pas contourner RLS ;
+* ne pas mettre de logique sensible uniquement côté frontend.
+
+---
+
+# 24. AVANT DE MODIFIER
+
+Commence par produire une analyse interne du projet :
+
+```text
+Architecture actuelle
+Routes existantes
+Composants importants
+Sources de données fictives
+Connexion DB
+Connexion Supabase
+Variables d'environnement
+Migrations existantes
+Problèmes détectés
+```
+
+Puis implémente progressivement.
+
+Ne demande pas de réécrire le projet depuis zéro.
+
+---
+
+# 25. CRITÈRE DE FIN DE PHASE
+
+La Phase 4 sera considérée comme terminée uniquement lorsque :
+
+* les Phases 1 et 2 fonctionnent toujours ;
+* les données fictives ont été supprimées des écrans concernés ;
+* les données viennent réellement de la base ;
+* les relations sont cohérentes ;
+* les routes fonctionnent ;
+* les permissions fonctionnent ;
+* le multi-tenant est correctement isolé ;
+* le Super Admin peut gérer les établissements ;
+* le directeur peut gérer son établissement ;
+* l'année scolaire fonctionne ;
+* aucune logique d'abonnement n'est introduite ;
+* le projet fonctionne en local ;
+* le build production fonctionne ;
+* le déploiement Vercel fonctionne ;
+* aucune erreur critique n'est présente dans la console ;
+* aucune clé secrète n'est exposée ;
+* les migrations sont propres et reproductibles.
+
+À la fin, fournis un rapport synthétique indiquant :
+
+1. ce qui a été modifié ;
+2. les migrations créées ;
+3. les routes créées/modifiées ;
+4. les tables/relations concernées ;
+5. les règles RLS mises en place ;
+6. les données fictives supprimées ;
+7. les tests effectués ;
+8. les éventuels problèmes restants ;
+9. la confirmation que le build Vercel fonctionne.
+
+**Ne passe pas à la phase suivante. Cette phase doit être propre, stable et prête à servir de fondation aux modules métier d'EducPAY.**

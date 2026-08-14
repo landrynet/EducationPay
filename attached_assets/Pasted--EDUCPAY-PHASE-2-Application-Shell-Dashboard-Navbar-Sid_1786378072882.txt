@@ -1,0 +1,1052 @@
+# EDUCPAY — PHASE 2
+
+## Application Shell — Dashboard, Navbar, Sidebar, Navigation et Responsive
+
+Tu es un **Senior Frontend Architect / Full-Stack Engineer spécialisé dans les applications SaaS modernes**, avec une forte expérience en Next.js, React, TypeScript, UX/UI, design systems, responsive design et architectures frontend évolutives.
+
+Tu travailles sur **EducPAY**, un SaaS de gestion de scolarité et de paiements destiné aux établissements scolaires publics.
+
+La **Phase 1 est déjà en ligne sur Vercel et a été validée**. Cette Phase 2 s’inscrit donc directement dans la continuité de cette version déployée, afin d’être intégrée proprement et prise en charge sans rupture par Vercel.
+
+Cette phase correspond **UNIQUEMENT À LA PHASE 2**.
+
+---
+
+# 1. CONTEXTE DU PROJET
+
+EducPAY est un SaaS multi-établissement destiné à la gestion de la scolarité.
+
+Le produit permettra progressivement de gérer :
+
+* établissements ;
+* années scolaires ;
+* classes ;
+* élèves ;
+* inscriptions ;
+* parents ;
+* frais mensuels ;
+* frais supplémentaires ;
+* paiements ;
+* paiements partiels ;
+* reçus ;
+* rapports ;
+* portail parent ;
+* application mobile ;
+* abonnements SaaS.
+
+Les principaux rôles prévus sont :
+
+```text
+SUPER_ADMIN
+DIRECTOR
+ACCOUNTANT
+PARENT
+```
+
+### Règles métier déjà validées
+
+* L'élève n'a pas de compte.
+* Le parent possède un compte.
+* Un parent peut avoir plusieurs enfants dans son établissement.
+* Dans la V1, le compte parent est lié à un seul établissement.
+* Les paiements sont actuellement uniquement en espèces.
+* Les paiements partiels sont autorisés.
+* Les frais peuvent être mensuels ou supplémentaires.
+* Les établissements souscrivent à EducPAY via un abonnement mensuel ou annuel.
+
+---
+
+# 2. ÉTAT ACTUEL
+
+La **Phase 1 est terminée et déjà déployée sur Vercel**.
+
+Elle contient notamment :
+
+* structure initiale du projet ;
+* architecture frontend ;
+* Design System initial ;
+* composants UI de base éventuellement créés ;
+* Landing Page EducPAY ;
+* responsive du Landing ;
+* configuration Next.js ;
+* structure prévue pour mobile et API ;
+* README ;
+* configuration Git ;
+* `.env.example`.
+
+### RÈGLE ABSOLUE
+
+Avant de commencer, inspecte le projet existant.
+
+Tu dois comprendre ce qui a réellement été créé pendant la Phase 1.
+
+**Ne recrée pas ce qui existe déjà.**
+
+**Ne remplace pas arbitrairement l'architecture existante.**
+
+Réutilise le Design System et les composants existants.
+
+---
+
+# 3. OBJECTIF DE LA PHASE 2
+
+Construire le **Application Shell complet d'EducPAY**.
+
+À la fin de cette phase, l'application doit avoir une structure visuelle professionnelle ressemblant à une véritable application SaaS :
+
+```text
+┌────────────────────────────────────────────────────┐
+│                     NAVBAR                         │
+├────────────────┬───────────────────────────────────┤
+│                │                                   │
+│                │                                   │
+│    SIDEBAR     │          MAIN CONTENT             │
+│                │                                   │
+│                │                                   │
+│                │                                   │
+└────────────────┴───────────────────────────────────┘
+```
+
+Cette architecture devra être suffisamment propre pour accueillir les modules des prochaines phases.
+
+---
+
+# 4. CE QUI DOIT ÊTRE DÉVELOPPÉ
+
+Dans cette phase, développer :
+
+1. Application Shell.
+2. Layout principal.
+3. Sidebar.
+4. Navbar.
+5. Responsive navigation.
+6. Navigation interne.
+7. Dashboard UI.
+8. Dashboards visuels par rôle.
+9. Page Header.
+10. Breadcrumb.
+11. États UI.
+12. Composants réutilisables nécessaires.
+13. Structure de routing.
+14. Configuration de navigation.
+15. Préparation de la navigation par rôle.
+16. Pages placeholder des futurs modules.
+
+---
+
+# 5. CE QUI NE DOIT PAS ÊTRE DÉVELOPPÉ
+
+Ne développe PAS :
+
+* authentification ;
+* login fonctionnel ;
+* inscription ;
+* Supabase Auth ;
+* gestion réelle des sessions ;
+* permissions backend ;
+* API métier ;
+* PostgreSQL métier ;
+* multi-tenancy fonctionnel ;
+* gestion des élèves ;
+* gestion des parents ;
+* gestion des classes ;
+* gestion des frais ;
+* paiements ;
+* reçus ;
+* rapports avec données réelles ;
+* abonnements.
+
+Ces fonctionnalités appartiennent aux phases suivantes.
+
+---
+
+# 6. ARCHITECTURE DU FRONTEND
+
+L'application Web doit pouvoir évoluer vers :
+
+```text
+Web
+│
+├── Marketing
+│   └── Landing
+│
+└── Application
+    │
+    ├── Super Admin
+    │
+    ├── Établissement
+    │   ├── Directeur
+    │   └── Comptable
+    │
+    └── Parent
+```
+
+Le Landing Page existant ne doit pas être cassé.
+
+Le Shell de l'application doit être séparé proprement du site marketing.
+
+---
+
+# 7. ROUTING
+
+Créer une structure de routing propre.
+
+La structure exacte peut être adaptée aux conventions Next.js utilisées dans le projet.
+
+Préparer au minimum conceptuellement :
+
+```text
+/app
+│
+├── (marketing)
+│   └── page.tsx
+│
+└── (app)
+    ├── dashboard
+    │
+    ├── students
+    │
+    ├── parents
+    │
+    ├── classes
+    │
+    ├── fees
+    │
+    ├── payments
+    │
+    ├── receipts
+    │
+    ├── reports
+    │
+    └── settings
+```
+
+Les routes métier peuvent être des pages placeholder.
+
+Elles ne doivent pas contenir de logique métier réelle.
+
+---
+
+# 8. APPLICATION SHELL
+
+Créer un layout principal réutilisable.
+
+Conceptuellement :
+
+```text
+AppShell
+│
+├── Sidebar
+│
+├── MainArea
+│   ├── Navbar
+│   └── PageContent
+│
+└── MobileNavigation
+```
+
+Le Shell doit être indépendant des données métier.
+
+---
+
+# 9. SIDEBAR
+
+Créer une Sidebar professionnelle inspirée des meilleurs SaaS modernes.
+
+Elle doit contenir :
+
+* logo EducPAY ;
+* navigation principale ;
+* sections de navigation ;
+* éléments actifs ;
+* icônes ;
+* possibilité de collapse ;
+* état expanded ;
+* état collapsed ;
+* comportement mobile.
+
+---
+
+# 10. NAVIGATION DIRECTEUR
+
+Préparer une navigation correspondant au futur rôle DIRECTOR.
+
+Exemple :
+
+```text
+TABLEAU DE BORD
+
+GESTION
+    Élèves
+    Parents
+    Classes
+    Inscriptions
+
+FINANCES
+    Frais
+    Paiements
+    Reçus
+
+RAPPORTS
+    Rapports
+
+CONFIGURATION
+    Paramètres
+```
+
+Les intitulés peuvent être adaptés pour obtenir la meilleure UX.
+
+---
+
+# 11. NAVIGATION COMPTABLE
+
+Préparer une navigation pour ACCOUNTANT :
+
+```text
+TABLEAU DE BORD
+
+SCOLARITÉ
+    Élèves
+
+FINANCES
+    Paiements
+    Reçus
+    Situation financière
+
+RAPPORTS
+    Rapports
+```
+
+Le comptable ne doit pas avoir dans son menu les fonctionnalités qui seront réservées au directeur.
+
+---
+
+# 12. NAVIGATION PARENT
+
+Préparer une navigation dédiée au parent :
+
+```text
+TABLEAU DE BORD
+
+MES ENFANTS
+    Mes enfants
+    Frais
+    Paiements
+    Reçus
+
+MON COMPTE
+    Profil
+```
+
+Le parent ne doit pas voir les menus administratifs de l'établissement.
+
+---
+
+# 13. NAVIGATION SUPER ADMIN
+
+Préparer la structure future :
+
+```text
+TABLEAU DE BORD
+
+PLATEFORME
+    Établissements
+    Utilisateurs
+
+SAAS
+    Abonnements
+    Plans
+
+ANALYTICS
+    Statistiques
+
+SYSTÈME
+    Configuration
+```
+
+---
+
+# 14. IMPORTANT — PAS DE VRAIS RÔLES À CETTE PHASE
+
+Même si nous préparons les menus par rôle :
+
+**NE fais pas encore de vraie autorisation.**
+
+La Phase 3 implémentera :
+
+* authentification ;
+* rôles ;
+* permissions ;
+* établissement ;
+* sessions ;
+* protection des routes.
+
+Pour cette Phase 2, tu peux utiliser un état de démonstration/mock permettant de visualiser :
+
+```text
+DIRECTOR
+ACCOUNTANT
+PARENT
+SUPER_ADMIN
+```
+
+Cela doit être facilement remplaçable par le vrai système d'authentification en Phase 3.
+
+---
+
+# 15. CONFIGURATION DE NAVIGATION
+
+Ne hardcode pas chaque Sidebar directement dans plusieurs composants.
+
+Créer une configuration structurée.
+
+Conceptuellement :
+
+```text
+navigation/
+    superAdminNavigation
+    directorNavigation
+    accountantNavigation
+    parentNavigation
+```
+
+Ou une configuration centralisée équivalente.
+
+Chaque item peut contenir :
+
+```text
+label
+href
+icon
+section
+roles
+```
+
+La structure exacte dépend de l'architecture du projet.
+
+---
+
+# 16. DASHBOARD
+
+Créer le Dashboard principal comme **interface de démonstration**.
+
+Il doit avoir un aspect professionnel.
+
+Exemple :
+
+```text
+Bonjour, bienvenue sur EducPAY.
+
+┌──────────────┐
+│ Élèves       │
+│ 1 245        │
+└──────────────┘
+
+┌──────────────┐
+│ Parents      │
+│ 890          │
+└──────────────┘
+
+┌──────────────┐
+│ Encaissé     │
+│ $XX XXX      │
+└──────────────┘
+
+┌──────────────┐
+│ À payer      │
+│ $XX XXX      │
+└──────────────┘
+```
+
+Les données sont fictives.
+
+Ne pas créer de logique métier pour les calculer.
+
+---
+
+# 17. DASHBOARD DIRECTEUR
+
+Créer une version adaptée au directeur.
+
+Prévoir visuellement :
+
+### KPI
+
+* nombre d'élèves ;
+* nombre de parents ;
+* montant encaissé ;
+* montant restant.
+
+### Activité récente
+
+Afficher des paiements fictifs.
+
+### Statistiques
+
+Préparer des zones pour :
+
+* évolution des paiements ;
+* répartition par classe ;
+* situation financière.
+
+Les graphiques peuvent utiliser des données mockées.
+
+Ne pas connecter PostgreSQL.
+
+---
+
+# 18. DASHBOARD COMPTABLE
+
+Créer une interface plus opérationnelle.
+
+Prévoir :
+
+* paiements du jour ;
+* montant encaissé aujourd'hui ;
+* derniers paiements ;
+* recherche rapide ;
+* raccourci vers paiement ;
+* reçus récents.
+
+La recherche peut être purement visuelle/mock.
+
+---
+
+# 19. DASHBOARD PARENT
+
+Créer une interface parent.
+
+Exemple :
+
+```text
+Bonjour,
+
+Mes enfants
+
+┌─────────────────────────┐
+│ Jean K.                 │
+│ 6e secondaire           │
+│                         │
+│ Total dû       120 $    │
+│ Payé            80 $    │
+│ Reste            40 $   │
+└─────────────────────────┘
+```
+
+Les données sont fictives.
+
+---
+
+# 20. DASHBOARD SUPER ADMIN
+
+Créer une interface SaaS.
+
+Prévoir :
+
+* établissements ;
+* établissements actifs ;
+* abonnements ;
+* revenus fictifs ;
+* activité ;
+* statistiques.
+
+Toujours en mock data.
+
+---
+
+# 21. PAGE HEADER
+
+Créer un composant réutilisable permettant :
+
+```text
+Titre
+Description
+Breadcrumb
+Actions
+```
+
+Exemple :
+
+```text
+Élèves
+
+Gérez les élèves de votre établissement.
+
+[Ajouter un élève]
+```
+
+Le bouton est uniquement visuel à cette phase.
+
+---
+
+# 22. BREADCRUMB
+
+Préparer un système de breadcrumb.
+
+Exemple :
+
+```text
+Tableau de bord
+    >
+Gestion
+    >
+Élèves
+```
+
+Il doit être réutilisable.
+
+---
+
+# 23. COMPOSANTS UI
+
+Réutiliser en priorité les composants créés en Phase 1.
+
+Si nécessaire, créer les composants manquants :
+
+```text
+Card
+Button
+Badge
+Avatar
+Dropdown
+Tooltip
+Modal
+Dialog
+Table
+Tabs
+Input
+Select
+Skeleton
+EmptyState
+ErrorState
+Toast
+Pagination
+Breadcrumb
+PageHeader
+```
+
+Ne pas installer une nouvelle librairie UI complète si le projet possède déjà un Design System cohérent.
+
+Évite la multiplication des bibliothèques UI.
+
+---
+
+# 24. TABLES
+
+Préparer un composant Table réutilisable pour les futurs modules.
+
+Il devra pouvoir supporter plus tard :
+
+* colonnes ;
+* lignes ;
+* actions ;
+* pagination ;
+* tri ;
+* état vide ;
+* loading ;
+* responsive.
+
+Mais ne connecte aucune donnée réelle.
+
+---
+
+# 25. ÉTATS DE CHARGEMENT
+
+Créer des Skeletons réutilisables.
+
+Exemples :
+
+```text
+DashboardSkeleton
+TableSkeleton
+CardSkeleton
+PageSkeleton
+```
+
+Ils serviront lorsque les API seront branchées.
+
+---
+
+# 26. EMPTY STATES
+
+Préparer des Empty States.
+
+Exemple :
+
+```text
+Aucun élève
+
+Aucun élève n'est encore enregistré
+dans cet établissement.
+
+[Ajouter un élève]
+```
+
+Le bouton peut rester non fonctionnel dans cette phase.
+
+---
+
+# 27. ERROR STATES
+
+Préparer une présentation élégante des erreurs.
+
+Exemple :
+
+```text
+Une erreur est survenue.
+
+Impossible de charger cette page.
+
+[Réessayer]
+```
+
+Le comportement réel sera connecté aux API plus tard.
+
+---
+
+# 28. RESPONSIVE DESIGN
+
+Le Shell doit être excellent sur :
+
+* mobile ;
+* tablette ;
+* laptop ;
+* desktop ;
+* écran large.
+
+## Desktop
+
+Sidebar visible.
+
+## Tablet
+
+Sidebar compacte/collapsible.
+
+## Mobile
+
+Utiliser un système adapté :
+
+```text
+Header
++
+Content
++
+Navigation mobile / Drawer
+```
+
+Le choix exact entre drawer, bottom navigation ou autre doit être fait selon l'UX la plus adaptée au contexte.
+
+---
+
+# 29. SIDEBAR MOBILE
+
+Sur mobile :
+
+* ne jamais réduire simplement la sidebar desktop ;
+* utiliser une vraie expérience mobile ;
+* permettre ouverture/fermeture ;
+* fermer après navigation si pertinent ;
+* gérer correctement le focus ;
+* empêcher les problèmes de scroll ;
+* garder les actions importantes accessibles.
+
+---
+
+# 30. NAVBAR MOBILE
+
+Prévoir :
+
+* menu ;
+* titre/contexte ;
+* profil futur ;
+* notifications futures.
+
+Ne pas implémenter les notifications réelles.
+
+---
+
+# 31. THÈME ET DESIGN
+
+Respecter le Design System de la Phase 1.
+
+Ne crée pas un nouveau style indépendant.
+
+Le Shell doit avoir une identité visuelle cohérente avec le Landing Page.
+
+Le produit doit donner l'impression d'être :
+
+**un seul produit : EducPAY.**
+
+---
+
+# 32. ACCESSIBILITÉ
+
+Respecter :
+
+* navigation clavier ;
+* focus visible ;
+* ARIA lorsque nécessaire ;
+* boutons accessibles ;
+* menus accessibles ;
+* drawer accessible ;
+* contrastes ;
+* labels ;
+* HTML sémantique.
+
+La Sidebar et les menus doivent notamment être utilisables au clavier.
+
+---
+
+# 33. PERFORMANCE
+
+Éviter :
+
+* JavaScript inutile ;
+* composants inutilement lourds ;
+* animations excessives ;
+* dépendances inutiles.
+
+Utiliser les mécanismes de Next.js correctement.
+
+Ne pas transformer chaque petit composant en Client Component sans raison.
+
+---
+
+# 34. MOCK DATA
+
+Créer des données fictives uniquement pour rendre les dashboards visuellement crédibles.
+
+Exemple :
+
+```text
+studentsMock
+parentsMock
+paymentsMock
+financialStatsMock
+establishmentsMock
+```
+
+Organiser ces données proprement.
+
+Elles devront être facilement supprimables lorsque les API seront disponibles.
+
+**Ne mélange pas les mocks avec la logique métier.**
+
+---
+
+# 35. ROUTES PLACEHOLDER
+
+Créer les pages nécessaires pour tester la navigation.
+
+Exemple :
+
+```text
+/dashboard
+
+/dashboard/students
+/dashboard/parents
+/dashboard/classes
+/dashboard/enrollments
+
+/dashboard/fees
+/dashboard/payments
+/dashboard/receipts
+
+/dashboard/reports
+/dashboard/settings
+```
+
+Pour les pages non développées :
+
+```text
+Module en préparation
+
+Cette fonctionnalité sera disponible dans une prochaine phase.
+```
+
+Le design doit rester professionnel.
+
+---
+
+# 36. NAVIGATION ENTRE LES PAGES
+
+Les liens de la Sidebar doivent fonctionner.
+
+Exemple :
+
+```text
+Dashboard
+   ↓
+/dashboard
+
+Élèves
+   ↓
+/dashboard/students
+
+Parents
+   ↓
+/dashboard/parents
+
+Paiements
+   ↓
+/dashboard/payments
+```
+
+Même si les pages sont encore des placeholders.
+
+---
+
+# 37. ACTIVE STATE
+
+La navigation doit détecter visuellement la page actuelle.
+
+Exemple :
+
+```text
+Dashboard       ← actif
+Élèves
+Parents
+Paiements
+```
+
+L'état actif doit être évident mais élégant.
+
+---
+
+# 38. ÉTAT COLLAPSED DE LA SIDEBAR
+
+Prévoir :
+
+```text
+Expanded
+```
+
+avec :
+
+```text
+[icon] Élèves
+```
+
+et :
+
+```text
+Collapsed
+```
+
+avec :
+
+```text
+[icon]
+```
+
+Ajouter éventuellement un tooltip lorsque la Sidebar est réduite.
+
+---
+
+# 39. PROFIL UTILISATEUR
+
+Préparer visuellement un User Menu.
+
+Exemple :
+
+```text
+Jean Dupont
+Directeur
+────────────────
+Mon profil
+Paramètres
+Déconnexion
+```
+
+⚠️ Les actions ne doivent pas encore être connectées à l'authentification.
+
+---
+
+# 40. NOTIFICATIONS
+
+Préparer uniquement le composant visuel.
+
+Exemple :
+
+```text
+🔔
+```
+
+avec quelques notifications mockées si nécessaire.
+
+Pas de système de notification réel.
+
+---
+
+# 41. RECHERCHE GLOBALE
+
+Si elle est présente dans le Design System ou le design fourni, préparer le composant visuel.
+
+Mais ne pas créer de véritable recherche backend.
+
+La recherche globale pourra être développée dans les modules concernés.
+
+---
+
+# 42. ÉTAT DE DÉMONSTRATION DES RÔLES
+
+Pour pouvoir tester la Phase 2 sans authentification, créer si nécessaire un mécanisme de démonstration simple.
+
+Par exemple :
+
+```text
+Role Demo:
+DIRECTOR
+ACCOUNTANT
+PARENT
+SUPER_ADMIN
+```
+
+Il doit être clairement identifié comme **DEMO / DEVELOPMENT ONLY**.
+
+Il ne doit surtout pas être considéré comme un mécanisme de sécurité.
+
+Et il devra être facilement supprimable en Phase 3.
+
+---
+
+# 43. SÉCURITÉ
+
+Même sans authentification dans cette phase :
+
+* ne jamais faire confiance au rôle provenant du client ;
+* ne jamais considérer la Sidebar comme une protection ;
+* ne jamais cacher une fonctionnalité comme unique mécanisme de sécurité ;
+* ne pas introduire de secrets ;
+* ne pas introduire de credentials ;
+* ne pas exposer de données sensibles.
+
+La vraie sécurité sera développée en Phase 3 côté serveur/backend.
+
+---
+
+# 44. COMPATIBILITÉ AVEC PHASE 3
+
+La Phase 2 doit être conçue pour permettre facilement l'intégration future de :
+
+```text
+Supabase Auth
+      ↓
+Session
+      ↓
+User
+      ↓
+Role
+      ↓
+Establishment
+      ↓
+Permissions
+      ↓
+Navigation
+```
+
+Le système de navigation doit donc être suffisamment abstrait pour remplacer le rôle mocké par le vrai rôle utilisateur.
+
+---
+
+# 45. NE PAS FAIRE DE SUR-ARCHITECT

@@ -1,0 +1,9 @@
+import { ArrowRight, Check } from 'lucide-react';
+import { useState } from 'react';
+import { pricingPlans } from '@/data/marketing';
+import { Anchor } from './Header';
+
+export default function Pricing() {
+  const [billing, setBilling] = useState<'mensuel' | 'annuel'>('mensuel');
+  return <section className="section pricing" id="tarifs"><div className="container"><div className="pricing-header"><div><span className="eyebrow">Des tarifs lisibles</span><h2 className="display">Un établissement. Une formule.</h2></div><div className="billing"><button className={billing === 'mensuel' ? 'active' : ''} onClick={() => setBilling('mensuel')} data-testid="button-billing-monthly">Mensuel</button><button className={billing === 'annuel' ? 'active' : ''} onClick={() => setBilling('annuel')} data-testid="button-billing-yearly">Annuel</button><span className="save-note">Bientôt disponible</span></div></div><div className="price-grid">{pricingPlans.map((plan, index) => <article className={`price-card ${index === 1 ? 'featured' : ''}`} key={plan.name}>{index === 1 && <span className="popular">Le plus choisi</span>}<h3>{plan.name}</h3><p>{plan.description}</p><div className="price">Sur demande <span>/ établissement</span></div><ul>{plan.items.map(item => <li key={item}><Check size={14} />{item}</li>)}</ul><Anchor href="#contact"><span className={`button ${index === 1 ? 'button-primary' : 'button-dark'}`}>Demander les détails <ArrowRight size={14} /></span></Anchor></article>)}</div><p className="price-foot">Les montants définitifs seront communiqués lors de la présentation de votre établissement.</p></div></section>;
+}

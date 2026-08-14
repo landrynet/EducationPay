@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "EducPAY"
+description = "Une plateforme de gestion des frais scolaires pour les établissements privés, avec une landing page publique et un espace applicatif structuré."
+version = "1.0.0"
+id = "artifacts/educpay"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21498
+
+[services.development]
+run = "pnpm --filter @workspace/educpay run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/educpay", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/educpay/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21498"
+BASE_PATH = "/"

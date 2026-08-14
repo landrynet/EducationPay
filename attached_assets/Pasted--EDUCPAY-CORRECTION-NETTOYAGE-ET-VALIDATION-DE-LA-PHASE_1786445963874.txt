@@ -1,0 +1,864 @@
+# EDUCPAY — CORRECTION, NETTOYAGE ET VALIDATION DE LA PHASE 1
+
+## Mission
+
+Tu es responsable du développement Full-Stack du projet **EducPAY**.
+
+Le projet a été développé trop rapidement avec plusieurs phases implémentées en avance.
+
+Nous avons pris la décision de **revenir volontairement à une base propre**.
+
+### État souhaité
+
+Le projet final de cette intervention doit contenir **UNIQUEMENT LA PHASE 1**.
+
+La Phase 1 est déjà fonctionnelle et doit être **conservée**, notamment la Landing Page et tout ce qui est nécessaire à son fonctionnement.
+
+Les anciennes implémentations des :
+
+* Phase 2 ;
+* Phase 3 ;
+* Phase 4 ;
+
+doivent être supprimées proprement.
+
+---
+
+# 1. RÈGLE ABSOLUE
+
+**NE REFAIS PAS LA PHASE 1.**
+
+Elle fonctionne déjà.
+
+Ton objectif est :
+
+```text
+AUDITER
+   ↓
+IDENTIFIER
+   ↓
+NETTOYER
+   ↓
+SUPPRIMER PHASE 2/3/4
+   ↓
+CORRIGER LES DÉPENDANCES
+   ↓
+VALIDER PHASE 1
+   ↓
+TESTER LOCAL
+   ↓
+TESTER BUILD
+   ↓
+TESTER VERCEL
+   ↓
+S'ARRÊTER
+```
+
+Tu ne dois pas commencer la Phase 2.
+
+---
+
+# 2. AUDIT OBLIGATOIRE AVANT TOUTE MODIFICATION
+
+Avant de supprimer ou modifier quoi que ce soit, inspecte entièrement le projet.
+
+Analyse :
+
+* structure des dossiers ;
+* fichiers ;
+* routes ;
+* composants ;
+* hooks ;
+* services ;
+* librairies ;
+* configuration ;
+* middleware ;
+* variables d'environnement ;
+* assets ;
+* styles ;
+* données fictives ;
+* logique métier ;
+* authentification ;
+* dashboards ;
+* connexion base de données ;
+* fichiers de migration ;
+* scripts ;
+* dépendances.
+
+Identifie précisément :
+
+### Phase 1
+
+Ce qui doit être conservé.
+
+### Phase 2
+
+Ce qui doit être supprimé.
+
+### Phase 3
+
+Ce qui doit être supprimé.
+
+### Phase 4
+
+Ce qui doit être supprimé.
+
+**Ne supprime rien avant d'avoir vérifié les dépendances entre fichiers.**
+
+---
+
+# 3. PHASE 1 — CE QUI DOIT RESTER
+
+La Phase 1 comprend principalement :
+
+* architecture frontend ;
+* Landing Page ;
+* navigation publique ;
+* Hero ;
+* sections marketing ;
+* présentation d'EducPAY ;
+* avantages ;
+* fonctionnalités présentées commercialement ;
+* CTA ;
+* Footer ;
+* responsive design ;
+* composants UI nécessaires ;
+* système de design ;
+* assets nécessaires ;
+* configuration nécessaire au fonctionnement de la Landing Page.
+
+La Landing Page doit rester visuellement et fonctionnellement conforme à la version actuellement validée.
+
+---
+
+# 4. SUPPRESSION COMPLÈTE DE LA PHASE 2
+
+Supprimer les fonctionnalités appartenant à la Phase 2.
+
+Cela comprend notamment, si elles ont été ajoutées :
+
+* dashboards applicatifs ;
+* Sidebar applicative ;
+* Navbar applicative ;
+* layouts utilisateurs ;
+* navigation interne ;
+* pages dashboard ;
+* composants spécifiques aux dashboards ;
+* données fictives des dashboards ;
+* routes applicatives ;
+* logique de navigation liée aux rôles.
+
+Ne supprime pas un composant s'il est également utilisé par la Landing Page.
+
+Analyse les imports avant chaque suppression.
+
+---
+
+# 5. SUPPRESSION COMPLÈTE DE LA PHASE 3
+
+Supprimer toutes les implémentations fonctionnelles de l'authentification qui avaient été ajoutées.
+
+Cela comprend notamment :
+
+* login fonctionnel ;
+* register fonctionnel ;
+* logout ;
+* sessions ;
+* gestion des rôles ;
+* Super Admin ;
+* Directeur ;
+* Comptable ;
+* Parent ;
+* middleware d'authentification ;
+* protection des routes ;
+* logique de permissions ;
+* profils utilisateurs ;
+* scripts de création du Super Admin ;
+* logique RLS créée uniquement pour ces anciennes fonctionnalités ;
+* données utilisateurs fictives.
+
+### Important
+
+Nous avons déjà défini l'architecture future de l'authentification, mais **elle ne doit pas être implémentée maintenant**.
+
+Elle sera reconstruite proprement dans la phase correspondante.
+
+---
+
+# 6. SUPPRESSION COMPLÈTE DE LA PHASE 4
+
+Supprimer toutes les fonctionnalités ajoutées pour la Phase 4.
+
+Cela comprend notamment :
+
+* gestion des établissements ;
+* gestion des années scolaires ;
+* validation des établissements ;
+* statuts d'établissement ;
+* gestion multi-tenant ;
+* relations utilisateurs/établissements ;
+* interfaces d'administration ;
+* services correspondants ;
+* routes correspondantes ;
+* données fictives ;
+* logique métier correspondante.
+
+La Phase 4 sera reconstruite plus tard.
+
+---
+
+# 7. BASE DE DONNÉES
+
+Inspecter les migrations existantes.
+
+Ne supprime jamais une migration aveuglément.
+
+Pour chaque migration :
+
+```text
+Migration
+   ↓
+Contenu
+   ↓
+Fonctionnalité
+   ↓
+Phase concernée
+```
+
+Les migrations correspondant uniquement aux Phases 2, 3 et 4 doivent être retirées ou réorganisées proprement selon le système de migrations utilisé.
+
+L'objectif est de ne pas laisser une base incohérente avec le code.
+
+### Important
+
+Pour la Phase 1, aucune base métier n'est nécessaire.
+
+Ne conserver/créer aucune logique métier concernant :
+
+* élèves ;
+* parents ;
+* établissements ;
+* frais ;
+* paiements ;
+* années scolaires ;
+* utilisateurs métier.
+
+---
+
+# 8. DONNÉES FICTIVES
+
+Supprimer toutes les données fictives provenant des phases supprimées.
+
+Rechercher notamment :
+
+```text
+fakeUsers
+mockUsers
+fakeStudents
+mockStudents
+fakeParents
+mockPayments
+fakePayments
+mockEstablishments
+mockEstablishments
+dashboardStats
+```
+
+et toute variante équivalente.
+
+Supprimer également :
+
+* objets hardcodés utilisés comme données métier ;
+* tableaux de démonstration ;
+* statistiques fictives ;
+* utilisateurs fictifs ;
+* établissements fictifs.
+
+### Exception
+
+Le contenu statique de la Landing Page est autorisé.
+
+Exemple :
+
+```text
+"Des milliers de parents peuvent suivre..."
+```
+
+est du contenu marketing.
+
+Ce n'est pas une donnée métier.
+
+---
+
+# 9. ARCHITECTURE PROPRE
+
+Le projet doit avoir une architecture professionnelle et compréhensible.
+
+Privilégier une structure claire adaptée au framework réellement utilisé.
+
+Exemple possible :
+
+```text
+src/
+├── app/
+├── components/
+│   ├── ui/
+│   └── landing/
+├── lib/
+├── config/
+├── types/
+├── hooks/
+└── styles/
+
+public/
+```
+
+Ne copie pas obligatoirement cette structure si l'architecture actuelle est différente mais déjà propre.
+
+Le principe est :
+
+```text
+UI
+≠
+logique métier
+≠
+configuration
+≠
+services
+≠
+types
+```
+
+---
+
+# 10. NAMING PROFESSIONNEL
+
+Tous les noms doivent être clairs, cohérents et professionnels.
+
+Ne pas utiliser des noms comme :
+
+```text
+replit
+replit-project
+temp
+tmp
+test123
+new
+newproject
+old
+backup
+final
+final2
+final-final
+```
+
+Ne jamais nommer un dossier en fonction de l'outil qui a servi à générer le projet.
+
+Le projet s'appelle :
+
+**EducPAY**
+
+Les dossiers doivent décrire leur responsabilité.
+
+Exemples :
+
+```text
+components
+landing
+navigation
+services
+lib
+config
+types
+hooks
+```
+
+---
+
+# 11. PAS DE DOSSIERS VIDES INUTILES
+
+Ne crée pas maintenant des dizaines de dossiers pour anticiper les futures phases.
+
+Ne crée pas :
+
+```text
+students/
+parents/
+payments/
+fees/
+accounting/
+school-years/
+```
+
+si ces fonctionnalités ne sont pas encore développées.
+
+Nous ajouterons les structures nécessaires au moment de chaque phase.
+
+---
+
+# 12. ROUTES
+
+Après le nettoyage, seules les routes nécessaires à la Phase 1 doivent exister.
+
+Supprimer les routes appartenant aux anciennes phases, par exemple :
+
+```text
+/admin
+/dashboard
+/parent
+/accountant
+/students
+/payments
+/establishments
+/school-years
+```
+
+uniquement si elles correspondent aux fonctionnalités supprimées.
+
+La Landing Page et ses routes publiques doivent rester fonctionnelles.
+
+---
+
+# 13. AUTHENTIFICATION
+
+À ce stade :
+
+**aucune authentification fonctionnelle.**
+
+Ne pas créer :
+
+* login ;
+* register ;
+* logout ;
+* sessions ;
+* rôles ;
+* permissions ;
+* comptes ;
+* Super Admin.
+
+Si des fichiers d'authentification sont totalement inutilisés après le nettoyage, supprime-les.
+
+Nous reconstruirons l'authentification proprement dans sa phase dédiée.
+
+---
+
+# 14. SUPABASE / FIREBASE
+
+Le projet EducPAY utilise **Supabase**, pas Firebase.
+
+Ne remplace pas Supabase par Firebase.
+
+À cette étape, aucune logique métier Supabase n'est nécessaire pour la Phase 1.
+
+Ne crée pas artificiellement des tables ou des utilisateurs simplement pour faire fonctionner la Landing Page.
+
+---
+
+# 15. VARIABLES D'ENVIRONNEMENT
+
+Nettoie les variables d'environnement.
+
+Conserver uniquement les variables réellement nécessaires.
+
+Maintenir :
+
+```text
+.env.example
+```
+
+Ne jamais mettre de secrets réels dans ce fichier.
+
+Ne jamais commiter :
+
+* mot de passe ;
+* token ;
+* clé privée ;
+* service role key ;
+* secret d'administration.
+
+---
+
+# 16. DÉPENDANCES — RÈGLE PERMANENTE
+
+### INTERDICTION STRICTE
+
+Ne jamais utiliser une bibliothèque :
+
+* abandonnée ;
+* défectueuse ;
+* instable ;
+* incompatible ;
+* présentant une vulnérabilité critique connue sans alternative justifiée ;
+* inutilement complexe ;
+
+Avant d'ajouter une nouvelle dépendance :
+
+1. vérifier sa maintenance ;
+2. vérifier sa compatibilité ;
+3. vérifier les problèmes connus ;
+4. vérifier les conflits avec le projet ;
+5. vérifier si une solution native existe ;
+6. vérifier si une dépendance déjà installée suffit.
+
+### Principe
+
+> **Moins de dépendances, mais de meilleures dépendances.**
+
+Ne jamais ajouter une bibliothèque uniquement parce qu'un tutoriel ou un autre projet l'utilise.
+
+---
+
+# 17. DÉPENDANCES EXISTANTES
+
+Analyse `package.json`.
+
+Pour chaque dépendance :
+
+```text
+utilisée ?
+nécessaire ?
+compatible ?
+stable ?
+```
+
+Supprimer uniquement les dépendances devenues inutiles après le nettoyage.
+
+Ne fais pas une mise à jour massive de toutes les dépendances.
+
+Une mise à jour peut casser une version stable.
+
+Si une mise à jour est nécessaire, elle doit être justifiée et testée.
+
+---
+
+# 18. BIBLIOTHÈQUES DÉFECTUEUSES
+
+Si tu identifies une bibliothèque problématique déjà utilisée :
+
+1. déterminer pourquoi elle est utilisée ;
+2. déterminer si elle est réellement nécessaire ;
+3. rechercher une alternative stable ;
+4. vérifier la compatibilité de l'alternative ;
+5. remplacer proprement ;
+6. tester ;
+7. supprimer l'ancienne dépendance.
+
+Ne jamais simplement ignorer une erreur connue.
+
+Ne jamais contourner un problème de sécurité.
+
+---
+
+# 19. LANDING PAGE
+
+La Landing Page est le cœur de cette Phase 1.
+
+Elle doit être complète et professionnelle.
+
+Vérifier :
+
+* Header ;
+* navigation ;
+* Hero ;
+* sections ;
+* CTA ;
+* contenu ;
+* Footer ;
+* responsive ;
+* animations ;
+* images ;
+* icônes ;
+* typographie ;
+* spacing ;
+* boutons ;
+* états hover ;
+* états focus.
+
+Si des captures de référence ont été fournies pour le design, elles doivent rester la référence visuelle.
+
+Ne modifie pas inutilement le design déjà validé.
+
+---
+
+# 20. RESPONSIVE
+
+Tester réellement :
+
+```text
+Mobile
+Tablet
+Desktop
+Large Desktop
+```
+
+Vérifier :
+
+* aucun overflow horizontal ;
+* aucune section cassée ;
+* aucune image déformée ;
+* aucun texte coupé ;
+* navigation mobile ;
+* boutons accessibles ;
+* espacements ;
+* tailles de police.
+
+---
+
+# 21. ACCESSIBILITÉ
+
+Respecter les bonnes pratiques :
+
+* HTML sémantique ;
+* boutons accessibles ;
+* labels ;
+* alt text ;
+* navigation clavier ;
+* focus visible ;
+* contrastes ;
+* aria uniquement lorsque nécessaire.
+
+---
+
+# 22. PERFORMANCE
+
+Ne pas ajouter de complexité inutile.
+
+Éviter :
+
+* JavaScript inutile ;
+* composants client inutiles ;
+* imports inutiles ;
+* images excessivement lourdes ;
+* dépendances inutiles ;
+* appels réseau inutiles.
+
+Optimiser uniquement ce qui est réellement nécessaire.
+
+---
+
+# 23. VERCEL
+
+Le projet est déjà déployé sur Vercel. Vercel déploie automatiquement si la configuration est correcte ; je ne connecterai pas Vercel directement, au minimum GitHub, car mon abonnement ne me le permet pas.
+
+Après le nettoyage :
+
+1. lancer le projet localement ;
+2. tester la Phase 1 ;
+3. lancer le build ;
+4. corriger les erreurs ;
+5. commit ;
+6. push ;
+7. attendre le déploiement Vercel ;
+8. ouvrir le site en production ;
+9. tester réellement la Landing Page.
+
+---
+
+# 24. TESTS OBLIGATOIRES
+
+Tester localement :
+
+### Fonctionnement
+
+```text
+Landing Page : PASS
+Navigation : PASS
+Images : PASS
+Animations : PASS
+Menu mobile : PASS
+Footer : PASS
+Liens : PASS
+```
+
+### Qualité
+
+```text
+TypeScript : PASS
+Build : PASS
+Lint : PASS
+Runtime : PASS
+```
+
+### Production
+
+```text
+Vercel build : PASS
+Landing production : PASS
+Navigation production : PASS
+Responsive production : PASS
+Console navigateur : aucune erreur critique
+```
+
+---
+
+# 25. VÉRIFICATION DES PHASES SUPPRIMÉES
+
+À la fin, rechercher dans tout le projet les traces des anciennes phases :
+
+```text
+admin
+dashboard
+parent
+accountant
+student
+payment
+establishment
+school-year
+auth
+role
+permission
+```
+
+Mais ne supprime pas automatiquement tout fichier contenant ces mots.
+
+Vérifie le contexte.
+
+L'objectif est de confirmer qu'il ne reste **aucune fonctionnalité active** appartenant aux Phases 2, 3 et 4.
+
+---
+
+# 26. GIT
+
+Avant de terminer :
+
+* vérifier `git status` ;
+* vérifier les fichiers supprimés ;
+* vérifier les fichiers modifiés ;
+* vérifier qu'aucun secret n'est présent ;
+* vérifier `.gitignore` ;
+* vérifier `.env*`.
+
+Ne jamais commit de secrets.
+
+---
+
+# 27. CRITÈRE FINAL
+
+Le projet doit arriver à cet état :
+
+```text
+                         EDUCPAY
+                            │
+                       PHASE 1
+                            │
+             ┌──────────────┼──────────────┐
+             ↓              ↓              ↓
+          Landing       Design/UI       Public
+            Page        Components       Routes
+             │              │              │
+             └──────────────┼──────────────┘
+                            ↓
+                       STABLE ✓
+```
+
+Et surtout :
+
+```text
+Phase 2 → SUPPRIMÉE
+Phase 3 → SUPPRIMÉE
+Phase 4 → SUPPRIMÉE
+```
+
+---
+
+# 28. NE PAS ANTICIPER
+
+À la fin de cette mission :
+
+**ARRÊTE-TOI.**
+
+Ne commence pas :
+
+* Phase 2 ;
+* authentification ;
+* dashboards ;
+* établissements ;
+* élèves ;
+* parents ;
+* frais ;
+* paiements ;
+* abonnements.
+
+Même si tu sais comment les développer.
+
+Nous avancerons **phase par phase**.
+
+---
+
+# 29. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, fournis :
+
+## Architecture finale
+
+Liste des dossiers principaux et leur rôle.
+
+## Phase 2 supprimée
+
+Liste des éléments supprimés.
+
+## Phase 3 supprimée
+
+Liste des éléments supprimés.
+
+## Phase 4 supprimée
+
+Liste des éléments supprimés.
+
+## Dépendances
+
+* dépendances supprimées ;
+* dépendances conservées ;
+* éventuelles dépendances remplacées ;
+* raison de chaque remplacement.
+
+## Routes finales
+
+Liste des routes restantes.
+
+## Tests
+
+```text
+TypeScript : PASS / FAIL
+Lint : PASS / FAIL
+Build : PASS / FAIL
+Landing Page : PASS / FAIL
+Responsive : PASS / FAIL
+Navigation : PASS / FAIL
+Vercel : PASS / FAIL
+```
+
+## Problèmes restants
+
+S'il existe un problème, ne le cache pas.
+
+Indique :
+
+* problème ;
+* cause ;
+* impact ;
+* solution recommandée.
+
+---
+
+# 30. DÉFINITION DE TERMINÉ
+
+Cette mission est terminée uniquement lorsque :
+
+> **EducPAY contient uniquement une Phase 1 propre, stable, professionnelle et fonctionnelle.**
+
+La Landing Page fonctionne en local et sur Vercel.
+
+Les Phases 2, 3 et 4 ont été supprimées.
+
+Aucune fonctionnalité future n'a été ajoutée.
+
+L'architecture est propre.
+
+Les noms sont professionnels.
+
+Les dépendances sont saines et justifiées.
+
+Aucun secret n'est exposé.
+
+**Après validation, arrête complètement le développement.**

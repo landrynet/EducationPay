@@ -1,45 +1,90 @@
-# [Project name]
+# EducPAY
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Landing page marketing React/Vite pour EducPAY, une plateforme de suivi des frais
+scolaires destinée aux établissements privés et aux familles.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm install` — installer les dépendances du monorepo
+- `pnpm --filter @workspace/educpay run dev` — lancer EducPAY localement
+- `pnpm --filter @workspace/educpay run typecheck` — vérifier les types du frontend
+- `PORT=4173 BASE_PATH=/ pnpm --filter @workspace/educpay run build` — construire EducPAY
+- Le workflow `artifacts/educpay: web` fournit `PORT=21498` et `BASE_PATH=/` pour l’aperçu.
+
+## Migrations Supabase
+
+Les migrations métier sont versionnées dans `supabase/migrations/`. Pour les
+appliquer automatiquement à Supabase :
+
+```bash
+pnpm dlx supabase init
+pnpm dlx supabase login
+pnpm dlx supabase link --project-ref <project-ref>
+pnpm dlx supabase migration list
+pnpm dlx supabase db push
+```
+
+Les migrations `20260812000000`, `20260813000000` et `20260813100000` ont été
+appliquées manuellement dans Supabase. Après avoir lié le projet, les marquer
+comme déjà appliquées une seule fois :
+
+```bash
+pnpm dlx supabase migration repair --status applied 20260812000000
+pnpm dlx supabase migration repair --status applied 20260813000000
+pnpm dlx supabase migration repair --status applied 20260813100000
+```
+
+Le fichier `supabase/manual/phase-3c-enum-repair.sql` est une correction
+ponctuelle et ne doit pas être enregistré comme migration versionnée.
+
+Pour une nouvelle modification de schéma :
+
+```bash
+pnpm dlx supabase migration new nom-de-la-modification
+# modifier le fichier créé dans supabase/migrations/
+pnpm dlx supabase db push
+```
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- pnpm workspaces, Node.js, TypeScript
+- Frontend : React + Vite
+- CSS : Tailwind CSS
+- Interface : Lucide React, Tailwind CSS
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/educpay/src/components/marketing/` — sections de la landing page
+- `artifacts/educpay/src/index.css` — tokens, responsive design et animations
+- `artifacts/educpay/src/data/marketing.ts` — contenus répétitifs
+- `attached_assets/generated_images/` — visuels éditoriaux de la landing page
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- La Phase 1 est une expérience publique ; les fonctionnalités métier utilisent
+  Supabase et les migrations versionnées du dossier `supabase/migrations/`.
+- Le header est fixe et adopte un état visuel après le début du défilement.
+- Les apparitions au scroll utilisent `IntersectionObserver`, avec fallback et respect de `prefers-reduced-motion`.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Présenter EducPAY et ses bénéfices aux établissements scolaires privés.
+- Expliquer le suivi des encaissements, reçus et paiements partiels.
+- Proposer des CTA de contact, une FAQ, des tarifs et des aperçus de produit.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Préserver la structure et le design existants ; privilégier de petits ajustements ciblés.
+- Les animations doivent rester légères, robustes et adaptées aux visiteurs.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Le build Vite exige `PORT` et `BASE_PATH`, même pour un lancement manuel.
+- Le serveur frontend est servi sur le port fourni par le workflow.
+- Les commandes Supabase nécessitent un projet lié ; ne jamais committer un token,
+  mot de passe de base de données ou clé `SUPABASE_SERVICE_ROLE_KEY`.
 
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Les migrations Supabase sont la source de vérité du schéma métier.

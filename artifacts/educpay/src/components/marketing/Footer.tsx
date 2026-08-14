@@ -1,0 +1,5 @@
+import { Anchor, Logo } from './Header';
+
+export default function Footer() {
+  return <footer className="footer"><div className="container footer-main"><div className="footer-brand"><Logo /><p>Le suivi des frais scolaires qui remet la clarté au centre de la relation école-famille.</p></div><div><h3>Produit</h3><nav><Anchor href="#fonctionnalites">Fonctionnalités</Anchor><Anchor href="#solution">Solution</Anchor><Anchor href="#tarifs">Tarifs</Anchor><Anchor href="#faq">FAQ</Anchor></nav></div><div><h3>Ressources</h3><nav><Anchor href="#comment-ca-marche">Comment ça marche</Anchor><Anchor href="#contact">Demander une présentation</Anchor><a href="mailto:bonjour@educpay.fr">bonjour@educpay.fr</a></nav></div><div><h3>EducPAY</h3><nav><Anchor href="#contact">À propos</Anchor><Anchor href="#contact">Contact</Anchor><Anchor href="#contact">Partenaires</Anchor></nav></div></div><div className="container footer-bottom"><span>© 2025 EducPAY · Phase 1</span><div className="footer-legal"><Anchor href="#contact">Mentions légales</Anchor><Anchor href="#contact">Confidentialité</Anchor><Anchor href="#contact">Cookies</Anchor></div></div></footer>;
+}
