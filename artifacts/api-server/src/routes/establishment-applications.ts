@@ -659,16 +659,19 @@ router.post(["/establishment-applications/:id/approve", "/:id/approve"], async (
   }
 
   if (responsibleUserId) {
+    let profileActivationError: Error | null = null;
+
     try {
-      const { error: profileUpdateError } = await supabaseAdmin.rpc("activate_director_profile", {
+      const { error: rpcError } = await supabaseAdmin.rpc("activate_director_profile", {
         p_user_id: responsibleUserId,
         p_establishment_id: application.establishments.id,
       });
 
-      if (profileUpdateError) {
+      if (rpcError) {
         const { error: fallbackError } = await supabaseAdmin
           .from("profiles")
           .update({
+            role: "DIRECTOR",
             is_active: true,
             must_change_password: false,
             establishment_id: application.establishments.id,
@@ -676,11 +679,17 @@ router.post(["/establishment-applications/:id/approve", "/:id/approve"], async (
           .eq("id", responsibleUserId);
 
         if (fallbackError) {
-          req.log.warn({ err: fallbackError }, "Profile trigger warning on approval fallback, client handles status via establishment_applications");
+          profileActivationError = new Error(fallbackError.message);
         }
       }
     } catch (profileErr) {
-      req.log.warn({ err: profileErr }, "Profile update warning during approval, handled by application status");
+      profileActivationError = profileErr instanceof Error ? profileErr : new Error("Unknown profile activation error");
+    }
+
+    if (profileActivationError) {
+      req.log.error({ err: profileActivationError }, "Unable to activate director profile during approval");
+      res.status(500).json({ message: "L’activation du profil directeur a échoué." });
+      return;
     }
   }
 
@@ -746,37 +755,36 @@ router.post(["/establishment-applications/:id/activate", "/:id/activate"], async
     return;
   }
 
+  let profileActivationError: Error | null = null;
   const { error: profileError } = await supabaseAdmin.rpc("activate_director_profile", {
     p_user_id: userData.user.id,
     p_establishment_id: application.establishments?.id ?? application.establishments?.id,
   });
+  if (profileError) {
+    const { error: fallbackProfileError } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        role: "DIRECTOR",
+        is_active: true,
+        must_change_password: false,
+        establishment_id: application.establishments?.id ?? null,
+      })
+      .eq("id", userData.user.id);
+
+    if (fallbackProfileError) {
+      profileActivationError = new Error(fallbackProfileError.message);
+    }
+  }
+
   const { error: applicationError } = await supabaseAdmin
     .from("establishment_applications")
     .update({ responsible_account_status: "ACTIVE" })
     .eq("id", getRouteParam(req.params.id));
 
-  if (profileError || applicationError) {
-    const { error: fallbackProfileError } = await supabaseAdmin
-      .from("profiles")
-      .update({ is_active: true, establishment_id: application.establishments?.id ?? null })
-      .eq("id", userData.user.id);
-
-    if (fallbackProfileError) {
-      req.log.error({ err: fallbackProfileError }, "Unable to activate responsible account (fallback)");
-      res.status(500).json({ message: "L’activation n’a pas pu être finalisée." });
-      return;
-    }
-
-    const { error: retryAppError } = await supabaseAdmin
-      .from("establishment_applications")
-      .update({ responsible_account_status: "ACTIVE" })
-      .eq("id", getRouteParam(req.params.id));
-
-    if (retryAppError) {
-      req.log.error({ err: retryAppError }, "Unable to activate application status");
-      res.status(500).json({ message: "L’activation n’a pas pu être finalisée." });
-      return;
-    }
+  if (profileActivationError || applicationError) {
+    req.log.error({ err: profileActivationError ?? applicationError }, "Unable to activate responsible account");
+    res.status(500).json({ message: "L’activation n’a pas pu être finalisée." });
+    return;
   }
 
   await supabaseAdmin.from("application_history").insert({

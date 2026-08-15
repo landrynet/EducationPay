@@ -266,7 +266,7 @@ export function AuthLoginPage() {
             Mot de passe oublié ?
           </Link>
         </div>
-        <AuthSubmit loading={loading}>{loading ? 'Ouverture de votre espace…' : 'Se connecter'}</AuthSubmit>
+        <AuthSubmit loading={loading}>{loading ? 'Chargement de votre espace…' : 'Se connecter'}</AuthSubmit>
       </form>
     
       <p className="auth-switch">

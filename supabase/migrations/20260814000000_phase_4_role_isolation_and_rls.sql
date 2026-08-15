@@ -23,10 +23,12 @@ as $$
 declare
   jwt_role text;
   jwt_claims jsonb;
+  service_role_claim text;
   is_service_role_request boolean;
 begin
   jwt_role := lower(coalesce(current_setting('request.jwt.claim.role', true), ''));
   jwt_claims := coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb;
+  service_role_claim := lower(coalesce((auth.jwt() ->> 'role'), ''));
   is_service_role_request := (
     current_user = 'postgres'
     or current_user = 'supabase_admin'
@@ -34,7 +36,8 @@ begin
     or session_user = 'supabase_admin'
     or jwt_role = 'service_role'
     or lower(coalesce(jwt_claims->>'role', '')) = 'service_role'
-    or lower(coalesce(current_setting('role', true), '')) = 'service_role'
+    or upper(current_setting('role', true)) = 'SERVICE_ROLE'
+    or service_role_claim = 'service_role'
   );
 
   if (

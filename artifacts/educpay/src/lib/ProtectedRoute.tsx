@@ -1,6 +1,26 @@
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from './useAuth';
+
+function getLoadingStatusLabel() {
+  const connection = (navigator as Navigator & {
+    connection?: { effectiveType?: string; downlink?: number };
+  }).connection;
+
+  if (!connection) return 'Chargement de votre espace…';
+
+  const effectiveType = connection.effectiveType?.toLowerCase() ?? '';
+  const downlink = connection.downlink ?? 0;
+
+  if (effectiveType.includes('slow') || effectiveType.includes('2g') || effectiveType.includes('3g')) {
+    return 'Connexion lente détectée — vérification de votre accès…';
+  }
+
+  if (downlink >= 8) return 'Connexion rapide — préparation de votre espace…';
+  if (downlink >= 3) return 'Vérification de votre accès…';
+
+  return 'Chargement de votre espace…';
+}
 
 export type ProtectedRouteProps = {
   children: ReactNode;
@@ -11,6 +31,7 @@ export type ProtectedRouteProps = {
 export function ProtectedRoute({ children, requiredRole, allowedRoles }: ProtectedRouteProps) {
   const { loading, user, profile } = useAuth();
   const [location, setLocation] = useLocation();
+  const loadingLabel = useMemo(() => getLoadingStatusLabel(), [loading]);
 
   useEffect(() => {
     if (loading) return;
@@ -56,9 +77,12 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
 
   if (loading) {
     return (
-      <div className="app-route-loading" role="status" aria-label="Ouverture de votre espace">
+      <div className="app-route-loading" role="status" aria-label={loadingLabel}>
         <span className="app-route-loading-mark" aria-hidden="true">e</span>
-        <span>Ouverture de votre espace…</span>
+        <div className="app-route-loading-copy">
+          <span>{loadingLabel}</span>
+          <small>Vérification de l’accès et récupération du profil</small>
+        </div>
       </div>
     );
   }

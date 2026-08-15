@@ -27,7 +27,30 @@ export function getSupabaseConfigError() {
   return `La connexion Supabase n’est pas configurée. Variable(s) manquante(s) : ${supabaseConfig.missing.join(', ')}.`;
 }
 
-export function withSupabaseTimeout<T>(promiseLike: PromiseLike<T>, timeoutMessage: string, timeoutMs = 15000) {
+export function getNetworkAwareTimeoutMs(defaultMs = 15000) {
+  const connection = (navigator as Navigator & {
+    connection?: {
+      effectiveType?: string;
+      downlink?: number;
+    };
+  }).connection;
+
+  if (!connection) return defaultMs;
+
+  const effectiveType = connection.effectiveType?.toLowerCase() ?? '';
+  const downlink = connection.downlink ?? 0;
+
+  if (effectiveType.includes('slow') || effectiveType.includes('2g') || effectiveType.includes('3g')) {
+    return 24000;
+  }
+
+  if (downlink > 8) return 8000;
+  if (downlink > 3) return 10000;
+
+  return defaultMs;
+}
+
+export function withSupabaseTimeout<T>(promiseLike: PromiseLike<T>, timeoutMessage: string, timeoutMs = getNetworkAwareTimeoutMs()) {
   return new Promise<T>((resolve, reject) => {
     let settled = false;
     const timer = window.setTimeout(() => {

@@ -693,9 +693,9 @@
   min-height: 100dvh;
   place-items: center;
   align-content: center;
-  gap: 13px;
+  gap: 14px;
   background:
-    radial-gradient(circle at 50% 35%, rgba(243, 199, 87, .16), transparent 30%),
+    radial-gradient(circle at 50% 35%, rgba(243, 199, 87, .18), transparent 30%),
     var(--paper);
   color: #718291;
   font-size: .72rem;
@@ -714,6 +714,20 @@
   font-weight: 800;
   transform: rotate(-6deg);
   animation: app-loading-pulse 1.2s ease-in-out infinite;
+}
+
+.app-route-loading-copy {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.app-route-loading-copy small {
+  color: #7d8f9d;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .01em;
 }
 
 @keyframes app-loading-pulse {
@@ -988,6 +1002,7 @@
 
 .app-main-column {
   display: flex;
+  width: 100%;
   min-width: 0;
   flex: 1;
   flex-direction: column;
@@ -998,6 +1013,7 @@
   top: 0;
   z-index: 30;
   display: flex;
+  width: 100%;
   min-height: 76px;
   align-items: center;
   gap: 20px;
