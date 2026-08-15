@@ -16,7 +16,6 @@ import {
   TutorsPage,
 } from '@/pages/app-page';
 import {
-  AuthFirstLoginPage,
   AuthForgotPasswordPage,
   AuthLoginPage,
   AuthRegisterPage,
@@ -60,7 +59,6 @@ function Router() {
         <Route path="/auth/register" component={AuthRegisterPage} />
         <Route path="/auth/forgot-password" component={AuthForgotPasswordPage} />
         <Route path="/auth/reset-password" component={AuthResetPasswordPage} />
-        <Route path="/auth/first-login" component={AuthFirstLoginPage} />
         <Route path="/register-establishment" component={RegisterEstablishmentPage} />
         <Route path="/registration-submitted" component={RegistrationSubmittedPage} />
         <Route path="/registration-status" component={RegistrationStatusPage} />

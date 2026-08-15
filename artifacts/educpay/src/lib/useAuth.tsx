@@ -13,7 +13,6 @@ export type Profile = {
   id: string;
   role?: string;
   establishment_id?: string | null;
-  must_change_password?: boolean;
   is_active?: boolean;
 };
 
@@ -43,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: nextProfile } = await withSupabaseTimeout(
       supabase
         .from('profiles')
-          .select('id, role, establishment_id, must_change_password, is_active')
+          .select('id, role, establishment_id, is_active')
         .eq('id', nextUser.id)
         .single(),
       'Supabase ne répond pas pendant la récupération du profil.',

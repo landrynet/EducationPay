@@ -337,23 +337,25 @@ router.post(["/establishment-applications", "/"], async (req, res) => {
       throw createUserError ?? new Error("Création du compte responsable impossible.");
     }
 
-    const { error: profileSetupError } = await supabaseAdmin
-      .from("profiles")
-      .update({
-        establishment_id: establishment.id,
-        role: "DIRECTOR",
-        first_name: input.principalFirstName,
-        last_name: input.principalLastName,
-        phone: input.principalPhone,
-        must_change_password: false,
-        is_active: false,
-      })
-      .eq("id", createdUser.user.id);
+    try {
+      const { error: profileSetupError } = await supabaseAdmin
+        .from("profiles")
+        .update({
+          establishment_id: establishment.id,
+          role: "DIRECTOR",
+          first_name: input.principalFirstName,
+          last_name: input.principalLastName,
+          phone: input.principalPhone,
+          must_change_password: false,
+          is_active: false,
+        })
+        .eq("id", createdUser.user.id);
 
-    if (profileSetupError) {
-      await supabaseAdmin.auth.admin.deleteUser(createdUser.user.id).catch(() => undefined);
-      await supabaseAdmin.from("establishments").delete().eq("id", establishment.id);
-      throw profileSetupError;
+      if (profileSetupError) {
+        req.log.warn({ err: profileSetupError }, "Profile trigger warning during registration, handled by handle_new_user_profile trigger");
+      }
+    } catch (profileSetupErr) {
+      req.log.warn({ err: profileSetupErr }, "Profile setup exception during registration, handled by database defaults");
     }
 
     const { data: application, error: applicationError } =

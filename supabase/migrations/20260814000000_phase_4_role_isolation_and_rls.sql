@@ -169,7 +169,10 @@ create policy applications_tenant_select on public.establishment_applications
 for select to authenticated
 using (
   responsible_user_id = auth.uid()
-  or public.is_establishment_member(establishment_id)
+  or (
+    public.is_establishment_member(establishment_id)
+    and establishment_id is not null
+  )
 );
 
 -- Notifications:

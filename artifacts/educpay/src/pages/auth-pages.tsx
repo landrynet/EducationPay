@@ -178,7 +178,7 @@ export function AuthLoginPage() {
       const { data: profile, error: profileError } = await withSupabaseTimeout(
         supabase
           .from('profiles')
-          .select('role,must_change_password,is_active,establishment_id')
+          .select('role,is_active,establishment_id')
           .eq('id', user.id)
           .single(),
         'Connexion réussie, mais Supabase ne répond pas pour le profil. Vérifiez la table profiles et ses règles RLS.',
@@ -192,11 +192,6 @@ export function AuthLoginPage() {
         return;
       }
 
-      if (profile?.must_change_password) {
-        setLocation('/auth/first-login');
-        return;
-      }
-
       if (profile?.role && !['SUPER_ADMIN', 'DIRECTOR', 'ESTABLISHMENT_ADMIN', 'ACCOUNTANT', 'TUTOR', 'PARENT'].includes(profile.role)) {
         setErrorMessage('Vous n’êtes pas autorisé à accéder à cet espace.');
         setLoading(false);
@@ -204,11 +199,11 @@ export function AuthLoginPage() {
       }
 
       let isApprovedDirectorApplication = false;
-      if ((profile?.role === 'DIRECTOR' || profile?.role === 'ESTABLISHMENT_ADMIN') && profile.establishment_id) {
+      if (profile?.role === 'DIRECTOR' || profile?.role === 'ESTABLISHMENT_ADMIN') {
         const { data: applicationStatus, error: applicationStatusError } = await withSupabaseTimeout(
           supabase
             .from('establishment_applications')
-            .select('status, responsible_account_status')
+            .select('status, responsible_account_status, establishment_id')
             .eq('responsible_user_id', user.id)
             .order('created_at', { ascending: false })
             .limit(1)
@@ -487,70 +482,3 @@ export function AuthResetPasswordPage() {
   );
 }
 
-export function AuthFirstLoginPage() {
-  const [, setLocation] = useLocation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      const form = new FormData(event.currentTarget);
-      const password = String(form.get('password') ?? '');
-      const passwordConfirmation = String(form.get('password-confirmation') ?? '');
-      if (!password || password.length < 8 || password !== passwordConfirmation) {
-        setError('Les mots de passe doivent être identiques et contenir au moins 8 caractères.');
-        setLoading(false);
-        return;
-      }
-
-      const { data: sessionData } = await supabase.auth.getSession();
-      const user = sessionData.session?.user ?? null;
-      if (!user) {
-        setError('Session introuvable. Connectez-vous puis réessayez.');
-        setLoading(false);
-        return;
-      }
-
-      const { error: pwdError } = await supabase.auth.updateUser({ password });
-      if (pwdError) {
-        setError('Impossible de mettre à jour le mot de passe.');
-        setLoading(false);
-        return;
-      }
-
-      // Update profile to clear must_change_password flag
-      await supabase.from('profiles').update({ must_change_password: false }).eq('id', user.id);
-
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
-      if (profile?.role === 'SUPER_ADMIN') {
-        setLocation('/super-admin');
-      } else {
-        setLocation('/app');
-      }
-    } catch (err: any) {
-      setError(err?.message ?? 'Erreur inattendue');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <AuthShell>
-      <AuthHeading title="Première connexion" description="Choisissez un nouveau mot de passe pour sécuriser votre accès." />
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <Field label="Nouveau mot de passe" name="password" type="password" placeholder="Votre nouveau mot de passe" autoComplete="new-password" />
-        <Field label="Confirmer le mot de passe" name="password-confirmation" type="password" placeholder="Répétez votre mot de passe" autoComplete="new-password" />
-        <AuthSubmit loading={loading}>Enregistrer et continuer</AuthSubmit>
-      </form>
-      {error ? <div className="auth-notice">{error}</div> : null}
-      <p className="auth-switch">
-        <Link href="/auth/login" className="auth-inline-link">
-          Revenir à la connexion
-        </Link>
-      </p>
-    </AuthShell>
-  );
-}
